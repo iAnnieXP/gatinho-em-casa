@@ -24,6 +24,31 @@ Requisito: Node.js 18 ou mais novo (https://nodejs.org). Nao precisa de npm inst
    Digite o nome, escolha a sala (ou digite um codigo) e clique em Comecar.
    Quem escolher a mesma sala aparece na casa como outro gatinho. Maximo de 16 por sala.
 
+Novidades:
+   - Chat (tecla T ou botao "Chat") com emojis: botao do gatinho abre a lista; atalhos :) :D <3 :gato: :peixe: :pata:
+     A mensagem tambem aparece num balao sobre o gatinho de quem falou.
+   - Miau (tecla M): os outros jogadores ouvem. O volume cai com a distancia, o som vem do lado certo
+     (estereo) e fica abafado se houver parede fechada no caminho. Cada gatinho tem um tom de voz proprio.
+   - Quintal com cerca, gramado, arvores, banco e casinha. Saia pela porta da cozinha ou pulando
+     pelas janelas SEM vidro (cozinha, quarto e sala). Ha 4 peixinhos extras la fora (total de 12).
+   - Ciclo de dia e noite: 10 minutos reais = 24 horas do jogo (relogio no topo). A hora vem do servidor,
+     entao todos os jogadores (de qualquer sala) veem o mesmo momento do dia. Como o servidor mudou
+     (envia a hora no "hello"), reenvie tambem o server.js se voce hospeda no Render.
+     Sem servidor atualizado, cada um usa o relogio do proprio computador (quase igual).
+
+   - Bichinhos do quintal (so enfeite, cada jogador ve os seus; seguem o mesmo relogio de dia e noite):
+       DIA:   passarinhos (pulam na grama, bicam, pousam em cerca/arvores/banco e fogem se o gatinho chega perto)
+              e borboletas (voam pelo quintal e pousam nos canteiros de flores).
+       NOITE: coruja (pousa nos galhos, vira a cabeca para o gatinho e as vezes voa para outra arvore),
+              gatos fantasmas (translucidos, atravessam paredes e somem se o gatinho chega perto) e vagalumes.
+   - Ratinhos: 5 ratinhos andam pela casa (nao atravessam paredes nem moveis) e FOGEM do gatinho. Andando
+     normal voce quase nao os alcanca; corra (Shift) ou os encurrale num canto para pegar. O contador fica
+     no topo. Depois de pegos eles voltam em outro lugar. Tambem sao locais (cada jogador ve os seus).
+   - Passarinhos: de dia voce tambem pode caca-los! Chegue perto (corra para alcanca-los) e encoste para pegar.
+     Eles fogem voando curto e baixo, entao da para perseguir. O contador fica no topo e eles voltam depois.
+   - Sons: grilos a noite (ficam abafados dentro de casa) e passos do gatinho (madeira dentro de casa,
+     grama no quintal; mais rapidos e fortes ao correr). Nao precisa reenviar o server.js para isso.
+
 Arquivos: server.js (servidor), public/index.html (o jogo).
 
 4) GERAR O .EXE (Windows)

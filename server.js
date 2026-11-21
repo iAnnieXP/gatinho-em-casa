@@ -45,7 +45,7 @@ server.on('upgrade', (req, socket) => {
   const others = o => members.forEach((m, k) => { if (k !== id) send(m.socket, o); });
   const peers = {}; members.forEach((m, k) => { peers[k] = m.pres; });
   members.set(id, me);
-  send(socket, { t: 'hello', peer: id, peers });
+  send(socket, { t: 'hello', peer: id, peers, now: Date.now() });
   others({ t: 'pres', peer: id, patch: {} });
 
   let tokens = 80, last = Date.now();
