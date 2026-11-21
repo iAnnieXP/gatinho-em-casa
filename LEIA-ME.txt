@@ -29,7 +29,7 @@ Novidades:
      A mensagem tambem aparece num balao sobre o gatinho de quem falou.
    - Miau (tecla M): os outros jogadores ouvem. O volume cai com a distancia, o som vem do lado certo
      (estereo) e fica abafado se houver parede fechada no caminho. Cada gatinho tem um tom de voz proprio.
-   - Quintal com cerca, gramado, arvores, banco e casinha. Saia pela porta da cozinha ou pulando
+   - Quintal com muros de madeira, gramado, arvores, banco e casinha. Saia pela porta da cozinha ou pulando
      pelas janelas SEM vidro (cozinha, quarto e sala). Ha 4 peixinhos extras la fora (total de 12).
    - Ciclo de dia e noite: 10 minutos reais = 24 horas do jogo (relogio no topo). A hora vem do servidor,
      entao todos os jogadores (de qualquer sala) veem o mesmo momento do dia. Como o servidor mudou
@@ -48,6 +48,27 @@ Novidades:
      Eles fogem voando curto e baixo, entao da para perseguir. O contador fica no topo e eles voltam depois.
    - Sons: grilos a noite (ficam abafados dentro de casa) e passos do gatinho (madeira dentro de casa,
      grama no quintal; mais rapidos e fortes ao correr). Nao precisa reenviar o server.js para isso.
+
+   - Morcegos (noite): voam pelo quintal e as vezes mergulham baixo, principalmente em cima do gatinho. Pegue encostando
+     neles (pule para alcanca-los quando voam mais alto; os que voam alto se assustam e sobem se voce chega perto, os que
+     estao mergulhando nao desviam). O contador fica no topo. Depois de pegos eles voltam mais tarde. Sao locais.
+   - Chuva: aparece as vezes (cerca de 22% do tempo, de garoa a temporal) e e igual para todos os jogadores, pois sai do
+     mesmo relogio do servidor. O ceu escurece e fecha, o som abafa dentro de casa, a chuva nao cai dentro da casa e
+     passarinhos, borboletas, vagalumes e morcegos se abrigam.
+   - Lua vermelha: em 1% das noites (uma a cada ~100 noites do jogo, ou seja, bem rara) a lua fica grande e vermelha, o ceu
+     avermelha, nao chove e aparecem 12 morcegos (6 a mais, de olhos vermelhos). Tambem e igual para todos.
+     Para TESTAR sem esperar: abra o jogo no navegador com ?lua=vermelha (ex.: http://localhost:3000/?lua=vermelha)
+     e/ou ?chuva (ex.: http://localhost:3000/?lua=vermelha&chuva). No .exe nao da para usar isso, so no navegador.
+   - Pega-pega (so online): chegue perto de outro gato e aperte P (no controle, Y) para CONVIDAR. O outro gato recebe uma
+     mensagem na tela e aceita com P/Y/Enter ou no botao (recusa com N/Esc/B ou no botao; sem resposta em 15 s o convite expira).
+     Ao aceitar, cada gato e teleportado para um ponto bem diferente do mapa (casa ou quintal). Quem convidou vira o pegador
+     (icone de gato bravo na cabeca) e o convidado foge. O pegador pega dando PATADA (F, ou X no controle) em quem estiver na
+     frente dele; quem e pego vira o pegador e o outro fica 3 segundos imune. Pode convidar mais gatos durante a brincadeira.
+     O botao "Sair do pega-pega" (ou P sem ninguem por perto) sai da brincadeira.
+   - Manchas: copo (agua azul) e caneca (cafe) que caem no chao deixam uma mancha que se espalha, respinga e vai secando
+     devagar. Ficam ate "Arrumar a casa" (R), como a racao e a areia. Aparece para todos os jogadores.
+   - O pega-pega novo (convite + teleporte) so mudou o public/index.html.
+   - Morcegos, chuva e lua vermelha so mudaram o public/index.html; o sono em grupo tambem mudou o server.js (reenvie os dois).
 
 Arquivos: server.js (servidor), public/index.html (o jogo).
 
@@ -71,3 +92,40 @@ Arquivos: server.js (servidor), public/index.html (o jogo).
    Depois disso, quem abrir o .exe so digita nome e sala. O campo Servidor fica escondido.
    Obs.: no plano gratis o Render "dorme" sem uso; a primeira conexao pode levar ate 1 minuto
    (o jogo tenta de novo sozinho e mostra "Conectando ao servidor...").
+
+   - Flores do quintal: ao passar por cima dos canteiros (andando ou correndo, no chao) o gatinho pisa nas flores e elas
+     sao destruidas, soltando petalas. Se pular por cima, as flores se salvam. Sao locais (cada jogador ve as suas) e
+     voltam quando voce clica em "jogar de novo".
+
+   - Pula-pula: no fundo do quintal, a esquerda da piscina. Pule no degrau azul e depois na lona. Espaco na lona = pulo alto;
+     segure Espaco ao cair para quicar cada vez mais alto; solte e o quique vai diminuindo ate parar. A lona afunda e volta
+     como mola e faz "boing". So mudou o public/index.html.
+
+   - Dias da semana: o relogio no topo mostra Seg, Ter, Qua, Qui, Sex, Sab, Dom antes da hora. O dia muda a meia-noite do jogo
+     (a cada ciclo de 24 h = 10 min reais) e vem do mesmo relogio do servidor, entao e igual para todos. So mudou o public/index.html.
+
+   - Muros de madeira no lugar da cerca, com um portao fechado (que nao abre, com cadeado) na entrada, no fim do caminho de
+     pedras (lado leste). Os muros ficam translucidos quando estao entre a camera e o gatinho, e as lanterninhas dos postes do
+     portao acendem a noite. Passarinhos pousam no topo dos muros. So mudou o public/index.html.
+
+   - Porta da entrada: a casa agora tem uma porta no vao da parede leste (a "porta da cozinha", no fim do caminho de pedras e do
+     portao). Ela fica SEMPRE ABERTA, aberta para dentro da cozinha, com batentes brancos, soleira, paineis, macaneta e dobradicas.
+     O gatinho passa pelo vao e contorna a folha da porta. So mudou o public/index.html.
+
+   - Garotinha fantasma: nas noites de SEGUNDA-FEIRA, das 22h a meia-noite do relogio do jogo, uma menina translucida e misteriosa
+     aparece sentada no balanco da direita do parquinho. Ela se balanca sozinha, vira a cabeca devagar para o gatinho quando ele
+     chega perto, pisca de vez em quando como uma luz falhando e toca uma cantiga de caixinha de musica bem baixinho. O horario
+     vem do relogio do servidor, entao todos veem juntos. Para TESTAR sem esperar a segunda-feira: abra o jogo no navegador com
+     ?menina (ex.: http://localhost:3000/?menina). No .exe nao da para usar isso, so no navegador. So mudou o public/index.html.
+
+   - Gramado com textura: o chao do quintal agora tem folhinhas de grama, trevos e florzinhas minusculas (desenhados pelo proprio
+     jogo, sem arquivos de imagem), mais manchas grandes de grama mais viva/seca e faixas de grama cortada. So mudou o public/index.html.
+
+TEXTURAS DA CASA E DOS MOVEIS (versao 46, estilo minimalista: texturas suaves e discretas)
+- Paredes de dentro: reboco liso com relevo leve; paredes de fora: chapisco. Rodape em todas as paredes (some junto com a parede quando a camera atravessa).
+- Pisos: tabuas com veios, emendas e pregos; ladrilhos com brilho de esmalte e rejunte.
+- Moveis: madeira com veios, tecido com trama (sofa, poltrona, cama, travesseiros, cortinas com dobras), granito na bancada, metal escovado na geladeira, louca brilhante no banheiro, vasos de barro, folhagem nas plantas.
+- Cozinha: portas e puxadores nos armarios e faixa de azulejo atras da bancada.
+- Tapetes: trama, borda, filete e losango no centro.
+- Tudo e desenhado no proprio jogo (canvas), sem arquivos de imagem. A cor de cada objeto continua a mesma: a textura so adiciona relevo e detalhe.
+
