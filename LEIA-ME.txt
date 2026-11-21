@@ -1,0 +1,48 @@
+GATINHO EM CASA - MULTIPLAYER ONLINE
+====================================
+
+Requisito: Node.js 18 ou mais novo (https://nodejs.org). Nao precisa de npm install.
+
+1) JOGAR NO SEU PC / MESMA REDE WI-FI
+   - No Windows: de dois cliques em INICIAR.bat (NAO de dois cliques em server.js)
+   - Abra um terminal nesta pasta e rode:   node server.js
+   - Voce abre:  http://localhost:3000
+   - Amigos na mesma rede abrem:  http://IP-DO-SEU-PC:3000   (ex.: http://192.168.0.10:3000)
+     (libere a porta 3000 no firewall do Windows se pedir)
+
+2) JOGAR COM AMIGOS PELA INTERNET (sempre ligado)
+   Suba esta pasta num servico que rode Node, por exemplo o Render (render.com):
+   - Crie um "Web Service" a partir de um repositorio com estes arquivos
+   - Build command: (vazio)    Start command: node server.js
+   - Voce recebe um endereco https://seu-jogo.onrender.com para mandar aos amigos
+   (o plano gratuito "dorme" apos um tempo parado; o primeiro acesso demora um pouco)
+
+   Alternativa temporaria: rode node server.js e use um tunel (ex.: cloudflared ou ngrok)
+   apontando para a porta 3000; o tunel gera um link publico para voces.
+
+3) NO JOGO
+   Digite o nome, escolha a sala (ou digite um codigo) e clique em Comecar.
+   Quem escolher a mesma sala aparece na casa como outro gatinho. Maximo de 16 por sala.
+
+Arquivos: server.js (servidor), public/index.html (o jogo).
+
+4) GERAR O .EXE (Windows)
+   - De dois cliques em CRIAR-EXE.bat (precisa de internet e Node.js; leva alguns minutos).
+   - Resultado: dist\GatinhoEmCasa.exe (arquivo unico, nao precisa instalar). Mande-o aos amigos.
+   - Se aparecer erro de "symbolic link", abra o Prompt como Administrador ou ative o Modo de Desenvolvedor do Windows.
+   - Para os amigos nao digitarem o servidor: antes de gerar, edite config.json: { "servidor": "meujogo.onrender.com" }
+   - No jogo: Menu "Jogo > Hospedar neste PC" liga o servidor dentro do proprio programa (amigos da mesma rede
+     digitam o IP mostrado no campo Servidor). Pela internet: use um servidor hospedado (Render) ou um tunel (ngrok).
+   - O Windows pode mostrar aviso "editor desconhecido" (o .exe nao e assinado): "Mais informacoes > Executar assim mesmo".
+
+5) VERSAO SIMPLES PARA OS AMIGOS (servidor fixo, ninguem digita endereco)
+   Uma vez so:
+   a) Crie contas gratis no GitHub e no Render (render.com).
+   b) Envie esta pasta para um repositorio novo no GitHub.
+   c) No Render: New > Web Service > escolha o repositorio. Ele le o render.yaml sozinho. Clique em Deploy.
+   d) Quando terminar, o Render mostra o endereco, ex.: gatinho-em-casa.onrender.com
+   e) Abra config.json e escreva:  { "servidor": "gatinho-em-casa.onrender.com" }
+   f) De dois cliques em CRIAR-EXE.bat e mande dist\GatinhoEmCasa.exe aos amigos.
+   Depois disso, quem abrir o .exe so digita nome e sala. O campo Servidor fica escondido.
+   Obs.: no plano gratis o Render "dorme" sem uso; a primeira conexao pode levar ate 1 minuto
+   (o jogo tenta de novo sozinho e mostra "Conectando ao servidor...").
