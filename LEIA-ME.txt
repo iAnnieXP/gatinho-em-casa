@@ -140,7 +140,8 @@ TEXTURAS DA CASA E DOS MOVEIS (versao 46, estilo minimalista: texturas suaves e 
 - Pisos: tabuas com veios, emendas e pregos; ladrilhos com brilho de esmalte e rejunte.
 - Moveis: madeira com veios, tecido com trama (sofa, poltrona, cama, travesseiros, cortinas com dobras), granito na bancada, metal escovado na geladeira, louca brilhante no banheiro, vasos de barro, folhagem nas plantas.
 - Cozinha: portas e puxadores nos armarios e faixa de azulejo atras da bancada.
-- Tapetes: trama, borda, filete e losango no centro.
+- Tapetes: cada comodo tem o seu desenho (persa na sala, kilim na cozinha, trelica no quarto, passadeira no escritorio, felpudo no banheiro,
+  capacho de coco com patinha na porta), com franja nas pontas e uma espessura fina nas bordas.
 - Tudo e desenhado no proprio jogo (canvas), sem arquivos de imagem. A cor de cada objeto continua a mesma: a textura so adiciona relevo e detalhe.
 
 
@@ -195,3 +196,10 @@ TEXTURAS DA CASA E DOS MOVEIS (versao 46, estilo minimalista: texturas suaves e 
      de repouso a cada 5 s por 1 minuto (corrige diferenças de posição). Observações: o desenho exato dos grãos espalhados pode
      variar um pouco de um jogador para outro (a quantidade é a mesma); pegadas continuam locais. Todos precisam da mesma versão do
      public/index.html. O server.js NAO mudou.
+
+   - Visual do caminho de entrada, dos tapetes e das mesas (so mudou o public/index.html; colisoes, alturas e multiplayer iguais):
+       * Caminho de pedras: lajes irregulares com borda chanfrada e sombra nas juntas, leito de cascalho, pedrinhas de contorno, tufos de
+         grama entre as lajes e uma soleira de pedra no portao do muro. As 8 lajes ficam nas mesmas posicoes de antes.
+       * Mesas: mesa de centro, mesa da cozinha (com passadeira de pano), escrivaninha (gaveteiro com 3 gavetas e tapete de mesa),
+         criado-mudo (2 gavetas) e as mesinhas de jardim (pedestal de pedra com mosaico no tampo) ganharam tampo com borda saliente,
+         pernas afiladas, travessas e detalhes. O capacho da porta ficou um pouco menor para nao ficar escondido pela primeira laje.
