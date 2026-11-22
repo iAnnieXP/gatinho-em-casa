@@ -11,21 +11,21 @@ function ips() {
 function setServer(v) { if (win) win.webContents.executeJavaScript("document.getElementById('srv').value=" + JSON.stringify(v)); }
 function showHost() {
   const l = ips();
-  dialog.showMessageBox(win, { type: 'info', title: 'Hospedando', message: 'Servidor ligado neste PC.',
-    detail: 'Amigos na MESMA rede Wi-Fi digitam no campo "Servidor":\n\n' + (l.join('\n') || '(IP não encontrado)') +
-      '\n\nPara amigos pela internet, use um túnel (ex.: ngrok http 3000) e passe o endereço gerado.\nSe o Windows pedir, permita o acesso no firewall.' });
+  dialog.showMessageBox(win, { type: 'info', title: 'Hosting', message: 'Server running on this PC.',
+    detail: 'Friends on the SAME Wi-Fi network type this in the "Server" field:\n\n' + (l.join('\n') || '(IP not found)') +
+      '\n\nFor friends over the internet, use a tunnel (e.g. ngrok http 3000) and share the generated address.\nIf Windows asks, allow access through the firewall.' });
 }
 function host() {
   if (hosting) return showHost();
   const { server } = require('./server.js');
-  server.once('error', e => dialog.showErrorBox('Não foi possível hospedar', String(e.message)));
+  server.once('error', e => dialog.showErrorBox('Could not host the server', String(e.message)));
   server.listen(3000, () => { hosting = true; setServer('localhost:3000'); showHost(); });
 }
 function create() {
-  win = new BrowserWindow({ width: 1280, height: 800, backgroundColor: '#1a1f2b', title: 'Gatinho em Casa', webPreferences: { autoplayPolicy: 'no-user-gesture-required' } });
-  Menu.setApplicationMenu(Menu.buildFromTemplate([{ label: 'Jogo', submenu: [
-    { label: 'Hospedar neste PC', click: host }, { label: 'Tela cheia', accelerator: 'F11', click: () => win.setFullScreen(!win.isFullScreen()) },
-    { type: 'separator' }, { label: 'Sair', role: 'quit' } ] }]));
+  win = new BrowserWindow({ width: 1280, height: 800, backgroundColor: '#1a1f2b', title: "Luna's Life", icon: path.join(__dirname, 'icon.png'), webPreferences: { autoplayPolicy: 'no-user-gesture-required' } });
+  Menu.setApplicationMenu(Menu.buildFromTemplate([{ label: 'Game', submenu: [
+    { label: 'Host on this PC', click: host }, { label: 'Full screen', accelerator: 'F11', click: () => win.setFullScreen(!win.isFullScreen()) },
+    { type: 'separator' }, { label: 'Quit', role: 'quit' } ] }]));
   win.loadFile(path.join(__dirname, 'public', 'index.html'));
   win.webContents.on('did-finish-load', () => {
     const def = String(cfg.servidor || '');

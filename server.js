@@ -1,6 +1,6 @@
-// Servidor do Gatinho em Casa: serve o jogo e repassa mensagens entre jogadores da mesma sala (WebSocket, sem dependências).
+// Servidor do Luna's Life: serve o jogo e repassa mensagens entre jogadores da mesma sala (WebSocket, sem dependências).
 const http = require('http'), fs = require('fs'), path = require('path'), crypto = require('crypto');
-const PORT = process.env.PORT || 3000, PUB = path.join(__dirname, 'public'), MAX = 16;
+const PORT = process.env.PORT || 3000, PUB = path.join(__dirname, 'public'), MAX = 10;
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.ico': 'image/x-icon' };
 const rooms = new Map(); // sala -> Map(id -> { socket, pres }) com .skew (ms que o relógio da sala adiantou dormindo)
 const SLEEP_X = 24; // com TODOS da sala dormindo (presença sl = 1) o relógio do jogo corre 24x mais rápido
@@ -50,9 +50,12 @@ server.on('upgrade', (req, socket) => {
   const room = (u.searchParams.get('room') || '').toLowerCase().replace(/[^a-z0-9_.-]/g, '').slice(0, 48);
   if (u.pathname !== '/ws' || !key || !room) return socket.destroy();
   let members = rooms.get(room); if (!members) { rooms.set(room, members = new Map()); members.skew = 0; }
-  if (members.size >= MAX) { socket.write('HTTP/1.1 503 Service Unavailable\r\n\r\n'); return socket.destroy(); }
   const accept = crypto.createHash('sha1').update(key + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('base64');
   socket.write('HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ' + accept + '\r\n\r\n');
+  if (members.size >= MAX) {   // sala cheia (máx. 10): aceita a conexão só para avisar o jogador e fecha
+    socket.write(frame(JSON.stringify({ t: 'full', max: MAX })));
+    return setTimeout(() => socket.destroy(), 200);
+  }
   socket.setNoDelay(true);
 
   const id = crypto.randomBytes(4).toString('hex'), me = { socket, pres: {} };
@@ -93,5 +96,5 @@ server.on('upgrade', (req, socket) => {
   socket.on('close', bye); socket.on('error', bye);
 });
 
-if (require.main === module) server.listen(PORT, () => console.log('Gatinho em Casa rodando em http://localhost:' + PORT));
+if (require.main === module) server.listen(PORT, () => console.log("Luna's Life rodando em http://localhost:" + PORT));
 module.exports = { server };

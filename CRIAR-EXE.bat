@@ -9,5 +9,5 @@ if errorlevel 1 (
 call npm install
 call npm run dist
 echo.
-echo Pronto! O jogo esta em: dist\GatinhoEmCasa.exe
+echo Pronto! O jogo esta em: dist\LunasLife.exe
 pause

@@ -1,4 +1,4 @@
-GATINHO EM CASA - MULTIPLAYER ONLINE
+LUNA'S LIFE - MULTIPLAYER ONLINE
 ====================================
 
 Requisito: Node.js 18 ou mais novo (https://nodejs.org). Nao precisa de npm install.
@@ -22,7 +22,7 @@ Requisito: Node.js 18 ou mais novo (https://nodejs.org). Nao precisa de npm inst
 
 3) NO JOGO
    Digite o nome, escolha a sala (ou digite um codigo) e clique em Comecar.
-   Quem escolher a mesma sala aparece na casa como outro gatinho. Maximo de 16 por sala.
+   Quem escolher a mesma sala aparece na casa como outro gatinho. Maximo de 10 por sala.
 
 Novidades:
    - Chat (tecla T ou botao "Chat") com emojis: botao do gatinho abre a lista; atalhos :) :D <3 :gato: :peixe: :pata:
@@ -59,12 +59,26 @@ Novidades:
      avermelha, nao chove e aparecem 12 morcegos (6 a mais, de olhos vermelhos). Tambem e igual para todos.
      Para TESTAR sem esperar: abra o jogo no navegador com ?lua=vermelha (ex.: http://localhost:3000/?lua=vermelha)
      e/ou ?chuva (ex.: http://localhost:3000/?lua=vermelha&chuva). No .exe nao da para usar isso, so no navegador.
-   - Pega-pega (so online): chegue perto de outro gato e aperte P (no controle, Y) para CONVIDAR. O outro gato recebe uma
+   - Pega-pega (so online): chegue perto de outro gato e aperte P (no controle, direcional esquerdo ou Y) para CONVIDAR. O outro gato recebe uma
      mensagem na tela e aceita com P/Y/Enter ou no botao (recusa com N/Esc/B ou no botao; sem resposta em 15 s o convite expira).
      Ao aceitar, cada gato e teleportado para um ponto bem diferente do mapa (casa ou quintal). Quem convidou vira o pegador
      (icone de gato bravo na cabeca) e o convidado foge. O pegador pega dando PATADA (F, ou X no controle) em quem estiver na
      frente dele; quem e pego vira o pegador e o outro fica 3 segundos imune. Pode convidar mais gatos durante a brincadeira.
+   - Pegar brinquedo: chegue perto de um brinquedo (bola, bolinha de guizo, novelo, ratinho, peixinho, varinha, patinho) e aperte G
+     (botao Grab na tela, Y no controle quando nao ha racao por perto) para leva-lo na boca; aperte de novo (Drop) para solta-lo. Os outros jogadores veem.
+     No controle: direcional esquerdo convida para o pega-pega; direcional cima/baixo da zoom.
      O botao "Sair do pega-pega" (ou P sem ninguem por perto) sai da brincadeira.
+   - Futebol: no canto do fundo do quintal (lado norte, entre o muro e o pula-pula) tem um campo pequeno com duas traves, uma bola e um
+     placar de madeira (objeto no cenario, com um numero para cada gol: WEST e EAST; aparece dos dois lados). Empurre a bola andando contra ela (ou de PATADA, F/X) ate dentro de
+     uma das redes: gol! O numero daquele gol sobe, toca uma musiquinha e solta faiscas; depois de uns segundos a bola volta para o meio do campo.
+     QUEM FIZER 3 GOLS PRIMEIRO VENCE: o placar mostra "WEST WINS!" / "EAST WINS!" (com festa), e depois de uns segundos a partida
+     recomeca em 0 x 0. A bola nao pode sair do campo: se passar da lateral ou da linha de fundo fora do gol (ou por cima do
+     travessao), ela reaparece no centro na hora. So vale sair da linha para dentro do gol.
+     (So mudou o public/index.html.) "Arrumar a casa" (R) leva a bola ao meio, mas o placar
+     continua (zera ao recarregar o jogo). Online, a bola e vista por todos e cada jogador ve o placar subir nos gols da sala.
+   - Comer racao: chegue perto do pote de racao (ou da racao espalhada no chao) e aperte C no teclado ou Y no controle. O gatinho
+     abaixa a cabeca e mastiga: cada vez come uma porcao do pote (sao 4; o pote vai esvaziando) e a barrinha de fome sobe.
+     Perto da racao o Y come; longe dela o Y continua pegando/soltando brinquedo. "Arrumar a casa" (R) enche o pote de novo.
    - Manchas: copo (agua azul) e caneca (cafe) que caem no chao deixam uma mancha que se espalha, respinga e vai secando
      devagar. Ficam ate "Arrumar a casa" (R), como a racao e a areia. Aparece para todos os jogadores.
    - O pega-pega novo (convite + teleporte) so mudou o public/index.html.
@@ -74,7 +88,7 @@ Arquivos: server.js (servidor), public/index.html (o jogo).
 
 4) GERAR O .EXE (Windows)
    - De dois cliques em CRIAR-EXE.bat (precisa de internet e Node.js; leva alguns minutos).
-   - Resultado: dist\GatinhoEmCasa.exe (arquivo unico, nao precisa instalar). Mande-o aos amigos.
+   - Resultado: dist\LunasLife.exe (arquivo unico, nao precisa instalar). Mande-o aos amigos.
    - Se aparecer erro de "symbolic link", abra o Prompt como Administrador ou ative o Modo de Desenvolvedor do Windows.
    - Para os amigos nao digitarem o servidor: antes de gerar, edite config.json: { "servidor": "meujogo.onrender.com" }
    - No jogo: Menu "Jogo > Hospedar neste PC" liga o servidor dentro do proprio programa (amigos da mesma rede
@@ -88,7 +102,7 @@ Arquivos: server.js (servidor), public/index.html (o jogo).
    c) No Render: New > Web Service > escolha o repositorio. Ele le o render.yaml sozinho. Clique em Deploy.
    d) Quando terminar, o Render mostra o endereco, ex.: gatinho-em-casa.onrender.com
    e) Abra config.json e escreva:  { "servidor": "gatinho-em-casa.onrender.com" }
-   f) De dois cliques em CRIAR-EXE.bat e mande dist\GatinhoEmCasa.exe aos amigos.
+   f) De dois cliques em CRIAR-EXE.bat e mande dist\LunasLife.exe aos amigos.
    Depois disso, quem abrir o .exe so digita nome e sala. O campo Servidor fica escondido.
    Obs.: no plano gratis o Render "dorme" sem uso; a primeira conexao pode levar ate 1 minuto
    (o jogo tenta de novo sozinho e mostra "Conectando ao servidor...").
@@ -129,3 +143,55 @@ TEXTURAS DA CASA E DOS MOVEIS (versao 46, estilo minimalista: texturas suaves e 
 - Tapetes: trama, borda, filete e losango no centro.
 - Tudo e desenhado no proprio jogo (canvas), sem arquivos de imagem. A cor de cada objeto continua a mesma: a textura so adiciona relevo e detalhe.
 
+
+   - Pote de agua: fica ao lado do pote de racao, na cozinha. Chegue perto e aperte C (teclado) ou Y (controle): o gatinho bebe um
+     gole por vez (sao 4) e a agua do pote vai diminuindo. Se esbarrar nele andando, der uma patada (F) ou ele cair, o pote derrama e a
+     agua restante vira uma poca no chao. "Arrumar a casa" (R) enche o pote de novo. A mesma tecla C come a racao ou bebe, o que estiver
+     mais perto.
+
+   - Beber liquidos derramados: qualquer poca no chao (agua do copo, cafe da caneca, suco da garrafa, vinho, agua do pote) pode ser
+     bebida com C / Y: cada gole encolhe a poca e no terceiro ela some. No controle, se houver brinquedo ou fruta ao alcance, o Y continua pegando.
+
+   - Vinho: se o gatinho beber vinho derramado (garrafa de vinho verde caida no chao), a visao fica turva (tela borrada) por cerca de
+     7 segundos e depois volta ao normal. Beber de novo reinicia o efeito.
+
+   - Frutas: as macas da bancada agora podem ser pegas com a boca e soltas como os brinquedos (G no teclado, botao Grab, Y no controle).
+     Os outros jogadores veem a maca na boca do gatinho.
+   Obs.: o pote de agua entrou na lista de objetos (antes da bola de futebol): todos os jogadores da sala precisam estar com esta
+     mesma versao do jogo. A poca de agua e as pegadas continuam locais (cada jogador ve as suas). So mudou o public/index.html.
+
+   - Limite de jogadores: no maximo 10 por sala. Quem tentar entrar numa sala cheia ve o aviso "This room is full (max 10 players)"
+     e deve escolher outro nome de sala. Mudou o server.js (MAX = 10) e o public/index.html. Se usar o Render, faca o deploy do server.js de novo.
+
+   - Barra de sede: nova barra "Thirst" (gotinha) no painel, ao lado de Fome, Diversao e Energia. Ela cai com o tempo (um pouco mais
+     rapido que a fome) e so sobe bebendo: cada gole do pote de agua da +25, cada gole de poca +10 (vinho so +4). Beber NAO mata a fome
+     e comer racao NAO mata a sede. Com a barra cheia o gatinho nao bebe ("Not thirsty!"). Abaixo de 20% aparece o aviso de sede.
+     "Jogar de novo" reinicia a barra. So mudou o public/index.html.
+
+   - Nivel da agua: o pote de agua agora e oco e a agua fica DENTRO dele: a cada gole o nivel desce devagar (4 niveis) ate o fundo e
+     a agua some quando acaba. "Arrumar a casa" (R) enche de novo. So mudou o public/index.html.
+
+   - Dicas de interacao: quando o gatinho pode interagir com algo, aparece em cima do objeto um balaozinho com a tecla e a acao:
+     "G Grab" (brinquedos e frutas ao alcance), "G Drop" (quando esta com algo na boca), "C Eat" (racao do pote ou do chao),
+     "C Drink" (pote de agua ou poca) e "🐾 Catch it!" (rato, passarinho ou morcego perto: e so encostar, nao tem tecla).
+     No controle a tecla mostrada e o Y; no celular aparece 👆 e o balao e tocavel (toque nele para pegar/soltar/comer/beber).
+     "Eat"/"Drink" nao aparecem se a barra de fome/sede ja esta cheia. So mudou o public/index.html.
+
+   - Patada e diversao: cada objeto atingido por uma patada (F / X) da +5 na barra de Diversao (ate +15 por patada). Isso soma com o
+     bonus de +10 que o objeto ja dava na primeira vez que e derrubado/bagunçado. So mudou o public/index.html.
+
+   - Pegar e soltar sincronizados (multiplayer): quando um jogador pega ou solta um brinquedo ou fruta (G / Grab / Y), os outros veem
+     NA HORA o item na boca dele (ja virado para a direcao em que o gatinho olha) e, ao soltar, caindo/rolando com o lancamento.
+     Correcoes: (1) se dois gatos pegarem o MESMO item no mesmo instante, fica com ele quem tem o menor id e o outro solta e ve
+     "Too slow!" (antes os dois ficavam "segurando" e o item travava para os demais); (2) o item na boca nunca deixa de ser enviado,
+     mesmo se alguem mexer nele ao mesmo tempo; (3) se quem segurava sai da sala, o item cai na hora para todos;
+     (4) quem entra depois ja ve os itens que estao na boca de alguem. Todos os jogadores da sala precisam estar com esta versao do
+     public/index.html. O server.js NAO mudou.
+
+   - Ração, água e líquidos no chão sincronizados (multiplayer): quando alguém come ou bebe do pote, todos veem a ração diminuir e a
+     água descer (cada porção conta, mesmo se dois gatos comerem juntos); o gole numa poça encolhe a poça para todos; a ração do chão
+     comida some para todos. Quem entra na sala depois recebe de um jogador antigo o estado atual: quantidade nos potes, potes
+     derramados, poças e ração/areia/terra espalhadas. Para itens pegáveis, o objeto que você mexeu e está parado reenvia a posição
+     de repouso a cada 5 s por 1 minuto (corrige diferenças de posição). Observações: o desenho exato dos grãos espalhados pode
+     variar um pouco de um jogador para outro (a quantidade é a mesma); pegadas continuam locais. Todos precisam da mesma versão do
+     public/index.html. O server.js NAO mudou.

@@ -1,7 +1,7 @@
 {
-  "name": "gatinho-online", "version": "1.0.0", "private": true, "description": "Gatinho em Casa - multiplayer online", "main": "main.js",
+  "name": "gatinho-online", "version": "1.0.0", "private": true, "description": "Luna's Life - multiplayer online", "main": "main.js",
   "scripts": { "start": "node server.js", "app": "electron .", "dist": "electron-builder" },
   "devDependencies": { "electron": "^33.2.0", "electron-builder": "^25.1.8" },
-  "build": { "appId": "com.gatinho.emcasa", "productName": "Gatinho em Casa", "files": ["main.js", "server.js", "config.json", "public/**"],
-    "win": { "target": "portable" }, "portable": { "artifactName": "GatinhoEmCasa.exe" } }
+  "build": { "appId": "com.luna.life", "productName": "Luna's Life", "files": ["main.js", "server.js", "config.json", "icon.png", "public/**"], "directories": { "buildResources": "build" },
+    "win": { "target": "portable", "icon": "build/icon.ico" }, "portable": { "artifactName": "LunasLife.exe" } }
 }
