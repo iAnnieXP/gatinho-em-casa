@@ -253,7 +253,11 @@ TEXTURAS DA CASA E DOS MOVEIS (versao 46, estilo minimalista: texturas suaves e 
 
 6) ATUALIZACAO AUTOMATICA (o jogo se atualiza sozinho)
    Como funciona: ao abrir (e a cada 30 min), o .exe pergunta ao seu servidor do Render se existe versao nova.
-   Se existir, baixa em segundo plano, confere cada arquivo (hash SHA-256) e mostra um aviso no jogo:
+   Uma barra embaixo da tela mostra cada etapa: "Checking for updates..." -> (se achar) "Update X found - downloading..."
+   -> "Update X is ready  [Update now] [Later]". Se nao houver novidade aparece "You're up to date" por 2 s e some.
+   (A barra "Checking..." some sozinha apos 8 s se o servidor estiver dormindo; a checagem continua em segundo plano.
+   Nas checagens de 30 em 30 min a barra so aparece se houver novidade.)
+   Se existir, baixa em segundo plano, confere cada arquivo (hash SHA-256) e mostra o aviso:
    "Update X is ready  [Update now] [Later]". "Update now" recarrega o jogo na hora, sem fechar o programa.
    Se o jogador clicar em "Later" (ou nao clicar), a versao nova abre sozinha na proxima vez que ele abrir o jogo.
    Sem internet ou com o servidor fora do ar, o jogo abre normalmente com a ultima versao que ele tem.

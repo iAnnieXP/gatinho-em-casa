@@ -28,32 +28,60 @@ ipcMain.handle('gatinho:update-apply', () => {
   if (!pending || !win) return false;
   active = updater.resolveActive(BUNDLED); pending = null; openGame(); return true;
 });
-function showBanner(v) {   /* aviso discreto embaixo da tela; injetado pelo programa, então funciona mesmo se o index.html mudar */
+/* Barra de status embaixo da tela (injetada pelo programa, então funciona mesmo se o index.html mudar).
+   kind: 'checking' | 'downloading' (com bolinha girando) | 'ok' | 'error' | 'ready' (com os botões Update now / Later). hideAfter: some sozinha depois de N ms. */
+let statusTimer = null;
+function showStatus(kind, text, hideAfter) {
   if (!win || win.isDestroyed()) return;
-  win.webContents.executeJavaScript('(' + function (v) {
+  clearTimeout(statusTimer);
+  win.webContents.executeJavaScript('(' + function (kind, text) {
+    if (!document.getElementById('gatinhoUpdCss')) { var st = document.createElement('style'); st.id = 'gatinhoUpdCss'; st.textContent = '@keyframes gatinhoSpin{to{transform:rotate(360deg)}}'; document.head.appendChild(st); }
     var o = document.getElementById('gatinhoUpd'); if (o) o.remove();
     var d = document.createElement('div'); d.id = 'gatinhoUpd';
-    d.style.cssText = 'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:2147483647;display:flex;gap:10px;align-items:center;padding:8px 12px;border-radius:12px;background:rgba(26,31,43,.94);color:#fff;font:600 14px Nunito,sans-serif;box-shadow:0 4px 18px rgba(0,0,0,.4)';
-    var t = document.createElement('span'); t.textContent = 'Update ' + v + ' is ready';
-    function btn(txt, main, fn) { var b = document.createElement('button'); b.textContent = txt; b.style.cssText = 'cursor:pointer;border:0;border-radius:8px;padding:6px 12px;font:inherit;' + (main ? 'background:#ffb347;color:#1a1f2b' : 'background:#3a4153;color:#fff'); b.onclick = fn; return b; }
-    d.appendChild(t);
-    d.appendChild(btn('Update now', true, function () { if (window.gatinhoUpdate) window.gatinhoUpdate.apply(); }));
-    d.appendChild(btn('Later', false, function () { d.remove(); }));
+    d.style.cssText = 'position:fixed;left:50%;bottom:16px;transform:translateX(-50%);z-index:2147483647;display:flex;gap:10px;align-items:center;padding:8px 14px;border-radius:12px;background:rgba(26,31,43,.94);color:#fff;font:600 14px Nunito,sans-serif;box-shadow:0 4px 18px rgba(0,0,0,.4);pointer-events:none';
+    if (kind === 'checking' || kind === 'downloading') { var sp = document.createElement('span'); sp.style.cssText = 'width:14px;height:14px;box-sizing:border-box;border:2px solid rgba(255,255,255,.3);border-top-color:#ffb347;border-radius:50%;animation:gatinhoSpin .8s linear infinite'; d.appendChild(sp); }
+    var t = document.createElement('span'); t.textContent = (kind === 'ok' ? '\u2713 ' : kind === 'error' ? '\u26A0 ' : '') + text; d.appendChild(t);
+    if (kind === 'ready') {
+      d.style.pointerEvents = 'auto';
+      function btn(txt, main, fn) { var b = document.createElement('button'); b.textContent = txt; b.style.cssText = 'cursor:pointer;border:0;border-radius:8px;padding:6px 12px;font:inherit;' + (main ? 'background:#ffb347;color:#1a1f2b' : 'background:#3a4153;color:#fff'); b.onclick = fn; return b; }
+      d.appendChild(btn('Update now', true, function () { if (window.gatinhoUpdate) window.gatinhoUpdate.apply(); }));
+      d.appendChild(btn('Later', false, function () { d.remove(); }));
+    }
     document.body.appendChild(d);
-  } + ')(' + JSON.stringify(v) + ')').catch(() => {});
+  } + ')(' + JSON.stringify(kind) + ',' + JSON.stringify(text) + ')').catch(() => {});
+  if (hideAfter) statusTimer = setTimeout(hideStatus, hideAfter);
 }
-async function runCheck() {
+function hideStatus() {
+  clearTimeout(statusTimer);
+  if (!win || win.isDestroyed()) return;
+  win.webContents.executeJavaScript("var o=document.getElementById('gatinhoUpd');if(o)o.remove()").catch(() => {});
+}
+/* showUi = true só na checagem ao abrir o jogo (mostra "Checking..." e "up to date"); nas checagens de 30 em 30 min o jogador só vê algo se houver novidade */
+async function runCheck(showUi) {
   if (checking) return; checking = true;
+  let found = false, slow = null;
+  if (showUi && updater.enabled(cfg)) {
+    showStatus('checking', 'Checking for updates\u2026');
+    slow = setTimeout(() => { if (!found) hideStatus(); }, 8000);   /* servidor dormindo (Render gratis) pode demorar: some a barra e continua em segundo plano */
+  }
   try {
-    const r = await updater.check(cfg, pending || active.version);
-    if (r) { pending = r.version; showBanner(pending); }
-  } catch (e) { console.log('[update]', e.message); }   /* sem internet / servidor dormindo: tenta de novo em 30 min */
-  checking = false;
+    const r = await updater.check(cfg, pending || active.version, ev => {
+      if (ev.type === 'found') { found = true; showStatus('downloading', 'Update ' + ev.version + ' found \u2014 downloading\u2026'); }
+      else if (ev.type === 'progress' && ev.total > 1) showStatus('downloading', 'Downloading update ' + ev.version + ' (' + ev.done + '/' + ev.total + ')\u2026');
+    });
+    if (r && r.version) { pending = r.version; showStatus('ready', 'Update ' + r.version + ' is ready'); }
+    else if (r && r.upToDate && showUi) showStatus('ok', "You're up to date", 2500);
+    else if (showUi) hideStatus();
+  } catch (e) {
+    console.log('[update]', e.message);   /* sem internet / servidor fora do ar: tenta de novo em 30 min */
+    if (found) showStatus('error', 'Update failed \u2014 will try again later', 4000); else if (showUi) showStatus('error', "Couldn't check for updates", 4000);
+  }
+  clearTimeout(slow); checking = false;
 }
 function startChecks() {
   if (checksStarted) return; checksStarted = true;
-  setTimeout(runCheck, 4000);                 /* confere logo depois de abrir... */
-  setInterval(runCheck, 30 * 60 * 1000);      /* ...e a cada 30 min enquanto o jogo estiver aberto */
+  setTimeout(() => runCheck(true), 4000);                 /* confere logo depois de abrir... */
+  setInterval(() => runCheck(false), 30 * 60 * 1000);      /* ...e a cada 30 min enquanto o jogo estiver aberto */
 }
 
 function create() {
@@ -77,7 +105,7 @@ function create() {
     const def = String(cfg.servidor || '');
     win.webContents.executeJavaScript("window.GATINHO_APP=true;window.GATINHO_VERSION=" + JSON.stringify(active.version) + ";document.getElementById('srvRow').hidden=" + (def ? 'true' : 'false') + ";" +
       "document.getElementById('srv').value=" + JSON.stringify(def) + "||(function(){try{return localStorage.getItem('gatinho_srv')}catch(e){return ''}})()||'';");
-    if (pending) showBanner(pending);   /* recarregou sem aplicar? lembra de novo */
+    if (pending) showStatus('ready', 'Update ' + pending + ' is ready');   /* recarregou sem aplicar? lembra de novo */
     startChecks();
   });
 }

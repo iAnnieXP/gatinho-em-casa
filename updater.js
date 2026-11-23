@@ -48,12 +48,19 @@ async function get(url, ms) {
   return Buffer.from(await r.arrayBuffer());
 }
 
-/* Verifica o servidor; se houver versão MAIOR que currentVersion, baixa tudo e deixa pronta. Retorna { version } ou null. */
-async function check(cfg, currentVersion) {
+/* A atualização está ligada? (precisa de um servidor https configurado em config.json) */
+function enabled(cfg) { return !!baseUrl(cfg); }
+
+/* Verifica o servidor; se houver versão MAIOR que currentVersion, baixa tudo e deixa pronta.
+   Retorna { version } (baixou), { upToDate: true } (já está na mais nova) ou null (atualização desligada).
+   on(evento) é opcional e avisa o andamento: { type: 'found', version } e { type: 'progress', version, done, total }. */
+async function check(cfg, currentVersion, on) {
+  const emit = ev => { try { if (on) on(ev); } catch (e) {} };
   const base = baseUrl(cfg); if (!base) return null;
   const m = JSON.parse((await get(base + 'update/manifest.json', 90000)).toString('utf8'));   // 90 s: o Render gratuito demora a acordar
   if (!m || !VER.test(m.version) || !Array.isArray(m.files) || !m.files.length || m.files.length > 200) throw new Error('manifesto invalido');
-  if (cmp(m.version, currentVersion) <= 0) return null;
+  if (cmp(m.version, currentVersion) <= 0) return { upToDate: true };
+  emit({ type: 'found', version: m.version });
   if (!m.files.some(f => f && f.name === 'index.html')) throw new Error('manifesto sem index.html');
 
   fs.mkdirSync(root(), { recursive: true });
@@ -61,12 +68,13 @@ async function check(cfg, currentVersion) {
   if (!fs.existsSync(path.join(finalDir, 'index.html'))) {
     rm(tmp); fs.mkdirSync(tmp, { recursive: true });
     try {
-      for (const f of m.files) {
+      for (const [i, f] of m.files.entries()) {
         if (!f || !NAME.test(f.name) || f.name.includes('..') || f.name.includes('//') || f.name.endsWith('/') || !/^[0-9a-f]{64}$/.test(f.sha256)) throw new Error('arquivo invalido no manifesto');
         const dest = path.join(tmp, f.name); if (!dest.startsWith(tmp + path.sep)) throw new Error('caminho invalido');
         const buf = await get(base + f.name.split('/').map(encodeURIComponent).join('/'), 180000);
         if (buf.length > MAX_FILE || sha(buf) !== f.sha256) throw new Error('arquivo corrompido: ' + f.name);
         fs.mkdirSync(path.dirname(dest), { recursive: true }); fs.writeFileSync(dest, buf);
+        emit({ type: 'progress', version: m.version, done: i + 1, total: m.files.length });
       }
       rm(finalDir); fs.renameSync(tmp, finalDir);      // só vira "oficial" depois de tudo conferido
     } catch (e) { rm(tmp); throw e; }
@@ -85,4 +93,4 @@ function prune(keep) {
 /* Se a versão baixada não abrir, esquece ela e volta para a do .exe. */
 function reset() { rm(root()); }
 
-module.exports = { resolveActive, check, reset, cmp };
+module.exports = { resolveActive, check, enabled, reset, cmp };
