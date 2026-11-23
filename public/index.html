@@ -1344,8 +1344,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     var m = new THREE.Mesh(new THREE.BoxGeometry(o.w, o.h, o.d), M(o.color === undefined ? 0xffffff : o.color, o.mat, tx));
     if (tx) TEXLIB.uvBox(m.geometry, o.w, o.h, o.d, tx);
     if (o.occlude) {
-      m.material = m.material.clone();
-      m.material.transparent = true;
+      m.material = m.material.clone();   /* material próprio; `transparent` só liga em fadeOccluders enquanto a parede some */
       m.userData.op = 1;
       occluders.push(m);
     }
@@ -1381,7 +1380,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     if (tx) TEXLIB.uvSph(m.geometry, r, tx);
     m.position.set(x, y, z);
     m.scale.set(sx || 1, sy || 1, sz || 1);
-    m.castShadow = true;
+    m.castShadow = r >= 0.1;   /* esferas pequenas (maçanetas, globo, ponteiras) não projetam sombra */
     scene.add(m);
     return m;
   }
@@ -1551,7 +1550,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       var along = axis === 'x' ? zd.x : zd.z, start = along > 0 ? s0 : s1;
       var geo = new THREE.ExtrudeGeometry(crownShape, { depth: len, bevelEnabled: false, curveSegments: 1, steps: 1 });
       var m = new THREE.Mesh(geo, M(0xfbf7ef, undefined, 'paint').clone());
-      m.material.transparent = true; m.userData.op = 1;
+      m.userData.op = 1;
       m.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(u, up, zd));
       if (axis === 'x') m.position.set(start, WALL_H + 0.01, fixed + sg * T / 2);
       else m.position.set(fixed + sg * T / 2, WALL_H + 0.01, start);
@@ -1614,7 +1613,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
         for (var q = 0; q < uv.count; q++) uv.setY(q, uv.getY(q) * sh);
         uv.needsUpdate = true;
         var sm = new THREE.Mesh(geo, shutterM.clone());
-        sm.material.transparent = true; sm.userData.op = 1; sm.userData.follow = sillWall;
+        sm.userData.op = 1; sm.userData.follow = sillWall;
         sm.position.set(a ? al : sd, s - 0.03 + sh / 2, a ? sd : al);
         sm.castShadow = true; sm.receiveShadow = true; scene.add(sm); occluders.push(sm);
       });
@@ -1710,7 +1709,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       var bx = Math.cos(a0) * (o.r || 0.03), bz = Math.sin(a0) * (o.r || 0.03);
       var pts = [0, 0.35, 0.7, 1].map(function (t) { var bend = lean * hs * t * t * 1.4; return new THREE.Vector3(bx + Math.cos(a0) * bend, o.y0 + hs * t, bz + Math.sin(a0) * bend); });
       var curve = new THREE.CatmullRomCurve3(pts), tube = new THREE.Mesh(new THREE.TubeGeometry(curve, 8, o.thick || 0.013, 5, false), stemM);
-      tube.castShadow = true; g.add(tube);
+      tube.castShadow = false; g.add(tube);   /* haste fina: sem sombra */
       for (j = 0; j <= m; j++) {
         var t = j === m ? 1 : 0.3 + 0.7 * j / m, P = curve.getPoint(t);
         var a = j === m ? a0 : a0 + j * 2.4 + r() * 0.5, pitch = j === m ? 1.25 : -0.1 + 0.8 * t + (r() - 0.5) * 0.3;
@@ -2038,7 +2037,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     function doorMat(flip) {
       var t = new THREE.CanvasTexture(doorTex(flip, false)), b = new THREE.CanvasTexture(doorTex(flip, true));
       t.anisotropy = b.anisotropy = 4;
-      return new THREE.MeshStandardMaterial({ map: t, bumpMap: b, bumpScale: 0.35, roughness: 0.78, metalness: 0, transparent: true });
+      return new THREE.MeshStandardMaterial({ map: t, bumpMap: b, bumpScale: 0.35, roughness: 0.78, metalness: 0 });
     }
     var leaf = box({ x: lx, z: lz, w: lw, d: 0.06, h: 2.05, y: 0.02, color: 0x8a5a38, tex: null, occlude: true, collide: false });   /* sem a textura madeira automática: a folha usa só o desenho abaixo */
     [-1, 1].forEach(function (sd) {
@@ -2109,7 +2108,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     var ch = M(0xdfe6ea, { roughness: 0.25, metalness: 0.25 });   /* torneira e detergente ficam à frente do peitoril da janela (borda em z = -6,75, y 1,10 a 1,15) */
     cyl({ x: sx, z: -6.71, r: 0.032, h: 0.02, y: 0.92, color: 0xdfe6ea, mat: { roughness: 0.25, metalness: 0.25 }, collide: false });    /* base da torneira */
     var pts = [[0, 0.94, -6.71], [0, 1.12, -6.71], [0, 1.2, -6.7], [0, 1.25, -6.66], [0, 1.27, -6.58], [0, 1.25, -6.51], [0, 1.19, -6.47], [0, 1.12, -6.46]].map(function (q) { return new THREE.Vector3(sx + q[0], q[1], q[2]); });
-    var sp = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 30, 0.014, 8, false), ch); sp.castShadow = true; scene.add(sp);   /* bica curva (pescoço de ganso) */
+    var sp = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts), 30, 0.014, 8, false), ch); sp.castShadow = false; scene.add(sp);   /* bica curva (pescoço de ganso) */
     cyl({ x: sx, z: -6.46, r: 0.019, h: 0.03, y: 1.09, color: 0xc3ccd3, tex: ST, collide: false, cast: false });                          /* arejador */
     var lv = box({ x: sx + 0.05, z: -6.71, w: 0.08, d: 0.014, h: 0.014, y: 1.0, color: 0xdfe6ea, tex: ST, collide: false, cast: false }); lv.rotation.z = 0.35;   /* alavanca */
     cyl({ x: 6.62, z: -6.71, r: 0.026, h: 0.13, y: 0.92, color: 0x7fc8a9, mat: { roughness: 0.35 }, collide: false, cast: false });       /* detergente */
@@ -2404,7 +2403,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     var ceram = M(0xf4f7f9, { roughness: 0.22 }), ceramLo = M(0xe6eef2, { roughness: 0.25 }), chromeM = M(0xdfe6ea, { roughness: 0.25, metalness: 0.25 });
     function spout(pts, r) {
       var m = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map(function (q) { return new THREE.Vector3(q[0], q[1], q[2]); })), 30, r, 8, false), chromeM);
-      m.castShadow = true; scene.add(m); return m;
+      m.castShadow = false; scene.add(m); return m;
     }
 
     /* ----- banheira: x 5,7 a 8,9 / z 5,55 a 6,85, borda a 0,6 m (colisão igual à da caixa antiga) ----- */
@@ -2662,7 +2661,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       }
       var t = new THREE.CanvasTexture(cv); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rep, 1); return t;
     }
-    function occ(m) { m.material = m.material.clone(); m.material.transparent = true; m.userData.op = 1; occluders.push(m); return m; }
+    function occ(m) { m.material = m.material.clone(); m.userData.op = 1; occluders.push(m); return m; }
     function wallPiece(x, z, w, d) {
       var len = Math.max(w, d), mat = new THREE.MeshStandardMaterial({ map: woodTex(len / 1.6), roughness: 0.95, metalness: 0 });
       var m = new THREE.Mesh(new THREE.BoxGeometry(w, FENCE_H, d), mat);
@@ -2720,11 +2719,11 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       var leaf = new THREE.Mesh(new THREE.BoxGeometry(0.1, LH, LW), new THREE.MeshStandardMaterial({ map: woodTex(LW / 1.6), color: 0xf2d9b8, roughness: 0.95 }));
       leaf.position.set(FX, 0.04 + LH / 2, lz); leaf.castShadow = true; leaf.receiveShadow = true; scene.add(leaf); occ(leaf);
       [TY1, TY2].forEach(function (yy) {   /* travessas */
-        var bt = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.14, LW), battM); bt.position.set(FX - 0.07, yy, lz); bt.castShadow = true; scene.add(bt); occ(bt);
+        var bt = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.14, LW), battM); bt.position.set(FX - 0.07, yy, lz); bt.castShadow = false; scene.add(bt); occ(bt);
       });
       var DY = TY2 - TY1, ang = Math.atan2(DY, LW), dl = Math.hypot(DY, LW);   /* diagonal em Z, do lado da dobradiça para o centro */
       var dg = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.12, dl), battM);
-      dg.position.set(FX - 0.07, (TY1 + TY2) / 2, lz); dg.rotation.x = -sd * ang * -1; dg.castShadow = true; scene.add(dg); occ(dg);
+      dg.position.set(FX - 0.07, (TY1 + TY2) / 2, lz); dg.rotation.x = -sd * ang * -1; dg.castShadow = false; scene.add(dg); occ(dg);
       [TY1, TY2].forEach(function (yy) {   /* dobradiças de ferro na ponta da folha */
         var hg = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.1, 0.34), ironM); hg.position.set(FX - 0.095, yy, GZ + sd * (GH - 0.12)); scene.add(hg); occ(hg);
       });
@@ -2732,7 +2731,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       rg.rotation.y = Math.PI / 2; rg.position.set(FX - 0.09, 0.9, GZ + sd * 0.14); scene.add(rg); occ(rg);
     });
     var lock = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.11, 0.09), M(0xc9a227, { roughness: 0.4, metalness: 0.6 }));   /* cadeado */
-    lock.position.set(FX - 0.1, 0.8, GZ); lock.castShadow = true; scene.add(lock); occ(lock);
+    lock.position.set(FX - 0.1, 0.8, GZ); lock.castShadow = false; scene.add(lock); occ(lock);
     var shk = new THREE.Mesh(new THREE.TorusGeometry(0.035, 0.01, 8, 14, Math.PI), ironM);
     shk.rotation.y = Math.PI / 2; shk.position.set(FX - 0.1, 0.855, GZ); scene.add(shk); occ(shk);
     colliders.push({ x1: -FX - 0.2, x2: FX + 0.2, z1: -FZ - 0.2, z2: -FZ + 0.06, h: 99 }, { x1: -FX - 0.2, x2: FX + 0.2, z1: FZ - 0.06, z2: FZ + 0.2, h: 99 },   /* caixa fina: a face de dentro fica quase colada no muro (0,08 do centro) */
@@ -3150,9 +3149,9 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
         var pm2 = M(fcol, { roughness: 0.55 });
         for (var k = 0; k < 7; k++) {
           var an = k / 7 * 6.2832, pt = new THREE.Mesh(new THREE.SphereGeometry(1, 10, 8), pm2); pt.scale.set(0.05, 0.016, 0.03);
-          pt.position.set(Math.cos(an) * 0.055, 0, Math.sin(an) * 0.055); pt.rotation.y = -an; pt.castShadow = true; head.add(pt);
+          pt.position.set(Math.cos(an) * 0.055, 0, Math.sin(an) * 0.055); pt.rotation.y = -an; pt.castShadow = false; head.add(pt);
         }
-        var ctr = new THREE.Mesh(new THREE.SphereGeometry(0.03, 12, 8), M(fcol === 0xffd23f ? 0xe08a2a : 0xf2c14e, { roughness: 0.6 })); ctr.scale.y = 0.7; ctr.position.y = 0.008; ctr.castShadow = true; head.add(ctr);
+        var ctr = new THREE.Mesh(new THREE.SphereGeometry(0.03, 12, 8), M(fcol === 0xffd23f ? 0xe08a2a : 0xf2c14e, { roughness: 0.6 })); ctr.scale.y = 0.7; ctr.position.y = 0.008; ctr.castShadow = false; head.add(ctr);
         flowers.push({ x: fx, z: fz, bx: b[0], bz: b[1], col: fcol, alive: true, stem: stem, head: head });
       }
     });
@@ -5057,7 +5056,7 @@ var DEFS = {
     /* livro de capa dura: capa de tras e da frente, lombada mais escura, miolo de folhas, etiqueta no titulo, faixa e marcador de pagina */
     var base = c || 0xc2574a, dk = new THREE.Color(base).multiplyScalar(.72).getHex(), lt = new THREE.Color(base).lerp(new THREE.Color(0xffffff), .55).getHex();
     var cov = M(base, { roughness: .8 }), spine = M(dk, { roughness: .8 }), pages = M(0xf3ead2, { roughness: 1 }), lab = M(0xf3ead2, { roughness: .9 }), bar = M(lt, { roughness: .8 }), rib = M(0xe8c46a, { roughness: .8 });
-    function bx(w, h, d, m, x, y, z, sh) { var q = pm(new THREE.BoxGeometry(w, h, d), m, x, y, z); if (sh === false) q.castShadow = false; g.add(q); return q; }
+    function bx(w, h, d, m, x, y, z, sh) { var q = pm(new THREE.BoxGeometry(w, h, d), m, x, y, z); q.castShadow = false; g.add(q); return q; }   /* livro pequeno: nenhuma peça projeta sombra */
     bx(.14, .004, .2, cov, 0, .002, 0);                         /* capa de tras */
     bx(.14, .004, .2, cov, 0, .033, 0);                         /* capa da frente */
     bx(.014, .035, .2, spine, -.063, .0175, 0);                 /* lombada */
@@ -7415,8 +7414,12 @@ function animateModel(t, dt, moving) {
     var k = Math.min(1, dt * 10);
     occluders.forEach(function (m) {
       var target = (set.has(m) || (m.userData.follow && set.has(m.userData.follow))) ? 0.16 : 1;
-      m.userData.op += (target - m.userData.op) * k;
-      m.material.opacity = m.userData.op;
+      var u = m.userData, mat = m.material;
+      u.op += (target - u.op) * k;
+      if (target === 1 && u.op > 0.99) u.op = 1;   /* chegou: encaixa em opaco */
+      var fading = u.op < 1;
+      if (mat.transparent !== fading) { mat.transparent = fading; mat.needsUpdate = true; }   /* transparent só enquanto está sumindo/voltando */
+      mat.opacity = u.op;
     });
   }
 
