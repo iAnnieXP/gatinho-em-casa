@@ -104,8 +104,8 @@ Arquivos: server.js (servidor), public/index.html (o jogo).
    - Resultado: dist\LunasLife.exe (arquivo unico, nao precisa instalar). Mande-o aos amigos.
    - Se aparecer erro de "symbolic link", abra o Prompt como Administrador ou ative o Modo de Desenvolvedor do Windows.
    - Para os amigos nao digitarem o servidor: antes de gerar, edite config.json: { "servidor": "meujogo.onrender.com" }
-   - No jogo: Menu "Jogo > Hospedar neste PC" liga o servidor dentro do proprio programa (amigos da mesma rede
-     digitam o IP mostrado no campo Servidor). Pela internet: use um servidor hospedado (Render) ou um tunel (ngrok).
+   - No jogo: tela Multiplayer > botao "Host on this PC" liga o servidor dentro do proprio programa (amigos da mesma rede
+     digitam o IP mostrado ali, no campo Servidor). Pela internet: use um servidor hospedado (Render) ou um tunel (ngrok).
    - O Windows pode mostrar aviso "editor desconhecido" (o .exe nao e assinado): "Mais informacoes > Executar assim mesmo".
 
 5) VERSAO SIMPLES PARA OS AMIGOS (servidor fixo, ninguem digita endereco)
@@ -216,3 +216,28 @@ TEXTURAS DA CASA E DOS MOVEIS (versao 46, estilo minimalista: texturas suaves e 
        * Mesas: mesa de centro, mesa da cozinha (com passadeira de pano), escrivaninha (gaveteiro com 3 gavetas e tapete de mesa),
          criado-mudo (2 gavetas) e as mesinhas de jardim (pedestal de pedra com mosaico no tampo) ganharam tampo com borda saliente,
          pernas afiladas, travessas e detalhes. O capacho da porta ficou um pouco menor para nao ficar escondido pela primeira laje.
+
+   - Interface acompanha o tamanho da janela e a tela cheia (so mudou o public/index.html): todos os tamanhos do CSS passaram de px
+     para rem, e um pequeno script ajusta a escala (--ui) pelo tamanho da janela em relacao a 1280x800 (de 0,75x a 2,5x no PC; no
+     celular/tablet nunca fica menor que o original). Botoes, paineis, menus, chat e textos crescem e encolhem juntos.
+
+   - Sem a barra de menu "Game" no programa do computador (mudou main.js, preload.js novo, package.json e public/index.html):
+       * Full screen e Quit ja estavam na interface do jogo (Settings e menu de pausa); a tecla F11 continua alternando a tela cheia.
+       * "Host on this PC" agora e um botao na tela Multiplayer (so aparece no programa, nao no navegador) e mostra os enderecos
+         na propria tela, em vez de uma janela do Windows. Ao gerar o .exe, o preload.js ja entra no pacote.
+
+   - Tela inicial: Settings e Quit viraram icones (engrenagem e sair), iguais aos do menu de pausa, na linha abaixo de Multiplayer
+     (so mudou o public/index.html; as funcoes dos botoes sao as mesmas).
+
+   - Camera nao atravessa mais os muros de madeira em volta do quintal (so mudou o public/index.html): a distancia da camera e encurtada
+     para ela ficar sempre do lado de dentro do muro. Se o gatinho estiver colado no muro e voce girar a camera para fora, ela chega
+     bem perto dele (e o gatinho some, como acontece com as paredes da casa) em vez de passar para o outro lado.
+
+   - Campo de futebol cercado por paredes de arbusto (so mudou o public/index.html): o mesmo modelo das paredes do parquinho (baixas, sem arco,
+     com frutinhas e flores) fecha o campo nos quatro lados. A norte e a oeste encostam nos muros de madeira; a sul tem uma entrada de 2 m
+     no meio (alinhada com o centro do campo). Quatro bancos de jardim dentro do cercado, de frente para o campo: dois atras (um de cada lado
+     do placar) e dois na frente (um de cada lado da entrada); o banco antigo da beira do campo saiu.
+       * Para caber a parede de tras: o campo, as traves, a bola e o placar foram 1,2 m para frente (sul) e 0,5 m para leste.
+       * Tambem mudaram de lugar: o pula-pula (1,2 m para leste, x = -10,8), o canteiro ao lado dele (0,3 m para leste) e uma roseira da cerca
+         oeste (z = -8,4 para -5,0), que cairia dentro da parede de arbusto sul.
+       * Pedras soltas e passarinhos nao entram mais no cercado.
