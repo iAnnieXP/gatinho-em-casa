@@ -241,3 +241,43 @@ TEXTURAS DA CASA E DOS MOVEIS (versao 46, estilo minimalista: texturas suaves e 
        * Tambem mudaram de lugar: o pula-pula (1,2 m para leste, x = -10,8), o canteiro ao lado dele (0,3 m para leste) e uma roseira da cerca
          oeste (z = -8,4 para -5,0), que cairia dentro da parede de arbusto sul.
        * Pedras soltas e passarinhos nao entram mais no cercado.
+
+   - Malhas dos arbustos combinadas (so mudou o public/index.html): o visual e igual, mas o jogo desenha bem menos objetos por quadro.
+       * Moitas soltas: 11 malhas -> 1.
+       * Roseiras: 12 malhas (3 por roseira) -> 3 no total (estrutura, folhas e flores).
+       * Paredes de arbusto: 120 malhas (91 instanciadas + 29 canteiros de casca) -> 6 instanciadas no total (3 de folhas, 1 de frutinhas,
+         1 de flores e 1 de canteiros de casca). Os miolos e arcos das paredes com arco (7 pecas) continuam separados porque a camera
+         usa eles para nao atravessar. As arvores nao entraram (cada uma tem tronco proprio, que tambem e usado pela camera).
+       * As paredes agora nao somem mais quando a origem do grupo sai da tela (as malhas instanciadas ficam sem corte por frustum).
+
+
+6) ATUALIZACAO AUTOMATICA (o jogo se atualiza sozinho)
+   Como funciona: ao abrir (e a cada 30 min), o .exe pergunta ao seu servidor do Render se existe versao nova.
+   Se existir, baixa em segundo plano, confere cada arquivo (hash SHA-256) e mostra um aviso no jogo:
+   "Update X is ready  [Update now] [Later]". "Update now" recarrega o jogo na hora, sem fechar o programa.
+   Se o jogador clicar em "Later" (ou nao clicar), a versao nova abre sozinha na proxima vez que ele abrir o jogo.
+   Sem internet ou com o servidor fora do ar, o jogo abre normalmente com a ultima versao que ele tem.
+
+   CONFIGURACAO (uma vez so): em config.json coloque o endereco do Render, ex.:
+       { "servidor": "gatinho-em-casa.onrender.com", "atualizacoes": "" }
+   ("atualizacoes" e opcional: so preencha se o servidor de atualizacoes for diferente do servidor do jogo.
+   Se os dois estiverem vazios, a atualizacao automatica fica desligada. So funciona com https; localhost e liberado p/ teste.)
+   Depois gere o .exe (CRIAR-EXE.bat) e mande aos amigos. ESTE .exe e o ultimo que voce precisa mandar manualmente.
+
+   TODA VEZ QUE LANCAR UMA ATUALIZACAO:
+   a) Altere o jogo normalmente (public/index.html) e/ou server.js.
+   b) De dois cliques em NOVA-VERSAO.bat (aumenta o numero da versao em package.json, ex.: 1.1.0 -> 1.1.1).
+      IMPORTANTE: sem aumentar a versao, os jogos NAO atualizam (e assim que o programa sabe que ha novidade).
+   c) Envie a pasta para o GitHub. O Render publica sozinho e, em ate ~30 min (ou na proxima vez que abrirem), os amigos recebem.
+   d) Teste voce mesmo: abra o jogo, espere ~5 s e o aviso aparece.
+
+   O QUE ATUALIZA SOZINHO:   public/index.html e qualquer arquivo dentro de public/ (o jogo inteiro), e o server.js (no Render).
+   O QUE EXIGE .EXE NOVO:    main.js, preload.js, updater.js, config.json, icone e o Electron. Isso quase nunca muda.
+   Se um .exe novo tiver versao maior ou igual a que o jogador baixou, o .exe passa a valer (nada fica preso numa versao velha).
+   Se uma versao baixada nao abrir, o programa volta sozinho para a versao que veio no .exe.
+   Dica: se mudar o server.js de um jeito que quebra a compatibilidade com o jogo antigo, lembre que quem ainda nao
+   atualizou continua usando o jogo antigo no servidor novo.
+
+   - Camera x arbustos e cercas (v1.1.1): a camera nao atravessa mais as moitas soltas, as paredes de arbusto (com arco) e as cercas
+     baixas (churrasqueira, piscina, campo de futebol e parquinho). Se ficar colada num obstaculo, ela se aproxima do gatinho (como ja
+     fazia nas paredes da casa). Acima do topo do obstaculo (zoom mais alto) ela passa por cima. So mudou o public/index.html.

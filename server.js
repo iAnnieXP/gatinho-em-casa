@@ -5,7 +5,30 @@ const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.
 const rooms = new Map(); // sala -> Map(id -> { socket, pres }) com .skew (ms que o relógio da sala adiantou dormindo)
 const SLEEP_X = 24; // com TODOS da sala dormindo (presença sl = 1) o relógio do jogo corre 24x mais rápido
 
+// Atualização automática: o .exe baixa /update/manifest.json (versão do package.json + hash de cada arquivo de public/) e, se a versão for maior, baixa os arquivos.
+const VERSION = (() => { try { return require('./package.json').version; } catch (e) { return '0.0.0'; } })();
+let manifestCache = null;
+function listFiles(dir, rel) {
+  let out = []; rel = rel || '';
+  fs.readdirSync(path.join(dir, rel), { withFileTypes: true }).forEach(e => {
+    const r = rel ? rel + '/' + e.name : e.name;
+    if (e.isDirectory()) out = out.concat(listFiles(dir, r)); else if (e.isFile() && !e.name.startsWith('.')) out.push(r);
+  });
+  return out;
+}
+function manifest() {
+  const names = listFiles(PUB).sort(), key = VERSION + '|' + names.map(n => { const s = fs.statSync(path.join(PUB, n)); return n + ':' + s.size + ':' + s.mtimeMs; }).join('|');
+  if (!manifestCache || manifestCache.key !== key) {
+    const files = names.map(name => { const d = fs.readFileSync(path.join(PUB, name)); return { name, size: d.length, sha256: crypto.createHash('sha256').update(d).digest('hex') }; });
+    manifestCache = { key, json: JSON.stringify({ version: VERSION, files }) };
+  }
+  return manifestCache.json;
+}
+
 const server = http.createServer((req, res) => {
+  if (req.url.split('?')[0] === '/update/manifest.json') {
+    res.writeHead(200, { 'Content-Type': 'application/json', 'Cache-Control': 'no-store' }); return res.end(manifest());
+  }
   let p = decodeURIComponent(req.url.split('?')[0]); if (p === '/') p = '/index.html';
   const f = path.join(PUB, path.normalize(p));
   if (!f.startsWith(PUB)) { res.writeHead(403); return res.end(); }
