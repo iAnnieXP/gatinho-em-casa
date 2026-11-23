@@ -46,6 +46,19 @@ Novidades:
      no topo. Depois de pegos eles voltam em outro lugar. Tambem sao locais (cada jogador ve os seus).
    - Passarinhos: de dia voce tambem pode caca-los! Chegue perto (corra para alcanca-los) e encoste para pegar.
      Eles fogem voando curto e baixo, entao da para perseguir. O contador fica no topo e eles voltam depois.
+   - Borboletas: de dia voce tambem pode caca-las! Encoste nelas (as que voam alto pedem um pulo). Quando o gatinho chega perto elas
+     disparam para longe, em zigue-zague e para cima: andando normal e dificil, corra (Shift) para alcanca-las. As que pousam nos
+     canteiros tambem fogem se voce chega perto demais. O contador fica no topo e elas voltam depois, em outro lugar. Sao locais.
+   - Flores dos canteiros: ao pisar nelas (ou dar uma patada na frente delas) elas se despedacam: petalas, miolo e pedacos do talo voam
+     e ficam espalhados na terra. Pulando por cima nao pisa. Ao arrumar a casa (botao "Tidy up the house" ou R) as flores voltam inteiras.
+   - Vasos com flores (o pequeno de 3 flores e o grande de flores amarelas): ao quebrar, alem dos cacos de barro, caem petalas e folhas
+     que flutuam balancando e ficam no chao ate arrumar a casa.
+   - Multiplayer: quando um jogador entra na sala toca um som alegre (tres notinhas subindo); quando sai, um som suave (tres descendo).
+     Nao toca para quem ja estava na sala quando voce entra, so para quem chega ou sai depois.
+   - Patada no multiplayer: os outros jogadores veem o seu gatinho levantar a pata da frente quando voce da a patada (F / X no controle).
+     O que a patada atinge (objetos, flores) ja era sincronizado; agora o movimento tambem aparece.
+   - Patada: toca um somzinho fofo (dois "pi-pi!" agudinhos subindo, com um sopro leve) a cada patada; so voce ouve o seu.
+     Tambem aparece a mensagem "Kitten 42 joined the room" / "left the room" (com o apelido do jogador; mais de 3 de uma vez vira "N kittens").
    - Sons: grilos a noite (ficam abafados dentro de casa) e passos do gatinho (madeira dentro de casa,
      grama no quintal; mais rapidos e fortes ao correr). Nao precisa reenviar o server.js para isso.
 

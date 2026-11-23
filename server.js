@@ -72,6 +72,7 @@ server.on('upgrade', (req, socket) => {
     if (tokens < 1) return; tokens--;
     let m; try { m = JSON.parse(txt); } catch (e) { return; }
     if (m.t === 'pres') { const patch = cleanPresence(m.patch); Object.assign(me.pres, patch); others({ t: 'pres', peer: id, patch }); }
+    else if (m.t === 'ping') send(socket, { t: 'pong', c: m.c });   // mostrador de ping do cliente
     else if (m.t === 'emit' && /^[a-z][a-z0-9_.-]{0,47}$/.test(m.topic)) others({ t: 'emit', peer: id, topic: m.topic, data: m.data });
   }
   let buf = Buffer.alloc(0);
