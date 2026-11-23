@@ -5,7 +5,8 @@ let cfg = {}; try { cfg = JSON.parse(fs.readFileSync(path.join(__dirname, 'confi
 let win = null, hosting = false;
 const MIN_W = 960, MIN_H = 600;   /* tamanho mínimo da janela (16:10, igual à janela padrão de 1280x800) */
 const BUNDLED = path.join(__dirname, 'public');   /* o jogo que veio dentro do .exe */
-let active = null, pending = null, checking = false, checksStarted = false;   /* active = pasta que o jogo está usando; pending = versão já baixada esperando o jogador aplicar */
+let active = null, pending = null, checking = false, checksStarted = false;
+let wakeP = null, wakeDone = false;   /* wakeP = pedido que acorda o servidor; wakeDone = já respondeu (ou falhou) */   /* active = pasta que o jogo está usando; pending = versão já baixada esperando o jogador aplicar */
 
 function ips() {
   const out = [];
@@ -62,7 +63,7 @@ async function runCheck(showUi) {
   let found = false, slow = null;
   if (showUi && updater.enabled(cfg)) {
     showStatus('checking', 'Checking for updates\u2026');
-    slow = setTimeout(() => { if (!found) hideStatus(); }, 8000);   /* servidor dormindo (Render gratis) pode demorar: some a barra e continua em segundo plano */
+    slow = setTimeout(() => { if (!found) showStatus('checking', 'Server is waking up \u2014 this may take a minute\u2026'); }, 8000);   /* servidor dormindo (Render gratis) pode demorar: a barra continua visível, com aviso, até terminar */
   }
   try {
     const r = await updater.check(cfg, pending || active.version, ev => {
@@ -70,21 +71,31 @@ async function runCheck(showUi) {
       else if (ev.type === 'progress' && ev.total > 1) showStatus('downloading', 'Downloading update ' + ev.version + ' (' + ev.done + '/' + ev.total + ')\u2026');
     });
     if (r && r.version) { pending = r.version; showStatus('ready', 'Update ' + r.version + ' is ready'); }
-    else if (r && r.upToDate && showUi) showStatus('ok', "You're up to date", 2500);
+    else if (r && r.upToDate && showUi) showStatus('ok', "You're up to date", 6000);
     else if (showUi) hideStatus();
   } catch (e) {
     console.log('[update]', e.message);   /* sem internet / servidor fora do ar: tenta de novo em 30 min */
-    if (found) showStatus('error', 'Update failed \u2014 will try again later', 4000); else if (showUi) showStatus('error', "Couldn't check for updates", 4000);
+    if (found) showStatus('error', 'Update failed \u2014 will try again later', 8000); else if (showUi) showStatus('error', "Couldn't check for updates", 8000);
   }
   clearTimeout(slow); checking = false;
 }
 function startChecks() {
   if (checksStarted) return; checksStarted = true;
-  setTimeout(() => runCheck(true), 4000);                 /* confere logo depois de abrir... */
-  setInterval(() => runCheck(false), 30 * 60 * 1000);      /* ...e a cada 30 min enquanto o jogo estiver aberto */
+  setInterval(() => runCheck(false), 30 * 60 * 1000);      /* a cada 30 min enquanto o jogo estiver aberto */
+  /* logo ao abrir: avisa que está conectando/acordando o servidor, e só depois confere atualizações */
+  wakeP.then(r => {
+    if (r === null) return setTimeout(() => runCheck(true), 4000);   /* sem servidor configurado: só a checagem de sempre */
+    if (r) showStatus('ok', 'Server is ready', 3000); else showStatus('error', "Couldn't reach the server \u2014 it may be asleep or offline", 8000);
+    setTimeout(() => runCheck(true), r ? 3500 : 8500);   /* espera o aviso ser lido antes da checagem de atualização */
+  });
+  if (!wakeDone && !pending) {
+    showStatus('checking', 'Connecting to the server\u2026');
+    setTimeout(() => { if (!wakeDone) showStatus('checking', 'Server is waking up \u2014 this may take a minute\u2026'); }, 8000);
+  }
 }
 
 function create() {
+  wakeP = updater.wake(cfg).then(r => { wakeDone = true; return r; });   /* acorda o servidor do Render já na abertura; o aviso aparece na barra de baixo (veja startChecks) */
   Menu.setApplicationMenu(null);   /* sem a barra "Game": Host, Full screen e Quit agora ficam na interface do jogo */
   active = updater.resolveActive(BUNDLED);
   win = new BrowserWindow({ width: 1280, height: 800, useContentSize: true, minWidth: MIN_W, minHeight: MIN_H, backgroundColor: '#1a1f2b', title: "Luna's Life", icon: path.join(__dirname, 'icon.png'), webPreferences: { preload: path.join(__dirname, 'preload.js'), autoplayPolicy: 'no-user-gesture-required' } });

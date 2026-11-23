@@ -285,3 +285,7 @@ TEXTURAS DA CASA E DOS MOVEIS (versao 46, estilo minimalista: texturas suaves e 
    - Camera x arbustos e cercas (v1.1.1): a camera nao atravessa mais as moitas soltas, as paredes de arbusto (com arco) e as cercas
      baixas (churrasqueira, piscina, campo de futebol e parquinho). Se ficar colada num obstaculo, ela se aproxima do gatinho (como ja
      fazia nas paredes da casa). Acima do topo do obstaculo (zoom mais alto) ela passa por cima. So mudou o public/index.html.
+
+   - Acordar o servidor ao abrir (.exe): assim que o programa abre, ele manda um aviso silencioso ao servidor do config.json
+     (requisicao HEAD, sem baixar o jogo e sem mostrar nada). Assim o Render gratuito comeca a acordar antes de voce
+     chegar na tela Multiplayer. Muda o main.js e o updater.js: precisa gerar o .exe de novo.

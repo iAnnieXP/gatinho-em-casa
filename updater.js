@@ -36,7 +36,7 @@ function resolveActive(bundledDir) {
 /* Endereço do servidor de atualizações: config.json "atualizacoes", ou o próprio "servidor". Só HTTPS (localhost liberado p/ teste). */
 function baseUrl(cfg) {
   let s = String((cfg && (cfg.atualizacoes || cfg.servidor)) || '').trim(); if (!s) return null;
-  if (!/^https?:\/\//i.test(s)) s = 'https://' + s;
+  if (!/^https?:\/\//i.test(s)) s = (/^(localhost|127\.0\.0\.1)(:|\/|$)/.test(s) ? 'http://' : 'https://') + s;   /* sem esquema: https (http só para localhost, p/ teste) */
   let u; try { u = new URL(s); } catch (e) { return null; }
   if (u.protocol !== 'https:' && !/^(localhost|127\.0\.0\.1)$/.test(u.hostname)) return null;
   return u.origin + (u.pathname.endsWith('/') ? u.pathname : u.pathname + '/');
@@ -50,6 +50,19 @@ async function get(url, ms) {
 
 /* A atualização está ligada? (precisa de um servidor https configurado em config.json) */
 function enabled(cfg) { return !!baseUrl(cfg); }
+
+/* Acorda o servidor (o Render gratuito dorme sem uso e demora até ~1 min para acordar): manda uma requisição HEAD
+   (sem corpo, não baixa o jogo) assim que o programa abre, para o servidor já estar de pé quando o jogador for entrar.
+   Não mostra nada e ignora qualquer erro. Acorda tanto o "servidor" (multiplayer) quanto o "atualizacoes", se forem diferentes. */
+function wake(cfg) {
+  const bases = new Set();
+  [cfg && cfg.servidor, cfg && cfg.atualizacoes].forEach(x => { const b = x && baseUrl({ servidor: x }); if (b) bases.add(b); });
+  if (!bases.size) return Promise.resolve(null);   /* nada configurado: nada para acordar */
+  /* devolve uma promessa: true = servidor respondeu, false = não respondeu (erro ou passou de 2 min), null = sem servidor configurado */
+  return Promise.all([...bases].map(b => {
+    try { return net.fetch(b, { method: 'HEAD', cache: 'no-store', signal: AbortSignal.timeout(120000) }).then(() => true, () => false); } catch (e) { return Promise.resolve(false); }
+  })).then(r => r.every(Boolean));
+}
 
 /* Verifica o servidor; se houver versão MAIOR que currentVersion, baixa tudo e deixa pronta.
    Retorna { version } (baixou), { upToDate: true } (já está na mais nova) ou null (atualização desligada).
@@ -93,4 +106,4 @@ function prune(keep) {
 /* Se a versão baixada não abrir, esquece ela e volta para a do .exe. */
 function reset() { rm(root()); }
 
-module.exports = { resolveActive, check, enabled, reset, cmp };
+module.exports = { resolveActive, check, enabled, wake, reset, cmp };
