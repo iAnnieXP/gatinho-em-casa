@@ -3513,19 +3513,19 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     var TONES = [0x214b29, 0x2f6b3a, 0x3f8a4a, 0x59a655, 0x82cd6c].map(function (h) { return new THREE.Color(h); });   /* mesma paleta das moitas do quintal */
     function tone(t) { t = Math.max(0, Math.min(1, t)); var f = t * 4, a = Math.min(3, Math.floor(f)); return TONES[a].clone().lerp(TONES[a + 1], f - a); }
     /* "bolas" irregulares de folhas (3 variacoes): icosaedro com o raio deformado por uma funcao da posicao, para a malha nao rachar */
-    var lumpy = [];
-    (function () {
+    var lumpy = [], lumpyLow = [];   /* lumpyLow: detail 0 (20 triangulos) so para as paredes baixas */
+    [[lumpy, 1], [lumpyLow, 0]].forEach(function (LD) {
       for (var s = 0; s < 3; s++) {
-        var g = new THREE.IcosahedronGeometry(1, 1), pa, v = new THREE.Vector3(), sg = s * 2.3 + 0.7, f, j;
+        var g = new THREE.IcosahedronGeometry(1, LD[1]), pa, v = new THREE.Vector3(), sg = s * 2.3 + 0.7, f, j;
         if (g.index) g = g.toNonIndexed(); pa = g.attributes.position;
         for (j = 0; j < pa.count; j++) {
           v.fromBufferAttribute(pa, j).normalize();
           f = 1 + 0.17 * Math.sin(v.x * 5.1 + sg) * Math.cos(v.y * 4.3 + sg * 1.3) + 0.1 * Math.sin(v.z * 6.7 + sg * 0.7) + 0.06 * Math.sin((v.x + v.z) * 9.3 + sg);
           pa.setXYZ(j, v.x * f, v.y * f, v.z * f);
         }
-        lumpy.push(g);
+        LD[0].push(g);
       }
-    })();
+    });
     var fruitC = [0xd93a3a, 0xd93a3a, 0xd93a3a, 0xb02a4a, 0xf0a030], flowC = [0xfff6f2, 0xfff6f2, 0xf7b6cf, 0xffe38a];
     var coreM = new THREE.MeshStandardMaterial({ color: 0x2e5a30, roughness: 1 }), barkM = new THREE.MeshStandardMaterial({ color: 0x4a3220, roughness: 1 });
     /* instancias de TODAS as paredes, ja no mundo: cada hedge() so anota aqui e flushHedges() (no fim) cria as malhas: 3 de folhas (uma por variacao de bola), 1 de frutinhas, 1 de flores e 1 de canteiros de casca = 6 draw calls no total (antes ~5 por parede) */
@@ -3534,12 +3534,13 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     function hedge(cfg) {
       var P = cfg.fixed, Z0 = cfg.a0, Z1 = cfg.a1, ZC = cfg.c, rot = !!cfg.rot, sd = cfg.seed, HL = cfg.h || 0.9, ARCH = cfg.arch !== false, GAP = cfg.gap || 0;   /* HL: altura das alas; ARCH falso: parede lisa, sem arco; GAP: meia-largura de uma entrada simples (sem arco) em ZC */
       function rr() { sd = (sd * 1664525 + 1013904223) >>> 0; return sd / 4294967296; }
+      var LOW = HL < 0.75;   /* parede baixa (0,5 m): geometria simples, 1 tufo por bola e sem sombra */
       var blobs = [], berries = [], flowers = [];   /* blobs: [x, y, z, raio, lado, tom 0..1] (coordenadas locais da parede: x = espessura, z = ao longo) */
       function outDir(side) { var nx = side * (0.5 + rr() * 0.8), ny = rr() * 1.5 - 0.4, nz = rr() * 2 - 1, l = Math.hypot(nx, ny, nz); return [nx / l, ny / l, nz / l]; }   /* direcao para fora da parede (lado visivel) */
       function addBlob(x, y, z, r, side, t, fruitP, flowerP) {
         var b = [x + (rr() - 0.5) * 0.08, y + (rr() - 0.5) * 0.1, z + (rr() - 0.5) * 0.08, r * (0.92 + rr() * 0.18), side, t], k, d, tr;
         blobs.push(b);
-        for (k = 0; k < 2; k++) {   /* tufos pequenos e mais claros na superficie: textura de folhagem */
+        for (k = 0; k < (LOW ? 1 : 2); k++) {   /* tufos pequenos e mais claros na superficie: textura de folhagem */
           d = outDir(side); tr = 0.12 + rr() * 0.08;
           blobs.push([b[0] + d[0] * b[3] * 0.88, b[1] + d[1] * b[3] * 0.88, b[2] + d[2] * b[3] * 0.88, tr, side, Math.min(1, t + 0.16 + rr() * 0.14)]);
         }
@@ -3569,7 +3570,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       if (rot) { grp.rotation.y = Math.PI / 2; grp.position.set(0, 0, P); } else grp.position.set(P, 0, 0);
       scene.add(grp); grp.updateMatrix();   /* grp.matrix: posicao/giro da parede, usado para levar as instancias para o mundo */
       if (cfg.core !== false) (ARCH ? [[Z0, ZC - OW + 0.1], [ZC + OW - 0.1, Z1]] : GAP ? [[Z0, ZC - GAP + 0.1], [ZC + GAP - 0.1, Z1]] : [[Z0, Z1]]).forEach(function (q) {   /* miolo das duas alas (fecha qualquer fresta entre as folhas); core: false = sem miolo (parquinho: o bloco verde aparecia na ponta da entrada) */
-        var m = new THREE.Mesh(new THREE.BoxGeometry(0.6, HL - 0.15, q[1] - q[0]), coreM); m.position.set(0, (HL - 0.15) / 2, (q[0] + q[1]) / 2); m.castShadow = true; m.receiveShadow = true; grp.add(m); solids.push(m);
+        var m = new THREE.Mesh(new THREE.BoxGeometry(0.6, HL - 0.15, q[1] - q[0]), coreM); m.position.set(0, (HL - 0.15) / 2, (q[0] + q[1]) / 2); m.castShadow = !LOW; m.receiveShadow = true; grp.add(m); solids.push(m);
       });
       if (ARCH) (function () {
       var R2 = OW - 0.16, sh = new THREE.Shape(), hole = new THREE.Path();   /* miolo do arco: perfil em arco com um furo em arco */
@@ -3598,12 +3599,12 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       buckets.forEach(function (list, bi) {
         list.forEach(function (q) {
           d.position.set(q[0], q[1], q[2]); d.rotation.set(rr() * 6, rr() * 6, rr() * 6); d.scale.set(q[3], q[3] * (0.82 + rr() * 0.12), q[3]); d.updateMatrix();
-          HL_ALL[bi].push({ m: new THREE.Matrix4().multiplyMatrices(grp.matrix, d.matrix), c: tone(q[5]) });
+          HL_ALL[bi].push({ m: new THREE.Matrix4().multiplyMatrices(grp.matrix, d.matrix), c: tone(q[5]), lo: LOW });
         });
       });
       berries.forEach(function (q) {
         d.position.set(q[0], q[1], q[2]); d.rotation.set(0, 0, 0); d.scale.set(q[3], q[3], q[3]); d.updateMatrix();
-        HB_ALL.push({ m: new THREE.Matrix4().multiplyMatrices(grp.matrix, d.matrix), c: new THREE.Color(fruitC[Math.floor(rr() * 5)]) });
+        HB_ALL.push({ m: new THREE.Matrix4().multiplyMatrices(grp.matrix, d.matrix), c: new THREE.Color(fruitC[Math.floor(rr() * 5)]), lo: LOW });
       });
       flowers.forEach(function (q) {
         d.position.set(q[0], q[1], q[2]); d.rotation.set(0, 0, 0); d.scale.set(1, 0.7, 1); d.updateMatrix();
@@ -3613,23 +3614,37 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     /* cria as malhas instanciadas de todas as paredes de arbusto de uma vez (sem corte por frustum: a esfera de corte da malha base fica na origem e esconderia paredes longas) */
     function flushHedges() {
       var leafM = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, flatShading: true });
-      HL_ALL.forEach(function (list, bi) {
-        if (!list.length) return;
-        var im = new THREE.InstancedMesh(lumpy[bi], leafM, list.length);
-        list.forEach(function (q, i) { im.setMatrixAt(i, q.m); im.setColorAt(i, q.c); });
-        im.castShadow = true; im.receiveShadow = true; im.frustumCulled = false; scene.add(im);
+      var berryM = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 }), flowM = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 });
+      var CELL = 10;   /* lado (m) de cada regiao: uma malha instanciada por regiao, com esfera de corte propria */
+      /* Divide as instancias em regioes da grade e cria um InstancedMesh por regiao. No three r128 o corte por camera usa a esfera da geometria
+         (e nao as instancias), entao cada regiao ganha uma copia da geometria com a esfera ja posta no mundo (a malha fica na origem). */
+      function cellMeshes(items, geo, mat, cast) {
+        var groups = {}, e;
+        geo.computeBoundingSphere(); var gr = geo.boundingSphere.radius;
+        items.forEach(function (q) { e = q.m.elements; var k = Math.floor(e[12] / CELL) + ',' + Math.floor(e[14] / CELL); (groups[k] = groups[k] || []).push(q); });
+        Object.keys(groups).forEach(function (k) {
+          var arr = groups[k], mn = new THREE.Vector3(1e9, 1e9, 1e9), mx = new THREE.Vector3(-1e9, -1e9, -1e9), ms = 0, g = geo.clone(), i, im;
+          arr.forEach(function (q) {
+            e = q.m.elements; mn.x = Math.min(mn.x, e[12]); mn.y = Math.min(mn.y, e[13]); mn.z = Math.min(mn.z, e[14]);
+            mx.x = Math.max(mx.x, e[12]); mx.y = Math.max(mx.y, e[13]); mx.z = Math.max(mx.z, e[14]);
+            ms = Math.max(ms, Math.hypot(e[0], e[1], e[2]), Math.hypot(e[4], e[5], e[6]), Math.hypot(e[8], e[9], e[10]));
+          });
+          g.boundingSphere = new THREE.Sphere(mn.clone().add(mx).multiplyScalar(0.5), mn.distanceTo(mx) * 0.5 + ms * gr + 0.05);
+          im = new THREE.InstancedMesh(g, mat, arr.length);
+          arr.forEach(function (q, j) { im.setMatrixAt(j, q.m); im.setColorAt(j, q.c); });
+          im.castShadow = cast; im.receiveShadow = true; im.frustumCulled = true; scene.add(im);
+        });
+      }
+      [false, true].forEach(function (low) {
+        HL_ALL.forEach(function (list, bi) {
+          var sel = list.filter(function (q) { return q.lo === low; });
+          if (sel.length) cellMeshes(sel, (low ? lumpyLow : lumpy)[bi], leafM, !low);   /* paredes baixas nao projetam sombra */
+        });
+        var bs = HB_ALL.filter(function (q) { return q.lo === low; });
+        if (bs.length) cellMeshes(bs, new THREE.SphereGeometry(0.05, 7, 5), berryM, !low);
       });
-      if (HB_ALL.length) {
-        var fm = new THREE.InstancedMesh(new THREE.SphereGeometry(0.05, 7, 5), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.4 }), HB_ALL.length);
-        HB_ALL.forEach(function (q, i) { fm.setMatrixAt(i, q.m); fm.setColorAt(i, q.c); });
-        fm.castShadow = true; fm.frustumCulled = false; scene.add(fm);
-      }
-      if (HF_ALL.length) {
-        var wm = new THREE.InstancedMesh(new THREE.SphereGeometry(0.045, 6, 4), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 }), HF_ALL.length);
-        HF_ALL.forEach(function (q, i) { wm.setMatrixAt(i, q.m); wm.setColorAt(i, q.c); });
-        wm.frustumCulled = false; scene.add(wm);
-      }
-      if (HK_ALL.length) {
+      if (HF_ALL.length) cellMeshes(HF_ALL, new THREE.SphereGeometry(0.045, 6, 4), flowM, false);
+      if (HK_ALL.length) {   /* canteiros de casca: 1 caixa por parede (cada uma pode ser longa), poucas instancias: sem corte */
         var km = new THREE.InstancedMesh(new THREE.BoxGeometry(1, 1, 1), barkM, HK_ALL.length);
         HK_ALL.forEach(function (m, i) { km.setMatrixAt(i, m); });
         km.receiveShadow = true; km.frustumCulled = false; scene.add(km);
@@ -4018,6 +4033,12 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
   }
   /* luz da varanda e dois postes do quintal, acesos à noite */
   var nightLights = [], bulbM = new THREE.MeshBasicMaterial({ color: 0x77736a });
+  var NL_POOL = 6, nlSlots = [], nlOrder = [], nlPool = [];   /* NL_POOL: quantas luzes reais de poste existem ao mesmo tempo */
+  var nlGlowTex = (function () {   /* brilho macio (gradiente radial) para o halo dos postes */
+    var c = document.createElement('canvas'); c.width = c.height = 64; var g = c.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
+    gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.25, 'rgba(255,255,255,0.45)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+    g.fillStyle = gr; g.fillRect(0, 0, 64, 64); return new THREE.CanvasTexture(c);
+  })();
   [-2.48, -0.12].forEach(function (lz) {   /* lanterninhas nos postes do portão: acendem de noite junto com a luz dos postes */
     var lant = new THREE.Mesh(new THREE.SphereGeometry(0.1, 12, 10), bulbM); lant.position.set(FX - 0.02, FENCE_H + 0.7, lz); scene.add(lant);
     cyl({ x: FX - 0.02, z: lz, r: 0.045, h: 0.06, y: FENCE_H + 0.56, color: 0x3a3e42, mat: { roughness: 0.55, metalness: 0.25 }, seg: 12, collide: false, cast: false });   /* anel sob a lanterna */
@@ -4027,10 +4048,42 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
   [[10.5, 2.2, -1.3], [14.2, 1.5, -3], [16, 1.5, 4.4], [11, 1.7, -9.2], [-22.2, 1.6, 8.35], [11.8, 1.6, 9.5], [-22.2, 1.6, 14.25], [11.8, 1.6, 13.7],   /* os dois do lado oeste agora ficam nos cantos oeste do deque da piscina */
     /* campo de futebol: um poste em cada canto do gramado (x = -22,0 e -14,8, ou seja, cx -/+ 3,6 com cx = -18,4; z = -14,45 ao norte, atras dos bancos, e -8,4 ao sul, junto a parede de arbusto) */
     [-22.0, 1.7, -14.45], [-14.8, 1.7, -14.45], [-22.0, 1.7, -8.4], [-14.8, 1.7, -8.4]].forEach(function (q, i) {   /* os 2 do corredor sul (antes dos do campo): postes do lado de fora dos arcos de arbusto; o primeiro item (varanda) nao tem poste */
-    var l = new THREE.PointLight(0xffbe78, 0, 10, 2); l.position.set(q[0], q[1], q[2]); scene.add(l); nightLights.push(l);
-    var b = new THREE.Mesh(new THREE.SphereGeometry(0.09, 10, 8), bulbM); b.position.copy(l.position); scene.add(b);
+    /* cada poste e um "slot": a lampada (bulbM) e um halo aditivo (sprite, quase de graca) ficam sempre; a PointLight de verdade e emprestada de um
+       pequeno pool (NL_POOL luzes) so aos postes mais proximos do gatinho. Muitas PointLights custam caro em cada pixel (o shader percorre todas). */
+    var pos = new THREE.Vector3(q[0], q[1], q[2]);
+    var b = new THREE.Mesh(new THREE.SphereGeometry(0.09, 10, 8), bulbM); b.position.copy(pos); scene.add(b);
+    var halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: nlGlowTex, color: 0xffbe78, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
+    halo.position.copy(pos); halo.scale.set(1.7, 1.7, 1); halo.visible = false; scene.add(halo);
+    nlSlots.push({ p: pos, halo: halo, d: 0, held: false, evict: false }); nlOrder.push(nlSlots.length - 1);
     if (i) lampPost(q[0], q[2], q[1]);
   });
+  for (var npi = 0; npi < NL_POOL; npi++) {   /* pool de luzes reais: sao as unicas PointLights dos postes */
+    var npl = new THREE.PointLight(0xffbe78, 0, 10, 2); scene.add(npl); nightLights.push(npl); nlPool.push({ l: npl, s: -1, k: 0 });
+  }
+  /* mantem as NL_POOL luzes reais nos postes mais proximos do gatinho. Uma luz so troca de poste quando existe um poste sem luz bem mais perto (histerese: distancia
+     < ~84% da do poste que perderia a luz), para nao ficar trocando quando o gatinho anda na fronteira. A luz apaga em ~0,35 s, muda de lugar e acende de novo. */
+  function updateNightLights(dt, base) {
+    var i, j, v, sl, t, f = Math.min(1, dt / 0.35), on = base > 0.01, un = [], hd = [], P = 0;
+    for (i = 0; i < nlSlots.length; i++) { sl = nlSlots[i]; sl.d = (sl.p.x - cat.x) * (sl.p.x - cat.x) + (sl.p.z - cat.z) * (sl.p.z - cat.z); }
+    nlOrder.sort(function (a, b) { return nlSlots[a].d - nlSlots[b].d; });   /* postes do mais perto ao mais longe */
+    for (i = 0; i < nlOrder.length; i++) { sl = nlSlots[nlOrder[i]]; if (!sl.held) un.push(sl); else if (!sl.evict) hd.push(sl); }
+    nlPool.forEach(function (pe) { if (pe.s < 0 || nlSlots[pe.s].evict) P++; });   /* luzes livres ou ja apagando: elas mesmas vao para os postes sem luz mais proximos */
+    for (j = P, v = hd.length - 1; j < un.length && v >= 0; j++, v--) { if (un[j].d < hd[v].d * 0.7) hd[v].evict = true; else break; }
+    nlPool.forEach(function (pe) {
+      sl = pe.s >= 0 ? nlSlots[pe.s] : null;
+      if (sl && !sl.evict) pe.k = Math.min(1, pe.k + f);
+      else {
+        pe.k = Math.max(0, pe.k - f);
+        if (pe.k <= 0.001) {
+          if (sl) { sl.held = false; sl.evict = false; pe.s = -1; }
+          for (j = 0; j < nlOrder.length; j++) { t = nlSlots[nlOrder[j]]; if (!t.held) { t.held = true; pe.s = nlOrder[j]; pe.l.position.copy(t.p); break; } }
+        }
+      }
+      pe.l.intensity = base * pe.k;
+    });
+    for (i = 0; i < nlSlots.length; i++) { sl = nlSlots[i]; sl.halo.visible = on; if (on) sl.halo.material.opacity = Math.min(1, base / 1.7) * 0.5; }
+  }
+
   /* ---------- clima: chuva às vezes e lua vermelha rara (1% das noites). Tudo sai do relógio compartilhado do servidor, então todos veem o mesmo céu.
      Para testar: abra a página com ?lua=vermelha e/ou ?chuva no endereço. ---------- */
   var redForceNid = null;   /* comando /luavermelha: id da noite em que a lua vermelha foi forcada (vale so para essa noite) */
@@ -4239,7 +4292,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     sun.intensity *= 1 - 0.6 * rainK; hemi.intensity *= 1 - 0.3 * rainK;
     lampK = (LOFI ? 1.25 : 1) + 2.8 * Math.max(night, rainK * 0.7);   /* abajures mais fortes: a casa fica um cantinho aconchegante de noite */
     roomLamps.forEach(function (r) { r.l.intensity = r.i * lampK; });
-    nightLights.forEach(function (l) { l.intensity = 1.7 * Math.max(night, rainK * 0.6); });
+    updateNightLights(dt || 0.016, 1.7 * Math.max(night, rainK * 0.6));
     updateMist(dt, day, night);
     if (lofiEl && LOFI) { var nn = Math.round(Math.max(night, rainK * 0.5) * 50) / 50; if (nn !== lofiN) { lofiN = nn; lofiEl.style.setProperty('--n', nn); } }
     bulbM.color.copy(cBulbOff).lerp(cBulbOn, night);
