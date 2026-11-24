@@ -2671,7 +2671,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       /* junto as paredes da casa (embaixo de janelas fechadas e nos cantos; as janelas abertas e o caminho da porta ficam livres) */
       [3.4, -9.7, 0], [7.9, 10.0, 0], [10.9, 0.7], [10.9, -3.3], [10.9, 5.2]]   /* as tres moitas da lateral leste: x 10,9 -> 12,8 (na frente da parede de arbusto) */,
     beds: [[-5.6, 9.5]],   /* corredor sul: ficou so o canteiro de baixo da janela (x = -5,6); o do lado leste (5,6 / 9,5) foi removido | (o canteiro em [-7.2, -11] e a moita em [-9.5, -9.7] foram removidos para dar lugar ao pula-pula) */
-    tabs: [[3.4, 9.6], [-12.4, 5.8], [12.8, 14.3], [16.2, 14.3], [-21.9, 5.8]],   /* [2] e [3]: uma de cada lado do banco [14.5, 14.2], coladas no arbusto do fundo | [1] e [4]: nos dois cantos da parede de arbusto em frente a piscina (a que ficava na entrada, x = -17,9, foi removida) */
+    tabs: [[-12.4, 5.8], [12.8, 14.3], [16.2, 14.3], [-21.9, 5.8]],   /* [1] e [2]: uma de cada lado do banco [14.5, 14.2], coladas no arbusto do fundo | [0] e [3]: nos dois cantos da parede de arbusto em frente a piscina (a que ficava na entrada, x = -17,9, e a da parede sul da casa, x = 3,4 / z = 9,6, foram removidas) */
     /* bancos: x, z, giro (0: encosto em +z, olhando para o norte; 1: encosto em +x; 2: encosto em -z; 3: encosto em -x).
        [0] encostado na cerca norte do cercadinho da churrasqueira, por fora (com vaso) | piscina (olhando a agua) | jardim de rosas | encostados nas paredes da casa:
        sul (dois), norte (dois), oeste (dois) e leste (dois) */
@@ -3393,6 +3393,11 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       flL.position.set(0, 0.008, 0); flL.rotation.set(0, 0, 0); flL.scale.set(0.03, 0.021, 0.03); flL.updateMatrix();   /* miolo */
       FLD.ctr.push(new THREE.Matrix4().multiplyMatrices(hm, flL.matrix)); FLD.ctrC.push(fcol === 0xffd23f ? 0xe08a2a : 0xf2c14e);
     }
+    /* flores do canteiro (5 a menos que as 12 da grade 2x6 de antes): posicoes soltas, em zigue-zague, para nao ficarem alinhadas.
+       [deslocamento em x, deslocamento em z, cor] a partir do centro do canteiro. Dentro de x +-1,45 e z +-0,36 (a moldura fica em x +-1,63 e z +-0,55);
+       distancia minima entre flores ~0,42 m, para as cabecas (~0,2 m) nao se sobreporem. */
+    var BED_FL = [[-1.30, 0.18, 0xf08fb0], [-0.92, -0.20, 0xffffff], [-0.30, 0.22, 0xffd23f], [-0.05, -0.30, 0xc79bf2], [0.30, 0.10, 0xf08fb0],
+                  [0.85, -0.22, 0xffd23f], [1.30, 0.12, 0xc79bf2]];   /* 7 flores (removidas: branca em 0,72 / 0,30 e amarela em 1,32 / -0,30) */
     YARD.beds.forEach(function (b, q) {
       var wd = 0x9a6a42, wdD = 0x7a5233, wdL = 0xb88950;
       mergeOn = true;
@@ -3407,9 +3412,8 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (c) { box({ x: b[0] + c[0] * 1.63, z: b[1] + c[1] * 0.58, w: 0.1, d: 0.1, h: 0.2, color: wdD, collide: false, cast: false }); });
       mergeOn = false;
       pads.push({ x1: b[0] - 1.6, x2: b[0] + 1.6, z1: b[1] - 0.55, z2: b[1] + 0.55, h: 0.1 });   /* canteiro de flores */
-      for (var i = 0; i < 12; i++) {
-        var fx = b[0] - 1.4 + (i % 6) * 0.56, fz = b[1] + (i < 6 ? -0.25 : 0.25);
-        var fcol = [0xf08fb0, 0xffd23f, 0xffffff, 0xc79bf2][(i + q) % 4];
+      for (var i = 0; i < BED_FL.length; i++) {   /* flowerBake e flowers.push andam juntos, entao fi continua batendo com as malhas instanciadas */
+        var fx = b[0] + BED_FL[i][0], fz = b[1] + BED_FL[i][1], fcol = BED_FL[i][2];
         flowerBake(i, fx, fz, fcol);
         flowers.push({ x: fx, z: fz, bx: b[0], bz: b[1], col: fcol, alive: true, fi: flowers.length });
       }
@@ -4022,7 +4026,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
         blobs.push(b);
         for (k = 0, nt = LOW ? (rr() < 0.5 ? 1 : 0) : 1; k < nt; k++) {   /* (antes 1 nas baixas e 2 nas altas; agora metade das bolas baixas tem 1 tufo e as altas 1) tufos pequenos e mais claros na superficie: textura de folhagem */
           d = outDir(side); tr = 0.12 + rr() * 0.08;
-          blobs.push([b[0] + d[0] * b[3] * 0.88, b[1] + d[1] * b[3] * 0.88, b[2] + d[2] * b[3] * 0.88, tr, side, Math.min(1, t + 0.16 + rr() * 0.14)]);
+          blobs.push([b[0] + d[0] * b[3] * 0.88, b[1] + d[1] * b[3] * 0.88, b[2] + d[2] * b[3] * 0.88, tr, side, Math.min(1, t + 0.16 + rr() * 0.14), true]);   /* 7o item = tufo: continua sorteado (mantem a sequencia de rr()), mas nao e mais desenhado */
         }
         if (rr() < fruitP) for (k = 0, tr = 1 + Math.floor(rr() * 2); k < tr; k++) { d = outDir(side); berries.push([b[0] + d[0] * b[3] * 1.04, b[1] + d[1] * b[3] * 0.92, b[2] + d[2] * b[3] * 1.04, 0.8 + rr() * 0.5]); }
         if (rr() < flowerP) { d = outDir(side); for (k = 0; k < 3; k++) flowers.push([b[0] + d[0] * b[3] + (rr() - 0.5) * 0.14, b[1] + d[1] * b[3] * 0.95 + (rr() - 0.5) * 0.14, b[2] + d[2] * b[3] + (rr() - 0.5) * 0.14]); }
@@ -4079,6 +4083,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       buckets.forEach(function (list, bi) {
         list.forEach(function (q) {
           d.position.set(q[0], q[1], q[2]); d.rotation.set(rr() * 6, rr() * 6, rr() * 6); d.scale.set(q[3], q[3] * (0.82 + rr() * 0.12), q[3]); d.updateMatrix();
+          if (q[6]) return;   /* tufo pequeno e claro da superficie: removido (o sorteio acima ja foi feito, entao o resto da parede nao muda) */
           HL_ALL[bi].push({ m: new THREE.Matrix4().multiplyMatrices(grp.matrix, d.matrix), c: tone(q[5]), lo: LOW });
         });
       });
@@ -5704,8 +5709,8 @@ var SPAWN = [
   ['ratinho', -7.4, .55, 5.6, 1.2, 0xd9c8b0], ['varinha', 15, 0, -4, .4, 0xf08fb0], ['novelo', 17, 0, .5, 0, 0x6a8caf], ['peixeBrinq', 13.8, 0, 1.9, 1, 0x6aa8d8],
   ['bolaGuizo', -13, 0, -2, 0, 0xc0c6cc], ['ratinho', -14.5, 0, 6, 2.5, 0x9aa3ad], ['varinha', -12.5, 0, -6, 1.2, 0xc79bf2],
   ['vasoPlanta', YARD.bench.x - 0.6, .45, YARD.bench.z, 0, 0xffd23f],
-  ['vasoPlanta', YARD.tabs[0][0], .7, YARD.tabs[0][1], 0, 0xf08fb0], ['vasoPlanta', YARD.tabs[1][0], .7, YARD.tabs[1][1], 0, 0xffd23f],
-  ['vasoPlanta', YARD.tabs[2][0], .7, YARD.tabs[2][1], 0, 0xf08fb0], ['vasoPlanta', YARD.tabs[3][0], .7, YARD.tabs[3][1], 0, 0xc79bf2], ['vasoPlanta', YARD.tabs[4][0], .7, YARD.tabs[4][1], 0, 0xf08fb0],
+  ['vasoPlanta', YARD.tabs[0][0], .7, YARD.tabs[0][1], 0, 0xffd23f],
+  ['vasoPlanta', YARD.tabs[1][0], .7, YARD.tabs[1][1], 0, 0xf08fb0], ['vasoPlanta', YARD.tabs[2][0], .7, YARD.tabs[2][1], 0, 0xc79bf2], ['vasoPlanta', YARD.tabs[3][0], .7, YARD.tabs[3][1], 0, 0xf08fb0],
   ['bolaParque', 19.2, 0, -9.8, 0, 0x4aa3ff],
   /* pratinhos de ração e de água do lado de fora, ao lado da porta da casinha de cachorro (casinha em YARD.kennel; porta virada para +x) */
   ['pote', YARD.kennel.x + 1.25, 0, YARD.kennel.z + 0.35], ['poteAgua', YARD.kennel.x + 1.25, 0, YARD.kennel.z + 1.0],
@@ -10076,7 +10081,7 @@ function animateModel(t, dt, moving) {
      estiver correndo). À noite dormem encolhidinhos e só acordam se o gatinho chegar bem perto.
      ===================================================================================== */
   var POOL = { cx: -17.9, cz: 11.3, w: 6.4, d: 4.4 };   /* piscina: usada também para os coelhos não entrarem nela */
-  var rabbits = [], RB_N = 4, RR = 0.17;
+  var rabbits = [], RB_N = 1, RR = 0.17;   /* RB_N: quantidade de coelhos (era 4; fica so o primeiro, de pelo claro) */
   var rbCols = [0xf1ede6, 0x9b7350, 0x9a999d, 0xd8c3a0];
   var rbEarM = lam(0xf3b6c0), rbEyeM = new THREE.MeshBasicMaterial({ color: 0x151515 }), rbNoseM = lam(0xf08aa0), rbTailM = lam(0xffffff);
   function rabbitBlocked(x, z) {
