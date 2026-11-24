@@ -83,7 +83,7 @@ function runCommand(members, c, a, who) {   // devolve { msg, clock, env } ou nu
 
 // Perfil do jogador (menu Profile): foto pequena (JPEG em data URL), título (número da lista do cliente), descrição, emoji e cor de fundo.
 // O servidor valida tudo e passa a descrição pelo mesmo filtro do chat; o que sai daqui já é seguro para os outros clientes.
-const PROF_MAX_PHOTO = 9200, PROF_MAX_DESC = 50, PROF_DEFAULT = { ph: '', t: 0, d: '', e: '\u{1F431}', bg: '#d9ccf2' };
+const PROF_MAX_PHOTO = 20000, PROF_MAX_DESC = 50, PROF_DEFAULT = { ph: '', t: 0, d: '', e: '\u{1F431}', bg: '#d9ccf2' };
 function cleanProfile(p, guard) {
   if (!p || typeof p !== 'object') return null;
   return {
@@ -126,7 +126,7 @@ server.on('upgrade', (req, socket) => {
   others({ t: 'pres', peer: id, patch: {} });
 
   const chat = createChatGuard();   // estado do chat desta conexão (limite de velocidade, últimas mensagens)
-  let tokens = 80, last = Date.now(), lastCmd = 0, profTok = 4, profLast = Date.now();   // profTok: balde do perfil (rajada de 4, depois 1 a cada 1,5 s)
+  let tokens = 80, last = Date.now(), lastCmd = 0, profTok = 4, profLast = Date.now(), reqTok = 8, reqLast = Date.now();   // profTok: balde do envio de perfil (rajada de 4, depois 1 a cada 1,5 s); reqTok: balde dos pedidos de perfil
   function onMsg(txt) {
     const now = Date.now(); tokens = Math.min(80, tokens + (now - last) * 0.06); last = now;
     if (tokens < 1) return; tokens--;
@@ -154,12 +154,19 @@ server.on('upgrade', (req, socket) => {
         others({ t: 'emit', peer: id, topic: 'chat', data: r.data });
       }
     }
-    else if (m.t === 'emit' && m.topic === 'profile') {   // perfil: { p: perfil } guarda e repassa (já limpo); { req: 1 } devolve os perfis de quem já está na sala
+    else if (m.t === 'emit' && m.topic === 'profile') {   // perfil: { p: perfil } guarda e repassa (já limpo); { req: 1 } devolve os perfis de quem já está na sala; { req: 1, to: id } devolve só o de um jogador
+      const d = m.data;
+      if (d && d.req) {   // pedido de perfil: balde próprio (rajada de 8, depois 1 a cada 0,4 s), para abrir perfis à vontade sem travar o envio do seu
+        reqTok = Math.min(8, reqTok + (now - reqLast) / 400); reqLast = now;
+        if (reqTok < 1) return; reqTok--;
+        const give = (o, k) => { if (k !== id && o && o.profile) send(socket, { t: 'emit', peer: k, topic: 'profile', data: { p: o.profile } }); };
+        if (typeof d.to === 'string') give(members.get(d.to), d.to);   // sempre o perfil mais recente guardado no servidor
+        else members.forEach(give);
+        return;
+      }
       profTok = Math.min(4, profTok + (now - profLast) / 1500); profLast = now;
       if (profTok < 1) return; profTok--;
-      const d = m.data;
-      if (d && d.req) members.forEach((o, k) => { if (k !== id && o.profile) send(socket, { t: 'emit', peer: k, topic: 'profile', data: { p: o.profile } }); });
-      else if (d && d.p) { const c = cleanProfile(d.p, chat); if (c) { me.profile = c; others({ t: 'emit', peer: id, topic: 'profile', data: { p: c } }); } }
+      if (d && d.p) { const c = cleanProfile(d.p, chat); if (c) { me.profile = c; others({ t: 'emit', peer: id, topic: 'profile', data: { p: c } }); } }
     }
     else if (m.t === 'emit' && /^[a-z][a-z0-9_.-]{0,47}$/.test(m.topic)) others({ t: 'emit', peer: id, topic: m.topic, data: m.data });
   }
@@ -171,7 +178,7 @@ server.on('upgrade', (req, socket) => {
       const op = buf[0] & 15, fin = buf[0] & 128; let len = buf[1] & 127, off = 2;
       if (len === 126) { if (buf.length < 4) return; len = buf.readUInt16BE(2); off = 4; }
       else if (len === 127) { if (buf.length < 10) return; len = Number(buf.readBigUInt64BE(2)); off = 10; }
-      if (len > 16384 || !(buf[1] & 128)) return socket.destroy();
+      if (len > 24576 || !(buf[1] & 128)) return socket.destroy();
       if (buf.length < off + 4 + len) return;
       const mask = buf.slice(off, off + 4), pl = Buffer.from(buf.slice(off + 4, off + 4 + len));
       for (let i = 0; i < len; i++) pl[i] ^= mask[i & 3];

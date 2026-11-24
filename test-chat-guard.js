@@ -151,7 +151,7 @@ t('perfil: tipo errado ou vazio devolve vazio', () => { const g = createChatGuar
   });
   sendProf(D, { p: { ph: 'javascript:alert(1)', t: 99, d: 5, e: '<b>', bg: 'red' } }); await sleep(100);
   t('perfil: dados inválidos viram o padrão', () => assert.deepStrictEqual(profOf(E).pop().data.p, { ph: '', t: 0, d: '', e: '\u{1F431}', bg: '#d9ccf2' }));
-  sendProf(D, { p: { ph: 'data:image/jpeg;base64,' + 'A'.repeat(9300), t: 1, d: '', e: '\u{1F431}', bg: '#112233' } }); await sleep(100);
+  sendProf(D, { p: { ph: 'data:image/jpeg;base64,' + 'A'.repeat(20100), t: 1, d: '', e: '\u{1F431}', bg: '#112233' } }); await sleep(100);
   t('perfil: foto grande demais é descartada', () => assert.strictEqual(profOf(E).pop().data.p.ph, ''));
   const F = await open('perfil'); sendProf(F, { req: 1 }); await sleep(100);
   t('perfil: quem entra depois pede e recebe o perfil de cada jogador (o pedido não é repassado)', () => { assert.strictEqual(profOf(F).length, 1); assert.strictEqual(profOf(F)[0].data.p.bg, '#112233'); assert.strictEqual(profOf(E).filter(m => m.data.req).length, 0); });
