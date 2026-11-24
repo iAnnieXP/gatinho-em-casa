@@ -177,7 +177,7 @@ TEXTURAS DA CASA E DOS MOVEIS (versao 46, estilo minimalista: texturas suaves e 
    - Limite de jogadores: no maximo 10 por sala. Quem tentar entrar numa sala cheia ve o aviso "This room is full (max 10 players)"
      e deve escolher outro nome de sala. Mudou o server.js (MAX = 10) e o public/index.html. Se usar o Render, faca o deploy do server.js de novo.
 
-   - Barra de sede: nova barra "Thirst" (gotinha) no painel, ao lado de Fome, Diversao e Energia. Ela cai com o tempo (um pouco mais
+   - Barra de sede: nova barra "Thirst" (gotinha) no painel, ao lado de Fome, Diversao e Stamina. Ela cai com o tempo (um pouco mais
      rapido que a fome) e so sobe bebendo: cada gole do pote de agua da +25, cada gole de poca +10 (vinho so +4). Beber NAO mata a fome
      e comer racao NAO mata a sede. Com a barra cheia o gatinho nao bebe ("Not thirsty!"). Abaixo de 20% aparece o aviso de sede.
      "Jogar de novo" reinicia a barra. So mudou o public/index.html.
