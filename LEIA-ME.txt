@@ -24,6 +24,22 @@ Requisito: Node.js 18 ou mais novo (https://nodejs.org). Nao precisa de npm inst
    Digite o nome, escolha a sala (ou digite um codigo) e clique em Comecar.
    Quem escolher a mesma sala aparece na casa como outro gatinho. Maximo de 10 por sala.
 
+   Seguranca do chat (so no servidor - arquivo chat-guard.js):
+   - Se hospeda no Render, suba server.js E chat-guard.js (sao necessarios os dois).
+   - Limite: rajada de 3 mensagens, depois 1 a cada 1,5 s. Texto max. 50, nome max. 16; remove caracteres de controle/invisiveis.
+   - Palavroes viram ***; links, e-mails, telefones e redes sociais (zap, discord...) bloqueiam a mensagem;
+     mensagem repetida em 20 s e bloqueada; MAIUSCULAS viram minusculas; letras repetidas (ooooi) limitadas a 3.
+   - Para ajustar (bloquear em vez de ***, mudar limites, editar a lista de palavras): veja o topo do chat-guard.js.
+   - Testes: node test-chat-guard.js
+
+   Comandos do chat (em ingles; online valem para TODOS da sala, no modo solo so para voce):
+     /day /afternoon /night /dawn   muda o horario (12h, 17h, 21h, 03h)
+     /rain  /stoprain  /rain auto   chuva, sem chuva, clima natural
+     /redmoon  /redmoon off         lua vermelha so nesta noite / lua normal
+   Silenciar (so para quem silenciou): /mute nome   /unmute nome   /unmute all   /mutelist
+     Esconde o chat, o balao e o miau daquele jogador. O nome fica salvo neste aparelho.
+   Precisa do server.js atualizado (o servidor aplica o comando). Intervalo de 2 s entre comandos.
+
 Novidades:
    - Chat (tecla T ou botao "Chat") com emojis: botao do gatinho abre a lista; atalhos :) :D <3 :gato: :peixe: :pata:
      A mensagem tambem aparece num balao sobre o gatinho de quem falou.
@@ -65,22 +81,26 @@ Novidades:
    - Morcegos (noite): voam pelo quintal e as vezes mergulham baixo, principalmente em cima do gatinho. Pegue encostando
      neles (pule para alcanca-los quando voam mais alto; os que voam alto se assustam e sobem se voce chega perto, os que
      estao mergulhando nao desviam). O contador fica no topo. Depois de pegos eles voltam mais tarde. Sao locais.
-   - Chuva: aparece as vezes (cerca de 22% do tempo, de garoa a temporal) e e igual para todos os jogadores, pois sai do
+   - Chuva: aparece as vezes (cerca de 5% do tempo, de garoa a temporal) e e igual para todos os jogadores, pois sai do
      mesmo relogio do servidor. O ceu escurece e fecha, o som abafa dentro de casa, a chuva nao cai dentro da casa e
      passarinhos, borboletas, vagalumes e morcegos se abrigam.
    - Lua vermelha: em 1% das noites (uma a cada ~100 noites do jogo, ou seja, bem rara) a lua fica grande e vermelha, o ceu
      avermelha, nao chove e aparecem 12 morcegos (6 a mais, de olhos vermelhos). Tambem e igual para todos.
      Para TESTAR sem esperar: abra o jogo no navegador com ?lua=vermelha (ex.: http://localhost:3000/?lua=vermelha)
      e/ou ?chuva (ex.: http://localhost:3000/?lua=vermelha&chuva). No .exe nao da para usar isso, so no navegador.
-   - Pega-pega (so online): chegue perto de outro gato e aperte P (no controle, direcional esquerdo ou Y) para CONVIDAR. O outro gato recebe uma
+   - Pega-pega (so online): abra o MENU DO JOGADOR e escolha "Invite ... to tag" para CONVIDAR. O menu abre de dois jeitos: clicando com o BOTAO DIREITO no nome do jogador (plaquinha acima do gato ou chat; nao precisa estar perto), ou apertando o botao "Players (P)" / a tecla P perto de um gato (abre o menu do gato mais proximo). No menu tambem tem Add/Remove friend e Mute/Unmute. No controle: chegue perto do outro gato e aperte o direcional esquerdo (ou o clique do analogico direito); escolha com direcional cima/baixo, A confirma, B fecha. O outro gato recebe uma
      mensagem na tela e aceita com P/Y/Enter ou no botao (recusa com N/Esc/B ou no botao; sem resposta em 15 s o convite expira).
      Ao aceitar, cada gato e teleportado para um ponto bem diferente do mapa (casa ou quintal). Quem convidou vira o pegador
      (icone de gato bravo na cabeca) e o convidado foge. O pegador pega dando PATADA (F, ou X no controle) em quem estiver na
      frente dele; quem e pego vira o pegador e o outro fica 3 segundos imune. Pode convidar mais gatos durante a brincadeira.
+   - Amigos: no menu do jogador (botao direito no nome, ou botao Players / P perto de um gato) escolha Add friend / Remove friend. Os amigos ficam em
+     dourado com um coracao (plaquinha e chat) e a lista fica salva neste aparelho. Para ver a lista: Menu de pausa (Esc) > Friends, ou o comando /friends
+     no chat. Na lista, a bolinha verde mostra quem esta na sala agora; da para convidar para o pega-pega ou remover. Os dois espacos vazios ao lado do
+     botao Friends sao reservados para botoes futuros.
    - Pegar brinquedo: chegue perto de um brinquedo (bola, bolinha de guizo, novelo, ratinho, peixinho, varinha, patinho) e aperte G
      (botao Grab na tela, Y no controle quando nao ha racao por perto) para leva-lo na boca; aperte de novo (Drop) para solta-lo. Os outros jogadores veem.
-     No controle: direcional esquerdo convida para o pega-pega; direcional cima/baixo da zoom.
-     O botao "Sair do pega-pega" (ou P sem ninguem por perto) sai da brincadeira.
+     No controle: direcional esquerdo abre o menu do jogador mais perto; direcional cima/baixo da zoom (com o menu aberto, escolhe a opcao).
+     Para sair da brincadeira, abra o menu (botao Players / P) e escolha "Leave tag". P/Y tambem aceitam um convite recebido.
    - Futebol: no canto do fundo do quintal (lado norte, entre o muro e o pula-pula) tem um campo pequeno com duas traves, uma bola e um
      placar de madeira (objeto no cenario, com um numero para cada gol: WEST e EAST; aparece dos dois lados). Empurre a bola andando contra ela (ou de PATADA, F/X) ate dentro de
      uma das redes: gol! O numero daquele gol sobe, toca uma musiquinha e solta faiscas; depois de uns segundos a bola volta para o meio do campo.
@@ -166,6 +186,9 @@ TEXTURAS DA CASA E DOS MOVEIS (versao 46, estilo minimalista: texturas suaves e 
    - Beber liquidos derramados: qualquer poca no chao (agua do copo, cafe da caneca, suco da garrafa, vinho, agua do pote) pode ser
      bebida com C / Y: cada gole encolhe a poca e no terceiro ela some. No controle, se houver brinquedo ou fruta ao alcance, o Y continua pegando.
 
+   - Beber da piscina, do chafariz e da banheira: o gatinho precisa estar DENTRO da agua (do lado de fora ou em cima da borda/aro nao
+     bebe). Dentro, C / Y faz ele beber: cada gole da +25 de sede, igual ao pote, mas essa agua NUNCA acaba nem diminui. Com a sede
+     cheia ele recusa, como nos outros casos. So mudou o public/index.html.
    - Vinho: se o gatinho beber vinho derramado (garrafa de vinho verde caida no chao), a visao fica turva (tela borrada) por cerca de
      7 segundos e depois volta ao normal. Beber de novo reinicia o efeito.
 
