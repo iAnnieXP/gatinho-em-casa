@@ -195,7 +195,7 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
 .score.multi{gap:0.875rem}.sg{display:flex;align-items:center;gap:0.375rem}
 .tidy{pointer-events:auto;font-family:var(--font-body);font-weight:700;font-size:.8rem;color:var(--ink);background:var(--panel);border:1px solid var(--line);border-radius:62.4375rem;padding:0.3125rem 0.75rem;cursor:pointer;-webkit-backdrop-filter:blur(0.5rem);backdrop-filter:blur(0.5rem)}
 .tidy:hover{filter:brightness(1.15)}
-#chat{position:absolute;left:max(1rem,env(safe-area-inset-left,0px));bottom:9.375rem;width:min(27.5rem,calc(100% - 2rem));z-index:4;pointer-events:none}#chatlog div{background:var(--panel);border:1px solid var(--line);border-radius:0.625rem;padding:0.25rem 0.625rem;margin-top:0.25rem;font-size:.92rem;line-height:1.35;word-break:break-word;transition:opacity .6s;user-select:text;-webkit-user-select:text}#chatlog div b{color:var(--accent)}#chatlog div.me b{color:var(--good)}#chatlog div.old{opacity:0}#chatin{pointer-events:auto;width:100%;margin-top:0.375rem;font:inherit;font-size:1rem;color:var(--ink);background:rgba(26,29,40,.92);border:1px solid var(--accent);border-radius:0.625rem;padding:0.5625rem 0.75rem;user-select:text;-webkit-user-select:text}
+#chat{position:absolute;left:max(1rem,env(safe-area-inset-left,0px));bottom:9.375rem;width:min(27.5rem,calc(100% - 2rem));z-index:4;pointer-events:none}#chatlog div{background:var(--panel);border:1px solid var(--line);border-radius:0.625rem;padding:0.25rem 0.625rem;margin-top:0.25rem;font-size:.92rem;line-height:1.35;word-break:break-word;transition:opacity .6s;user-select:text;-webkit-user-select:text}#chatlog div b{color:var(--accent)}#chatlog div.me b{color:var(--good)}#chatlog div.old{opacity:0}#chatlog div.bad{background:rgba(120,24,32,.88);border-color:#ff5a64;color:#ffb3b8}#chatlog div.bad b{color:#ff8a92}#chatin{pointer-events:auto;width:100%;margin-top:0.375rem;font:inherit;font-size:1rem;color:var(--ink);background:rgba(26,29,40,.92);border:1px solid var(--accent);border-radius:0.625rem;padding:0.5625rem 0.75rem;user-select:text;-webkit-user-select:text}
 /* mostrador de ping: dentro da linha dos botoes Chat/Menu, encostado na direita e na mesma altura deles */
 #pingbox{margin-left:auto;box-sizing:border-box;display:flex;align-items:center;gap:0.4375rem;padding:0 0.75rem;border-radius:62.4375rem;background:var(--panel);border:1px solid var(--line);color:var(--muted);font-size:.78rem;line-height:1.3;pointer-events:none;opacity:.9}
 #pingbox[hidden]{display:none}
@@ -274,6 +274,7 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
 .tidy:hover { filter: brightness(1.2); transform: translateY(-1px); }
 .tidy:active { transform: translateY(0) scale(0.97); }
 #tagBtn { border-color: rgba(255, 138, 91, 0.55); }
+#tagBtn[hidden] { display: none; }
 
 /* dicas de teclas e botões de toque */
 .btn { background: linear-gradient(160deg, rgba(66, 52, 84, 0.9), rgba(34, 27, 46, 0.9)); box-shadow: 0 0.375rem 1rem rgba(8, 4, 20, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.14); }
@@ -418,10 +419,28 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
 #pause .phint { margin: 0.875rem 0 0; font-size: 0.78rem; color: var(--muted); }
 #pause .pfoot, #intro .pfoot { display: flex; align-items: center; justify-content: space-between; gap: 0.625rem; margin-top: 1rem; }
 #pause .pfoot .phint { margin: 0; flex: 1; text-align: center; font-size: 0.72rem; line-height: 1.3; }
-#intro .pfoot .vertag { flex: 1; text-align: center; font-size: 0.78rem; line-height: 1.3; letter-spacing: 0.04em; color: var(--ink); opacity: 0.6; user-select: none; }
-#intro .pfoot .vertag:empty { visibility: hidden; }
+#intro .pfoot .vertag, #pause .pfoot .vertag { flex: 1; text-align: center; font-size: 0.78rem; line-height: 1.3; letter-spacing: 0.04em; color: var(--ink); opacity: 0.6; user-select: none; }
+#intro .pfoot .vertag:empty, #pause .pfoot .vertag:empty { visibility: hidden; }
 #pause .pic, #intro .pic { flex: none; width: 3rem; height: 3rem; display: grid; place-items: center; padding: 0; border-radius: 0.875rem; background: rgba(255, 238, 214, 0.06); color: var(--ink); border: 1px solid var(--line); cursor: pointer; transition: transform 0.15s, filter 0.15s; }
 #pause .pic svg, #intro .pic svg { width: 1.625rem; height: 1.625rem; }
+#pause .pgrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.625rem; margin-top: 0.625rem; }   /* linha de atalhos: Friends + espaços reservados para botões futuros */
+#pause .psq { height: 4rem; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.25rem; padding: 0; border-radius: 0.875rem; background: rgba(255, 238, 214, 0.06); color: var(--ink); border: 1px solid var(--line); cursor: pointer; font: inherit; font-weight: 700; font-size: 0.72rem; transition: transform 0.15s, filter 0.15s; }
+#pause .psq svg { width: 1.5rem; height: 1.5rem; }
+#pause .psq:hover { transform: translateY(-0.125rem); filter: brightness(1.15); }
+#pause .psq.sel { outline: 0.1875rem solid #fff; outline-offset: 0.1875rem; filter: brightness(1.15); border-radius: 0.875rem; }
+#pause .pslot { height: 4rem; border-radius: 0.875rem; border: 1.5px dashed rgba(255, 238, 214, 0.18); background: rgba(255, 238, 214, 0.025); }
+#pause .frlist { display: grid; gap: 0.5rem; margin-top: 1rem; max-height: min(50vh, 18rem); overflow-y: auto; padding: 0.25rem; text-align: left; }
+#pause .frrow { display: flex; align-items: center; gap: 0.625rem; padding: 0.375rem 0.5rem 0.375rem 0.75rem; border: 1px solid var(--line); border-radius: 0.875rem; background: rgba(255, 238, 214, 0.06); }
+#pause .frdot { flex: none; width: 0.625rem; height: 0.625rem; border-radius: 50%; background: #6b6678; }
+#pause .frrow.on .frdot { background: #6fe08a; box-shadow: 0 0 0.5rem rgba(111, 224, 138, 0.7); }
+#pause .frinfo { flex: 1; min-width: 0; display: grid; }
+#pause .frname { font-weight: 800; color: #ffe08a; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#pause .frst { font-size: 0.7rem; font-weight: 700; color: var(--muted); }
+#pause .frbtn { flex: none; width: 2.25rem; height: 2.25rem; display: grid; place-items: center; padding: 0; border-radius: 0.625rem; background: rgba(255, 238, 214, 0.08); color: var(--ink); border: 1px solid var(--line); cursor: pointer; }
+#pause .frbtn svg { width: 1.15rem; height: 1.15rem; }
+#pause .frbtn:hover { filter: brightness(1.2); }
+#pause .frbtn.sel { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; filter: brightness(1.2); border-radius: 0.625rem; }
+#pause .frempty { margin: 1rem 0 0; color: var(--muted); font-size: 0.85rem; line-height: 1.4; }
 #pause .pic:hover, #intro .pic:hover { transform: translateY(-0.125rem); filter: brightness(1.15); }
 #pause .pic.sel, #intro .pic.sel { outline: 0.1875rem solid #fff; outline-offset: 0.1875rem; filter: brightness(1.15); }
 #pause input[type=range]:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; border-radius: 0.5rem; }
@@ -442,6 +461,25 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
 #setWin .dialog, #pause .dialog.wide.sp-on { max-width: 29.375rem; }
 #pause .dialog.sp-on { max-width: 29.375rem; }
 #setWin .sel { outline: 0.1875rem solid #fff; outline-offset: 0.1875rem; filter: brightness(1.15); border-radius: 0.75rem; }
+#pmenu { position: fixed; z-index: 20; padding: 0.25rem; background: var(--panel); border: 1px solid var(--line); border-radius: 0.75rem; box-shadow: 0 0.375rem 1.25rem rgba(8, 4, 20, 0.45); }   /* menu do botão direito sobre o nome de um jogador */
+#pmenu[hidden] { display: none; }
+#pmenu button { display: block; font: inherit; font-weight: 700; font-size: 0.9rem; color: var(--ink); background: transparent; border: 0; padding: 0.5rem 0.875rem; border-radius: 0.5rem; cursor: pointer; white-space: nowrap; }
+#pmenu button:hover { background: rgba(255, 238, 214, 0.14); }
+#pmenu button { display: flex; align-items: center; gap: 0.625rem; width: 100%; text-align: left; }
+#pmenu button svg { width: 1.1rem; height: 1.1rem; flex: none; }
+#pmenu button[hidden] { display: none; }
+#pmenu button:disabled { opacity: 0.55; cursor: default; background: transparent; }
+#pmenu button.sel { background: rgba(255, 238, 214, 0.22); box-shadow: inset 0 0 0 2px rgba(255, 208, 96, 0.8); }   /* escolhido com o controle */
+#pmenu .ptitle { font-weight: 800; font-size: 0.95rem; color: #ffe08a; text-align: center; padding: 0.375rem 0.875rem 0.4375rem; margin-bottom: 0.1875rem; border-bottom: 1px solid var(--line); max-width: 16rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }   /* nome do jogador no topo do menu */
+#pmenu .ptitle[hidden] { display: none; }
+#pmenu .phint { font-size: 0.7rem; opacity: 0.7; padding: 0.25rem 0.5rem 0.125rem; white-space: nowrap; }
+#pmenu .phint[hidden] { display: none; }
+#chatlog div.pl b { pointer-events: auto; cursor: context-menu; }
+#chatlog div.old b { pointer-events: none; }
+#chatlog div.fr { border-color: rgba(255, 208, 96, 0.7); border-left: 0.25rem solid #ffd060; background: linear-gradient(90deg, rgba(120, 78, 20, 0.5), var(--panel) 70%); }   /* mensagem de amigo */
+#chatlog div.fr b { color: #ffe08a; text-shadow: 0 0 0.5rem rgba(255, 208, 96, 0.45); }
+#chatlog div.fr b::before { content: "\2665\00a0"; color: #ff7f9c; text-shadow: none; }
+#intro .sel, #mpWin .sel { outline: 0.1875rem solid #fff; outline-offset: 0.1875rem; filter: brightness(1.15); }   /* seleção por controle na tela inicial e no Multiplayer */
 #setWin .phint { margin: 0.875rem 0 0; font-size: 0.78rem; color: var(--muted); }
 .sp-tabs { display: flex; gap: 0.5rem; align-items: center; margin: 0.875rem 0 0.25rem; }
 .sp-lb { flex: none; font-size: 0.7rem; font-weight: 800; color: var(--muted); border: 1px solid var(--line); border-radius: 0.5rem; padding: 0.25rem 0.4375rem; }
@@ -702,7 +740,7 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
     <div id="tinv" hidden><span id="tinvTxt"></span><div class="tinvb"><button class="tinvbtn" id="tinvYes" type="button">Accept (P)</button><button class="tinvbtn" id="tinvNo" type="button">Decline (N)</button></div></div>
 
     <footer class="bottom" id="bottomBar">
-      <div class="chatrow"><button id="chatBtn" class="tidy" type="button">💬 Chat (T)</button><button id="menuBtn" class="tidy" type="button">⏸ Menu (Esc)</button><button id="tagBtn" class="tidy" type="button">🐾 Invite (P)</button><div id="pingbox" hidden role="status" aria-live="off" title="Latency to the server"><i></i><span class="pl">ping</span><b id="pingVal">-- ms</b></div></div>
+      <div class="chatrow"><button id="chatBtn" class="tidy" type="button">💬 Chat (T)</button><button id="menuBtn" class="tidy" type="button">⏸ Menu (Esc)</button><button id="tagBtn" class="tidy" type="button">🐾 Players (P)</button><div id="pingbox" hidden role="status" aria-live="off" title="Latency to the server"><i></i><span class="pl">ping</span><b id="pingVal">-- ms</b></div></div>
       <div class="touch">
         <div id="joy" aria-label="Directional pad"><div id="knob"></div></div>
         <div class="btns">
@@ -715,7 +753,7 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
     </footer>
   </div>
 
-  <div id="chat"><div id="chatlog"></div><div id="emojis" hidden></div><div id="cmdlist" hidden></div><div id="chatbar" hidden><input id="chatin" type="text" maxlength="120" placeholder="Message… (Enter sends, Esc cancels)" autocomplete="off"><button id="emojiBtn" type="button" aria-label="Emojis">😺</button></div></div>
+  <div id="chat"><div id="chatlog"></div><div id="emojis" hidden></div><div id="cmdlist" hidden></div><div id="chatbar" hidden><input id="chatin" type="text" maxlength="50" placeholder="Message… (Enter sends, Esc cancels)" autocomplete="off"><button id="emojiBtn" type="button" aria-label="Emojis">😺</button></div></div>
 
   <div id="intro" class="overlay">
     <div class="luna-logo" role="img" aria-label="Luna's Life">
@@ -742,8 +780,8 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
   <script>
   /* mostra a versão do jogo na tela inicial: no .exe vem de window.GATINHO_VERSION; no navegador, do manifesto do servidor */
   (function () {
-    var el = document.getElementById('verTag'), tries = 0, isApp = location.protocol === 'file:';
-    function show(v) { if (el && v) el.textContent = 'v' + String(v).replace(/^v/i, ''); }
+    var els = [document.getElementById('verTag'), document.getElementById('pVerTag')], tries = 0, isApp = location.protocol === 'file:';
+    function show(v) { if (v) els.forEach(function (el) { if (el) el.textContent = 'v' + String(v).replace(/^v/i, ''); }); }   /* tela de título e menu de pausa */
     function fromServer() { try { fetch('/update/manifest.json', { cache: 'no-store' }).then(function (r) { return r.json(); }).then(function (m) { show(m && m.version); }).catch(function () {}); } catch (e) {} }
     if (!isApp) fromServer();   /* navegador: pergunta ao servidor que serviu a página */
     (function wait() {   /* .exe: o programa informa a versão quando a página termina de carregar, o que pode demorar (internet lenta) */
@@ -798,10 +836,22 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
           <button id="pControls" class="go alt" type="button">Controls</button>
           <button id="pTitle" class="go alt" type="button">Title Screen</button>
         </div>
+        <div class="pgrid">
+          <button id="pFriends" class="psq" type="button" aria-label="Friends" title="Friends"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Friends</span></button>
+          <div class="pslot" aria-hidden="true"></div>
+          <div class="pslot" aria-hidden="true"></div>
+        </div>
         <div class="pfoot">
           <button id="pSettings" class="pic" type="button" aria-label="Settings" title="Settings"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.11-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.65 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h0A1.7 1.7 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56h0a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v0A1.7 1.7 0 0 0 20.91 10H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.56 1.03z"/></svg></button>
+          <span id="pVerTag" class="vertag" aria-label="Game version"></span>
           <button id="pQuit" class="pic" type="button" aria-label="Quit Game" title="Quit Game"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3v9"/><path d="M6.4 6.6a8 8 0 1 0 11.2 0"/></svg></button>
         </div>
+      </div>
+      <div id="pauseFriends" hidden>
+        <h2 id="pFrTitle">Friends</h2>
+        <div id="pFrList" class="frlist"></div>
+        <p id="pFrEmpty" class="frempty" hidden>No friends yet. Right-click a player's name (or press P near a cat) and choose Add friend.</p>
+        <div class="pmenu"><button id="pFrBack" class="go" type="button">Back</button></div>
       </div>
       <div id="pauseHelp" hidden>
         <h2>Controls</h2>
@@ -812,10 +862,10 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
           <div class="hr"><span class="hk"><kbd>F</kbd></span><span class="hd">Swat</span></div>
           <div class="hr"><span class="hk"><kbd>R</kbd></span><span class="hd">Tidy up</span></div>
           <div class="hr"><span class="hk"><kbd>T</kbd></span><span class="hd">Chat</span></div>
-          <div class="hr"><span class="hk"><kbd>P</kbd></span><span class="hd">Invite to tag (online)</span></div>
+          <div class="hr"><span class="hk"><kbd>P</kbd></span><span class="hd">Player menu: invite to tag, friend, mute (nearest cat) / accept invite</span></div>
           <div class="hr"><span class="hk"><kbd>M</kbd></span><span class="hd">Meow</span></div>
           <div class="hr"><span class="hk"><kbd>G</kbd></span><span class="hd">Grab / drop a toy or fruit</span></div>
-          <div class="hr"><span class="hk"><kbd>C</kbd></span><span class="hd">Eat kibble / drink water (near the bowls or a puddle)</span></div>
+          <div class="hr"><span class="hk"><kbd>C</kbd></span><span class="hd">Eat kibble / drink water (near the bowls or a puddle, or standing in the fountain, pool or bathtub)</span></div>
           <div class="hr"><span class="hk"><kbd>Mouse drag</kbd></span><span class="hd">Rotate the camera (it also follows behind the kitten)</span></div>
           <div class="hr"><span class="hk"><kbd>Q</kbd><kbd>E</kbd></span><span class="hd">Rotate the camera too</span></div>
           <div class="hr"><span class="hk"><kbd>Mouse wheel</kbd></span><span class="hd">Zoom</span></div>
@@ -2536,8 +2586,8 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     }
     return FENCE_H;
   }
-  /* pula-pula no gramado aberto do lado oeste (meio do quintal, entre o jardim de rosas/casinha e a piscina): centro, raio, altura da lona, impulso do pulo e do pulo com Espaco apertado */
-  var TRAMP = { x: -16.5, z: 1.0, r: 1.5, top: 0.5, jump: 8.6, max: 10.4, dip: 0, vdip: 0, mat: null, said: false };
+  /* pula-pula no gramado ao norte da casa, entre a parede de arbusto do campo de futebol (x = -13,5; face leste em -12,75), a parede de arbusto da cerca norte (z = -15,35; face sul em -14,6) e o canteiro (x = -7,2): centro, raio, altura da lona, impulso do pulo e do pulo com Espaco apertado */
+  var TRAMP = { x: -10.5, z: -12.4, r: 1.5, top: 0.5, jump: 8.6, max: 10.4, dip: 0, vdip: 0, mat: null, said: false };
   /* ----- layout do quintal (tudo que pode mudar de lugar fica aqui; arvores, poleiros, pedras e bichos leem desta lista) -----
      recantos: cantinho do cachorro (oeste, casinha encostada no arbusto do fundo, perto da arvore), bosquinho com arbustos (sudoeste), jardim de rosas com mesinha (sul),
      bosque com banco e roseiras (sudeste), entrada do portao com arbustos dos dois lados e mesinha, canteiros e rosas na cerca oeste.
@@ -2546,22 +2596,29 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     trees: [[3.2, -12.6, 1.2], [9.0, -12.0, 1], [6.2, -14.0, 1.1], [21.0, 2.8, 1.1], [20.6, -5.0, 1.2], [-3, -12.5, 1.1], [0.4, 13.2, 1.1], [-21.2, -3, 1.1]],
     bushes: [[-4, -9.7], [0.5, -9.7], [-10.5, 9.5], [8.7, 9.5, 0], [21.5, -3.1, 0], [21.5, 0.5, 0], [5.0, -10.2], [8.4, -10.3],
       /* junto as paredes da casa (embaixo de janelas fechadas e nos cantos; as janelas abertas e o caminho da porta ficam livres) */
-      [-9.5, -9.7], [3.4, -9.7], [-10.4, 13.7], [7.9, 10.0, 0], [10.9, 0.7], [10.9, -3.3], [10.9, 5.2]]   /* as tres moitas da lateral leste: x 10,9 -> 12,8 (na frente da parede de arbusto) */,
-    beds: [[-7.2, -11], [5.6, 9.5], [-5.6, 9.5]],
+      [3.4, -9.7], [-10.4, 13.7], [7.9, 10.0, 0], [10.9, 0.7], [10.9, -3.3], [10.9, 5.2]]   /* as tres moitas da lateral leste: x 10,9 -> 12,8 (na frente da parede de arbusto) */,
+    beds: [[5.6, 9.5], [-5.6, 9.5]],   /* (o canteiro em [-7.2, -11] e a moita em [-9.5, -9.7] foram removidos para dar lugar ao pula-pula) */
     tabs: [[19.2, 3.6], [0.4, 9.6], [-12.4, 5.8], [12.8, 14.3], [16.2, 14.3], [-21.9, 5.8]],   /* [3] e [4]: uma de cada lado do banco [14.5, 14.2], coladas no arbusto do fundo | [2] e [5]: nos dois cantos da parede de arbusto em frente a piscina (a que ficava na entrada, x = -17,9, foi removida) */
     /* bancos: x, z, giro (0: encosto em +z, olhando para o norte; 1: encosto em +x; 2: encosto em -z; 3: encosto em -x).
        [0] encostado na cerca norte do cercadinho da churrasqueira, por fora (com vaso) | piscina (olhando a agua) | jardim de rosas | encostados nas paredes da casa:
        sul (dois), norte (dois), oeste (dois) e leste (dois) */
-    benches: [[20.0, 10.85, 0], [-5.4, 14.2, 0], [2.8, 8.9, 2], [-6.3, -8.9, 0], [-12.3, -4.5, 1], [-12.3, 4.3, 1], [10.55, -5.5, 3], [8.6, -8.9, 0], [-2.1, 8.9, 2], [10.55, 3.0, 3], [5.4, 14.2, 0], [14.5, 14.2, 0],   /* banco do gramado sul, centrado entre o arbusto do arco (x = 10,9) e a cerca da churrasqueira (x = 18,1) */
+    benches: [[20.0, 10.85, 0], [-5.4, 14.2, 0], [2.8, 8.9, 2], [-6.3, -8.9, 0], [-12.05, -4.5, 1], [-12.05, 4.3, 1], [10.55, -5.5, 3], [8.6, -8.9, 0], [-2.1, 8.9, 2], [10.55, 3.0, 3], [5.4, 14.2, 0], [14.5, 14.2, 0],   /* banco do gramado sul, centrado entre o arbusto do arco (x = 10,9) e a cerca da churrasqueira (x = 18,1) */
       /* campo de futebol (cx = -18,4): dois atrás, um de cada lado do placar, de frente para o campo (giro 2) | dois na frente, um de cada lado da entrada, de frente para o campo (giro 0) */
-      [-20.3, -14.12, 2], [-16.5, -14.12, 2], [-20.7, -9.38, 0], [-16.1, -9.38, 0]],
-    kennel: { x: -21.5, z: -6.0 }
+      [-20.3, -14.12, 2], [-16.5, -14.12, 2], [-20.7, -9.38, 0], [-16.1, -9.38, 0],
+      /* parquinho: banco encostado por fora na parede de arbusto sul (z = -7,6; face de fora em z = -6,85), a oeste da entrada (x = 17,8 a 19,8), de frente para o sul (giro 2) */
+      [15.8, -6.56, 2]],
+    kennel: { x: -21.5, z: -6.0 },
+    /* mesas redondas do gramado oeste (entre os bancos da parede oeste da casa e a cerca), uma de cada lado do centro: x, z do centro; cada uma com 4 cadeiras (uma em cada ponto cardeal) */
+    tables: [[-16.0, -2.7], [-16.0, 3.0]],
+    /* canteiro comprido de flores junto a parede oeste da casa, entre os dois bancos (mesmo desenho dos outros canteiros, com o lado maior ao longo de z): x, z do centro */
+    bedsV: [[-12.35, 0.0]]
   };
   YARD.bench = { x: YARD.benches[0][0], z: YARD.benches[0][1] };   /* o banco do vaso */
   /* ponto do banco b em coordenadas locais (lx ao longo do banco, lz para o encosto) -> mundo */
   function benchPt(b, lx, lz) { var r = b[2] & 3; return r === 0 ? [b[0] + lx, b[1] + lz] : r === 1 ? [b[0] + lz, b[1] - lx] : r === 2 ? [b[0] - lx, b[1] - lz] : [b[0] - lz, b[1] + lx]; }
   var ROSES = [[-3, 13.6, 'red', 1.05], [3, 13.6, 'pink', 1], [-8, 13.6, 'white', 1], [8, 13.6, 'yellow', 1.05]];   /* roseiras: x, z, cor, escala */
-  var flowers = [];   /* flores dos canteiros: {x,z,col,stem,head,alive} — o gatinho destrói ao passar por cima */
+  var FOUNT = null;   /* chafariz da frente da casa (montado no quintal; animado por updFountain) */
+  var flowers = [], FLI = null;   /* flores dos canteiros: {x,z,col,fi,alive} (fi: indice da flor nas malhas instanciadas FLI) — o gatinho destrói ao passar por cima */
   (function () {
     /* ----- textura do gramado (desenhada em canvas, sem arquivos): folhinhas, trevos e tufos secos que se repetem sem emenda,
        mais uma camada grande com manchas claras/escuras e faixas de grama cortada para quebrar a repetição ----- */
@@ -3109,9 +3166,9 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       }
       var bw = gmx(b[0], 0, b[1], 1, 1, 1, 0, rr() * 6.283, 0);   /* lugar da moita no mundo (mesma rotacao aleatoria de antes) */
       parts.forEach(function (pt) { pt.m.premultiply(bw); BUSH_ALL.push(pt); });
-      /* colisao: a moita visual vai ate ~0,8 * ws do centro; tres retangulos (cruz + quadrado central) formam um octogono que acompanha a copa, e e alta demais (3 m) para o gatinho subir ou entrar, sem abafar o som como as paredes (h >= 50) */
+      /* colisao: a moita visual vai ate ~0,8 * ws do centro; tres retangulos (cruz + quadrado central) formam um octogono que acompanha a copa, e agora tem so 0,7 m de altura (antes 3 m): o gatinho pula (pulo de 1,36 m) e fica em cima da moita, sem abafar o som como as paredes (h >= 50). A copa visual vai ate ~0,85 a 1,0 m no centro, entao em cima ele fica um pouco afundado nas folhas */
       (function () {
-        var R = 0.78 * ws, R2 = R * 0.45, R3 = R * 0.74, H = 3;
+        var R = 0.78 * ws, R2 = R * 0.45, R3 = R * 0.74, H = 0.7;
         colliders.push({ x1: b[0] - R, x2: b[0] + R, z1: b[1] - R2, z2: b[1] + R2, h: H, cam: 1.35 });   /* cam: altura ate onde a CAMERA nao atravessa (topo visual da moita) */
         colliders.push({ x1: b[0] - R2, x2: b[0] + R2, z1: b[1] - R, z2: b[1] + R, h: H, cam: 1.35 });
         colliders.push({ x1: b[0] - R3, x2: b[0] + R3, z1: b[1] - R3, z2: b[1] + R3, h: H, cam: 1.35 });
@@ -3189,10 +3246,31 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       });
       if (ROSE_ALL.s.length) { gmesh(ROSE_ALL.s, true, STRUCT_M, false); gmesh(ROSE_ALL.l, true, LEAF_M, true); gmesh(ROSE_ALL.b, false, BLOOM_M, false); }
     })();
+    /* ----- canteiros: terra, moldura de tabuas com pilarzinhos (entram na fusao estatica) e 12 flores cada. As flores sao montadas como antes (caule, 2 folhinhas, 7 petalas e miolo),
+       mas so para tirar as matrizes: o desenho vai em 4 InstancedMesh (caules, folhas, petalas, miolos) para as 36 flores = 4 chamadas de desenho (eram ~400 malhas soltas).
+       bb(lx, lz, ...): lx ao longo do canteiro, lz atravessado; no canteiro girado (v) os eixos trocam. ----- */
+    var FLD = { stem: [], leaf: [], petal: [], petalC: [], ctr: [], ctrC: [] }, flT = new THREE.Object3D(), flL = new THREE.Object3D();
+    function flowerBake(i, fx, fz, fcol) {   /* i: posicao no canteiro (0..11); guarda as matrizes de 1 caule, 2 folhas, 7 petalas e 1 miolo */
+      var sm, hm, k, an;
+      flT.position.set(fx, 0.225, fz); flT.rotation.set(0, 0, 0); flT.scale.set(1, 1, 1); flT.updateMatrix();   /* caule: y 0,1 a 0,35 */
+      sm = flT.matrix.clone(); FLD.stem.push(sm);
+      [-1, 1].forEach(function (sd, k2) {   /* duas folhinhas no caule */
+        flL.position.set(sd * 0.04, -0.07 + k2 * 0.05, 0); flL.rotation.set(0, 0, sd * 0.45); flL.scale.set(0.05, 0.007, 0.02); flL.updateMatrix();
+        FLD.leaf.push(new THREE.Matrix4().multiplyMatrices(sm, flL.matrix));
+      });
+      flT.position.set(fx, 0.38, fz); flT.rotation.set(((i % 3) - 1) * 0.14, 0, ((i % 4) - 1.5) * 0.06); flT.scale.set(1, 1, 1); flT.updateMatrix();   /* cabeca da flor */
+      hm = flT.matrix.clone();
+      for (k = 0; k < 7; k++) {
+        an = k / 7 * 6.2832;
+        flL.position.set(Math.cos(an) * 0.055, 0, Math.sin(an) * 0.055); flL.rotation.set(0, -an, 0); flL.scale.set(0.05, 0.016, 0.03); flL.updateMatrix();
+        FLD.petal.push(new THREE.Matrix4().multiplyMatrices(hm, flL.matrix)); FLD.petalC.push(fcol);
+      }
+      flL.position.set(0, 0.008, 0); flL.rotation.set(0, 0, 0); flL.scale.set(0.03, 0.021, 0.03); flL.updateMatrix();   /* miolo */
+      FLD.ctr.push(new THREE.Matrix4().multiplyMatrices(hm, flL.matrix)); FLD.ctrC.push(fcol === 0xffd23f ? 0xe08a2a : 0xf2c14e);
+    }
     YARD.beds.forEach(function (b, q) {
-      /* canteiro: terra com camada de cima mais clara, moldura de tábuas de madeira com pilarzinhos nos cantos, e flores de verdade (miolo + pétalas) com folhinhas no caule.
-         A moldura é só visual (sem colisão); o topo da terra continua a 0,10 m, então o gatinho anda igual. */
       var wd = 0x9a6a42, wdD = 0x7a5233, wdL = 0xb88950;
+      mergeOn = true;
       box({ x: b[0], z: b[1], w: 3.2, d: 1.1, h: 0.1, color: 0x5a3b22, collide: false, cast: false });
       box({ x: b[0], z: b[1], w: 3.1, d: 1.0, h: 0.012, y: 0.1, color: 0x6e4829, collide: false, cast: false });
       [-1, 1].forEach(function (sd) {
@@ -3202,25 +3280,53 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
         box({ x: b[0] + sd * 1.63, z: b[1], w: 0.09, d: 1.12, h: 0.02, y: 0.15, color: wdL, collide: false, cast: false });
       });
       [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (c) { box({ x: b[0] + c[0] * 1.63, z: b[1] + c[1] * 0.58, w: 0.1, d: 0.1, h: 0.2, color: wdD, collide: false, cast: false }); });
+      mergeOn = false;
       pads.push({ x1: b[0] - 1.6, x2: b[0] + 1.6, z1: b[1] - 0.55, z2: b[1] + 0.55, h: 0.1 });   /* canteiro de flores */
       for (var i = 0; i < 12; i++) {
         var fx = b[0] - 1.4 + (i % 6) * 0.56, fz = b[1] + (i < 6 ? -0.25 : 0.25);
         var fcol = [0xf08fb0, 0xffd23f, 0xffffff, 0xc79bf2][(i + q) % 4];
-        var stem = cyl({ x: fx, z: fz, r: 0.012, h: 0.25, y: 0.1, color: 0x4f9a4f, collide: false, cast: false });
-        [-1, 1].forEach(function (sd, k) {   /* duas folhinhas no caule (filhas dele: somem juntas quando a flor é pisoteada) */
-          var lf = new THREE.Mesh(new THREE.SphereGeometry(1, 8, 6), M(0x5fae5a, { roughness: 0.7 })); lf.scale.set(0.05, 0.007, 0.02);
-          lf.position.set(sd * 0.04, -0.07 + k * 0.05, 0); lf.rotation.z = sd * 0.45; stem.add(lf);
-        });
-        var head = new THREE.Group(); head.position.set(fx, 0.38, fz); head.rotation.x = ((i % 3) - 1) * 0.14; head.rotation.z = ((i % 4) - 1.5) * 0.06; scene.add(head);
-        var pm2 = M(fcol, { roughness: 0.55 });
-        for (var k = 0; k < 7; k++) {
-          var an = k / 7 * 6.2832, pt = new THREE.Mesh(new THREE.SphereGeometry(1, 10, 8), pm2); pt.scale.set(0.05, 0.016, 0.03);
-          pt.position.set(Math.cos(an) * 0.055, 0, Math.sin(an) * 0.055); pt.rotation.y = -an; pt.castShadow = false; head.add(pt);
-        }
-        var ctr = new THREE.Mesh(new THREE.SphereGeometry(0.03, 12, 8), M(fcol === 0xffd23f ? 0xe08a2a : 0xf2c14e, { roughness: 0.6 })); ctr.scale.y = 0.7; ctr.position.y = 0.008; ctr.castShadow = false; head.add(ctr);
-        flowers.push({ x: fx, z: fz, bx: b[0], bz: b[1], col: fcol, alive: true, stem: stem, head: head });
+        flowerBake(i, fx, fz, fcol);
+        flowers.push({ x: fx, z: fz, bx: b[0], bz: b[1], col: fcol, alive: true, fi: flowers.length });
       }
     });
+    YARD.bedsV.forEach(function (b, q) {
+      var wd = 0x9a6a42, wdD = 0x7a5233, wdL = 0xb88950;
+      function bb(lx, lz, w, d, h, y, c) { return box({ x: b[0] + lz, z: b[1] + lx, w: d, d: w, h: h, y: y, color: c, collide: false, cast: false }); }
+      mergeOn = true;
+      bb(0, 0, 3.2, 1.1, 0.1, 0, 0x5a3b22);
+      bb(0, 0, 3.1, 1.0, 0.012, 0.1, 0x6e4829);
+      [-1, 1].forEach(function (sd) {
+        bb(0, sd * 0.58, 3.32, 0.06, 0.15, 0, wd);
+        bb(0, sd * 0.58, 3.34, 0.09, 0.02, 0.15, wdL);
+        bb(sd * 1.63, 0, 0.06, 1.1, 0.15, 0, wd);
+        bb(sd * 1.63, 0, 0.09, 1.12, 0.02, 0.15, wdL);
+      });
+      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (c) { bb(c[0] * 1.63, c[1] * 0.58, 0.1, 0.1, 0.2, 0, wdD); });
+      mergeOn = false;
+      pads.push({ x1: b[0] - 0.55, x2: b[0] + 0.55, z1: b[1] - 1.6, z2: b[1] + 1.6, h: 0.1 });
+      for (var i = 0; i < 12; i++) {
+        var fx = b[0] + (i < 6 ? -0.25 : 0.25), fz = b[1] - 1.4 + (i % 6) * 0.56;
+        var fcol = [0xffd23f, 0xf08fb0, 0xc79bf2, 0xffffff][(i + q) % 4];
+        flowerBake(i, fx, fz, fcol);
+        flowers.push({ x: fx, z: fz, bx: b[0], bz: b[1], v: 1, col: fcol, alive: true, fi: flowers.length });
+      }
+    });
+    (function () {   /* as 4 malhas instanciadas de todas as flores (frustumCulled off: no three r128 o corte usaria a esfera da geometria na origem) */
+      var cc = new THREE.Color();
+      function mk(geo, mat, mats, cols) {
+        var im = new THREE.InstancedMesh(geo, mat, mats.length), n;
+        for (n = 0; n < mats.length; n++) { im.setMatrixAt(n, mats[n]); if (cols) im.setColorAt(n, cc.setHex(cols[n])); }
+        im.frustumCulled = false; im.castShadow = false; im.receiveShadow = false; im.instanceMatrix.needsUpdate = true; scene.add(im);
+        im.userData.orig = im.instanceMatrix.array.slice();   /* matrizes originais: voltam quando a casa e arrumada */
+        return im;
+      }
+      FLI = {
+        stem: mk(new THREE.CylinderGeometry(0.012, 0.012, 0.25, 6), M(0x4f9a4f), FLD.stem),
+        leaf: mk(new THREE.SphereGeometry(1, 8, 6), M(0x5fae5a, { roughness: 0.7 }), FLD.leaf),
+        petal: mk(new THREE.SphereGeometry(1, 10, 8), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.55 }), FLD.petal, FLD.petalC),
+        ctr: mk(new THREE.SphereGeometry(1, 12, 8), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 }), FLD.ctr, FLD.ctrC)
+      };
+    })();
     /* banco de jardim: pernas e travessas escuras, assento de tabuas com frestas, encosto de ripas e bracos (colisao e alturas iguais as do banco antigo) */
     YARD.benches.forEach(function (bn) {
       var DK = 0x6b4426, MD = 0x9a6a42, LT = 0xc99a62, odd = bn[2] & 1;
@@ -3239,6 +3345,83 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       [0.52, 0.68, 0.84].forEach(function (y, i) { bp(0, 0.24, 1.64, 0.035, 0.12, y, i % 2 ? LT : MD); });                   /* ripas do encosto */
       bp(0, 0.24, 1.76, 0.06, 0.05, 0.9, DK);                         /* travessa de cima */
     });
+    /* mesas redondas de jardim com 4 cadeiras: mesma madeira dos bancos (pernas escuras, tabuas medias e claras com frestas, ripas no encosto), so texturas 'wood' ja existentes.
+       Tampo de tabuas (raio 0,8, a 0,75 m), pe central com base em cruz e aro sob o tampo; cadeiras em +z, +x, -z e -x (giro 0 a 3, como os bancos), de frente para a mesa.
+       Colisoes: mesa (quadrado inscrito no tampo, topo a 0,75) e assento de cada cadeira (topo a 0,45, como o banco). Malhas marcadas para a fusao estatica. */
+    YARD.tables.forEach(function (tb, ti) {
+      var DK = 0x6b4426, MD = 0x9a6a42, LT = 0xc99a62, TX0 = tb[0], TZ0 = tb[1];
+      mergeOn = true;
+      cyl({ x: TX0, z: TZ0, r: 0.8, h: 0.045, y: 0.705, color: LT, tex: 'wood', seg: 28 });                                  /* tampo */
+      cyl({ x: TX0, z: TZ0, r: 0.84, h: 0.03, y: 0.7, color: DK, tex: 'wood', seg: 28, cast: false });                        /* borda escura sob o tampo */
+      [-0.5, -0.25, 0, 0.25, 0.5].forEach(function (o) {                                                                       /* frestas entre as tabuas */
+        box({ x: TX0 + o, z: TZ0, w: 0.018, d: 2 * Math.sqrt(0.8 * 0.8 - o * o) - 0.05, h: 0.004, y: 0.749, color: DK, tex: 'wood', collide: false, cast: false });
+      });
+      cyl({ x: TX0, z: TZ0, r: 0.52, h: 0.05, y: 0.65, color: MD, tex: 'wood', seg: 20, cast: false });                       /* aro sob o tampo */
+      cyl({ x: TX0, z: TZ0, r: 0.1, r2: 0.085, h: 0.65, color: DK, tex: 'wood', seg: 10 });                                   /* pe central */
+      box({ x: TX0, z: TZ0, w: 0.9, d: 0.1, h: 0.06, color: DK, tex: 'wood', collide: false });                               /* base em cruz */
+      box({ x: TX0, z: TZ0, w: 0.1, d: 0.9, h: 0.06, color: DK, tex: 'wood', collide: false });
+      [[0.8, 0.33], [0.33, 0.8], [0.58, 0.58]].forEach(function (q) {   /* tres retangulos cruzados aproximam o tampo redondo (os objetos nao flutuam na borda e o gato nao atravessa o tampo) */
+        colliders.push({ x1: TX0 - q[0], x2: TX0 + q[0], z1: TZ0 - q[1], z2: TZ0 + q[1], h: 0.75 });
+      });
+      [[0, 1.12, 0], [1.12, 0, 1], [0, -1.12, 2], [-1.12, 0, 3]].forEach(function (cd) {
+        var ch = [TX0 + cd[0], TZ0 + cd[1], cd[2]], odd = ch[2] & 1;
+        function cp(lx, lz, w, d, h, y, c) { var q = benchPt(ch, lx, lz); return box({ x: q[0], z: q[1], w: odd ? d : w, d: odd ? w : d, h: h, y: y, color: c, tex: 'wood', collide: false, cast: false }); }
+        [-1, 1].forEach(function (sx) {
+          cp(sx * 0.21, -0.2, 0.05, 0.05, 0.42, 0, DK);                 /* pernas da frente */
+          cp(sx * 0.21, 0.2, 0.05, 0.05, 0.95, 0, DK);                  /* pernas de tras (sobem ate o topo do encosto) */
+        });
+        [-0.14, 0, 0.14].forEach(function (oz, i) { cp(0, oz, 0.5, 0.125, 0.04, 0.41, i % 2 ? MD : LT); });   /* tabuas do assento */
+        /* apoio (encosto): ripas e travessa de cima com cantos arredondados e quinas suavizadas (placa extrudada com bisel, mesma madeira) */
+        function rslat(y, w, h, t, c, rr) {
+          var bv = 0.006, sw = w - 2 * bv, sh = h - 2 * bv, r = Math.min(rr, sw / 2, sh / 2), x0 = -sw / 2, y0 = -sh / 2, HQ = Math.PI / 2, sp = new THREE.Shape();
+          sp.moveTo(x0 + r, y0); sp.lineTo(-x0 - r, y0); sp.absarc(-x0 - r, y0 + r, r, -HQ, 0, false);
+          sp.lineTo(-x0, -y0 - r); sp.absarc(-x0 - r, -y0 - r, r, 0, HQ, false);
+          sp.lineTo(x0 + r, -y0); sp.absarc(x0 + r, -y0 - r, r, HQ, Math.PI, false);
+          sp.lineTo(x0, y0 + r); sp.absarc(x0 + r, y0 + r, r, Math.PI, Math.PI * 1.5, false);
+          var dp = t - 2 * bv, geo = new THREE.ExtrudeGeometry(sp, { depth: dp, bevelEnabled: true, bevelThickness: bv, bevelSize: bv, bevelSegments: 2, curveSegments: 6 }), uv = geo.attributes.uv, k, q = benchPt(ch, 0, 0.2);
+          geo.translate(0, 0, -dp / 2);
+          for (k = 0; k < uv.count; k++) uv.setXY(k, uv.getX(k) / 1.1, uv.getY(k) / 1.1);   /* textura em escala real (tile da madeira = 1,1 m) */
+          var m = new THREE.Mesh(geo, M(c, undefined, 'wood'));
+          m.position.set(q[0], y + h / 2, q[1]); m.rotation.y = odd ? Math.PI / 2 : 0; m.castShadow = false; m.receiveShadow = true;
+          scene.add(m); if (mergeOn) mergeSet.add(m);
+        }
+        rslat(0.54, 0.4, 0.12, 0.03, MD, 0.05);                         /* ripa de baixo */
+        rslat(0.72, 0.4, 0.12, 0.03, LT, 0.05);                         /* ripa do meio */
+        rslat(0.9, 0.5, 0.05, 0.05, DK, 0.022);                         /* travessa de cima, de pontas redondas */
+        var c0 = benchPt(ch, 0, 0), hx = odd ? 0.22 : 0.25, hz = odd ? 0.25 : 0.22;
+        colliders.push({ x1: c0[0] - hx, x2: c0[0] + hx, z1: c0[1] - hz, z2: c0[1] + hz, h: 0.45 });
+      });
+      mergeOn = false;
+      /* toalha: pano quadrado girado 45 graus (as pontas ficam viradas para as cadeiras), xadrez pastel com barra e filete (azul numa mesa, rosa na outra);
+         fica sobre o tampo e, onde passa da borda redonda, dobra e cai pelas quatro pontas (so visual: colisao, fisica e objetos continuam iguais) */
+      (function () {
+        var pal = ti % 2 ? 0xd86a6a : 0x5f8fc2, ac = '#' + ('000000' + pal.toString(16)).slice(-6), cv = document.createElement('canvas'), cg, N = 16, cs = 512 / N, a;
+        cv.width = cv.height = 512; cg = cv.getContext('2d');
+        cg.fillStyle = '#fdf8ee'; cg.fillRect(0, 0, 512, 512);
+        cg.fillStyle = ac; cg.globalAlpha = 0.3;
+        for (a = 0; a < N; a += 2) { cg.fillRect(a * cs, 0, cs, 512); cg.fillRect(0, a * cs, 512, cs); }   /* xadrez: faixas que se cruzam */
+        cg.globalAlpha = 1;
+        cg.fillRect(0, 0, 512, 18); cg.fillRect(0, 494, 512, 18); cg.fillRect(0, 0, 18, 512); cg.fillRect(494, 0, 18, 512);   /* barra da borda */
+        cg.strokeStyle = ac; cg.lineWidth = 3; cg.strokeRect(31, 31, 450, 450);                                              /* filete por dentro */
+        var tx = new THREE.CanvasTexture(cv); tx.anisotropy = 4;
+        var S = 1.4, RT = 0.8, RB = 0.06, TOP = 0.754, ARC = Math.PI / 2 * RB, geo = new THREE.PlaneGeometry(S, S, 56, 56), pos, k, x, z, r, d, th, rr, yy, ph;
+        geo.rotateX(-Math.PI / 2); geo.rotateY(Math.PI / 4);
+        pos = geo.attributes.position;
+        for (k = 0; k < pos.count; k++) {
+          x = pos.getX(k); z = pos.getZ(k); r = Math.hypot(x, z);
+          if (r > RT) {
+            d = r - RT; th = Math.atan2(z, x);
+            if (d < ARC) { ph = d / RB; rr = RT + RB * Math.sin(ph); yy = TOP - RB * (1 - Math.cos(ph)); }   /* dobra arredondada sobre a borda do tampo */
+            else { rr = RT + RB; yy = TOP - RB - (d - ARC); }                                                   /* parte que pende na vertical */
+            rr += 0.008 * Math.sin(th * 18) * Math.min(1, Math.max(0, (d - ARC) / 0.08));                       /* leve ondulacao de pano */
+            pos.setXYZ(k, rr * Math.cos(th), yy, rr * Math.sin(th));
+          } else pos.setY(k, TOP);
+        }
+        geo.computeVertexNormals();
+        var cm = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ map: tx, roughness: 0.95, metalness: 0, side: THREE.DoubleSide }));
+        cm.position.set(TX0, 0, TZ0); cm.castShadow = false; cm.receiveShadow = true; scene.add(cm);
+      })();
+    });
     YARD.tabs.forEach(function (b, bi) {   /* mesinhas de jardim para os vasos de planta: pedestais de pedra com rodape, capitel e mosaico no tampo (colisoes iguais) */
       box({ x: b[0], z: b[1], w: 0.6, d: 0.6, h: 0.66, color: 0xb8b2a6, tex: 'stone' });
       box({ x: b[0], z: b[1], w: 0.72, d: 0.72, h: 0.04, y: 0.66, color: 0x9c968a, tex: 'stone' });
@@ -3250,6 +3433,107 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       ball(b[0] + (bi % 2 ? 0.3 : -0.3), 0.1, b[1] + 0.32, 0.07, 0x5f8f4a, 1.3, 0.45, 0.8);
       ball(b[0] - 0.31, 0.14, b[1] - 0.12 + bi * 0.1, 0.05, 0x4f7f3a, 0.8, 0.5, 1.2);
     });
+    /* ----- chafariz na frente da casa (gramado leste, ao sul do caminho de pedras, entre a casa e a mesinha do vaso; afastado da area da churrasqueira, com o poste de luz ao norte dela, junto ao caminho): piso redondo de lajes em aneis, degrau, bacia de pedra com
+       azulejos azuis por dentro e agua IGUAL a da piscina (mesmo material e brilho; ligados no bloco da piscina), pedestal, taca de cima, repuxo, vitorias-regias, bolinhas na borda e uma banda esculpida. Tudo e estatico (fundido ou instanciado)
+       exceto a agua: gotas num InstancedMesh e aneis de onda (updFountain, no loop), mais o brilho da agua que desliza (igual ao da piscina). K: escala geral (1,3 = 30% maior que a primeira versao).
+       Colisao (como a da banheira): so o anel da parede da bacia (topo 0,754 m, da para pular na borda e entrar) e o pedestal central (alto demais); o interior e a agua ficam livres. ----- */
+    FOUNT = (function () {
+      var K = 1.3, CX = 15.5, CZ = 5.6, ST = 0xb8b2a6, STD = 0x9c968a, k, V2 = THREE.Vector2, sd = 4417;
+      function rr() { sd = (sd * 1664525 + 1013904223) >>> 0; return sd / 4294967296; }
+      function cv(n) { var c = document.createElement('canvas'); c.width = c.height = n; return c; }
+      function mkTex(c, rx, ry) { var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rx || 1, ry || 1); t.anisotropy = 4; return t; }
+      /* piso: aneis de lajes (2 fileiras) em volta da bacia, com juntas escuras; o miolo fica escondido sob a bacia */
+      var pc = cv(512), g = pc.getContext('2d'), i, j, q;
+      g.fillStyle = '#8f897e'; g.fillRect(0, 0, 512, 512);
+      g.fillStyle = '#b9b3a6'; g.beginPath(); g.arc(256, 256, 190, 0, 6.2832); g.fill();
+      [[0.72, 0.86, 22], [0.86, 1.0, 30]].forEach(function (rg, ri) {
+        var n = rg[2], a0, a1, col = ['#c9c3b5', '#b9b3a5', '#c2bcae', '#afa99b'];
+        for (j = 0; j < n; j++) {
+          a0 = j / n * 6.2832 + 0.012; a1 = (j + 1) / n * 6.2832 - 0.012;
+          g.fillStyle = col[(j * 3 + ri * 2) % 4];
+          g.beginPath(); g.arc(256, 256, rg[1] * 256 - 2, a0, a1); g.arc(256, 256, rg[0] * 256 + 2, a1, a0, true); g.closePath(); g.fill();
+        }
+      });
+      for (q = 0; q < 420; q++) { g.fillStyle = rr() < 0.5 ? 'rgba(90,84,74,0.12)' : 'rgba(255,255,255,0.14)'; g.beginPath(); g.arc(rr() * 512, rr() * 512, 0.8 + rr() * 1.6, 0, 6.2832); g.fill(); }
+      var pave = new THREE.Mesh(new THREE.CircleGeometry(2.7, 64), new THREE.MeshStandardMaterial({ map: mkTex(pc), roughness: 0.95 }));
+      pave.rotation.x = -Math.PI / 2; pave.position.set(CX, 0.032, CZ); pave.receiveShadow = true; scene.add(pave);
+      /* azulejos azuis do fundo e da parede de dentro da bacia */
+      var tc = cv(128), tg = tc.getContext('2d'), tn = ['#3f93b3', '#4aa3c2', '#58b4cc', '#3b87a8', '#5fbdd2'];
+      tg.fillStyle = '#2d6b80'; tg.fillRect(0, 0, 128, 128);
+      for (i = 0; i < 8; i++) for (j = 0; j < 8; j++) { tg.fillStyle = tn[Math.floor(rr() * 5)]; tg.fillRect(i * 16 + 1, j * 16 + 1, 14, 14); }
+
+      mergeOn = true;
+      cyl({ x: CX, z: CZ, r: 1.97, h: 0.08, y: 0.03, color: STD, tex: 'stone', seg: 36, collide: false, cast: false });                                  /* degrau em volta da bacia */
+      cyl({ x: CX, z: CZ, r: 1.845, h: 0.06, y: 0.36, color: STD, tex: 'stone', seg: 36, collide: false, cast: false });                       /* banda esculpida na parede da bacia */
+      cyl({ x: CX, z: CZ, r: 0.6, h: 0.13, y: 0.286, color: STD, tex: 'stone', seg: 20, collide: false, cast: false });                                    /* base do pedestal (dentro da bacia) */
+      cyl({ x: CX, z: CZ, r: 0.26, r2: 0.2, h: 0.86, y: 0.416, color: ST, tex: 'stone', seg: 18, collide: false });                              /* coluna */
+      cyl({ x: CX, z: CZ, r: 0.39, h: 0.08, y: 1.22, color: STD, tex: 'stone', seg: 20, collide: false, cast: false });                                     /* colar sob a taca de cima */
+      cyl({ x: CX, z: CZ, r: 0.09, r2: 0.045, h: 0.4, y: 1.456, color: ST, tex: 'stone', seg: 10, collide: false, cast: false });                 /* haste do repuxo */
+      mergeOn = false;
+      var stoneM = M(ST, { side: THREE.DoubleSide }, 'stone');
+      function lathe(pts, r, h, mat) {   /* pts: [raio, altura] ja na escala 1; multiplica por K */
+        var gg = new THREE.LatheGeometry(pts.map(function (p2) { return new V2(p2[0] * K, p2[1] * K); }), 36), m;
+        if (mat === stoneM) TEXLIB.uvCyl(gg, r * K, h * K, 'stone');
+        m = new THREE.Mesh(gg, mat); m.position.set(CX, 0, CZ); m.castShadow = mat === stoneM; m.receiveShadow = true; scene.add(m); return m;
+      }
+      lathe([[1.26, 0.03], [1.38, 0.08], [1.4, 0.44], [1.5, 0.5], [1.5, 0.58], [1.22, 0.58], [1.2, 0.5], [1.18, 0.46]], 1.45, 0.8, stoneM);   /* bacia de baixo: parede de fora e borda */
+      lathe([[0.1, 1.0], [0.3, 1.03], [0.52, 1.1], [0.66, 1.22], [0.66, 1.27], [0.58, 1.27], [0.5, 1.19], [0.3, 1.12], [0.0, 1.12]], 0.6, 0.3, stoneM);   /* taca de cima */
+      var tileWall = mkTex(tc, 6, 0.2), tileFloor = mkTex(tc, 2, 2);
+      lathe([[1.18, 0.46], [1.18, 0.22]], 1, 1, new THREE.MeshStandardMaterial({ map: tileWall, roughness: 0.5, side: THREE.DoubleSide }));   /* parede de dentro com azulejos */
+      var fl = new THREE.Mesh(new THREE.CircleGeometry(1.18 * K, 40), new THREE.MeshStandardMaterial({ map: tileFloor, roughness: 0.5 }));   /* fundo com azulejos */
+      fl.rotation.x = -Math.PI / 2; fl.position.set(CX, 0.22 * K, CZ); fl.receiveShadow = true; scene.add(fl);
+      var fin = new THREE.Mesh(new THREE.SphereGeometry(0.085, 10, 7), stoneM); fin.position.set(CX, 1.87, CZ); fin.castShadow = false; scene.add(fin);   /* bolinha no alto do repuxo */
+      var wM = new THREE.MeshBasicMaterial({ color: 0x3fb8e0, transparent: true, opacity: 0.66, depthWrite: false });   /* provisorio: o bloco da piscina troca pelo material da agua da piscina (mesma cor, brilho e luz da noite) */
+      var WL = 0.40 * K, WU = 1.165 * K;   /* nivel da agua de baixo (mais baixo que a borda dos azulejos, 0,46) e de cima */
+      var wms = [];   /* discos de agua (raio, nivel): o bloco da piscina troca o material e poe o brilho de celulas por cima */
+      [[1.192 * K, WL], [0.47 * K, WU]].forEach(function (q2) {
+        var wg2 = new THREE.CircleGeometry(q2[0], 40); wg2.rotateX(-Math.PI / 2);
+        var wm = new THREE.Mesh(wg2, wM); wm.position.set(CX, q2[1], CZ); wm.renderOrder = 1; scene.add(wm); wms.push({ m: wm, r: q2[0], y: q2[1] });
+      });
+      /* bolinhas de pedra em volta da borda, vitorias-regias (com uma florzinha rosa em duas) boiando na agua de baixo */
+      var DUM = new THREE.Object3D(), rimR = (1.5 + 1.22) / 2 * K, rb = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 8, 6), stoneM, 12), CUT = new THREE.Sphere(new THREE.Vector3(CX, 1.1, CZ), 2.5);   /* CUT: esfera de corte do chafariz (as malhas instanciadas ficam na origem; sem isso o corte usaria a esfera da geometria na origem) */
+      for (k = 0; k < 12; k++) { DUM.position.set(CX + Math.cos(k / 12 * 6.2832) * rimR, 0.58 * K + 0.055, CZ + Math.sin(k / 12 * 6.2832) * rimR); DUM.rotation.set(0, 0, 0); DUM.scale.set(0.085, 0.085, 0.085); DUM.updateMatrix(); rb.setMatrixAt(k, DUM.matrix); }
+      rb.castShadow = false; rb.geometry.boundingSphere = CUT; scene.add(rb);
+      var padG = new THREE.CircleGeometry(1, 16, 0.5, 5.6); padG.rotateX(-Math.PI / 2);
+      var pads2 = [[1.15, 0.5, 0.2], [1.3, 2.2, 0.17], [1.05, 3.7, 0.18], [1.28, 5.1, 0.2], [1.12, 4.4, 0.14]], pm = new THREE.InstancedMesh(padG, new THREE.MeshStandardMaterial({ color: 0x4f9a4f, roughness: 0.7, side: THREE.DoubleSide }), pads2.length);
+      pads2.forEach(function (pd, n) { DUM.position.set(CX + Math.cos(pd[1]) * pd[0], WL + 0.008, CZ + Math.sin(pd[1]) * pd[0]); DUM.rotation.set(0, n * 1.9, 0); DUM.scale.set(pd[2], 1, pd[2]); DUM.updateMatrix(); pm.setMatrixAt(n, DUM.matrix); });
+      pm.geometry.boundingSphere = CUT; scene.add(pm);
+      var fm = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 8, 6), new THREE.MeshStandardMaterial({ color: 0xf08fb0, roughness: 0.55 }), 2);
+      [0, 3].forEach(function (pi2, n) { var pd = pads2[pi2]; DUM.position.set(CX + Math.cos(pd[1]) * pd[0], WL + 0.03, CZ + Math.sin(pd[1]) * pd[0]); DUM.rotation.set(0, 0, 0); DUM.scale.set(0.05, 0.035, 0.05); DUM.updateMatrix(); fm.setMatrixAt(n, DUM.matrix); });
+      fm.geometry.boundingSphere = CUT; scene.add(fm);
+      /* aneis de onda: dois na bacia de baixo (nascem onde a agua cai, em volta do pedestal) e um na taca de cima (onde o repuxo cai) */
+      var rings = [[WL, 0, 0.93, 0.52, 1.4], [WU, 0.25, 0.1, 0.5, 1.1]].map(function (q3) {
+        var rg = new THREE.RingGeometry(0.94, 1, 40); rg.rotateX(-Math.PI / 2);
+        var rm = new THREE.Mesh(rg, new THREE.MeshBasicMaterial({ color: 0xeaf8ff, transparent: true, opacity: 0, depthWrite: false }));
+        rm.position.set(CX, q3[0] + 0.004, CZ); rm.renderOrder = 2; scene.add(rm);
+        return { m: rm, ph: q3[1], r0: q3[2], dr: q3[3], per: q3[4] };
+      });
+      /* gotas: 12 do repuxo (sobem do alto e caem na taca de cima) + 20 da borda da taca de cima caindo na bacia de baixo, intercaladas (a qualidade PQ.rain corta o fim da lista sem
+         esvaziar um dos dois efeitos). Material sem iluminacao e opaco, geometria minima; a matriz de cada gota e escrita direto no array (so escala e posicao). */
+      var drops = [], jn = 0, sn = 0;
+      for (k = 0; k < 32; k++) {
+        if (k % 8 < 3 && jn < 12) { drops.push({ jet: 1, ph: jn / 12, a: rr() * 6.2832, vr: 0.35 + rr() * 0.25 }); jn++; }
+        else { drops.push({ jet: 0, ph: (sn * 0.37) % 1, a: sn / 20 * 6.2832 + (rr() - 0.5) * 0.1, vr: 0.25 + rr() * 0.15 }); sn++; }
+      }
+      var dm = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 5, 4), new THREE.MeshBasicMaterial({ color: 0xd8f2ff }), drops.length);
+      dm.castShadow = false; dm.receiveShadow = false; dm.geometry.boundingSphere = CUT; scene.add(dm);
+      for (k = 0; k < drops.length; k++) dm.instanceMatrix.array[k * 16 + 15] = 1;   /* resto da matriz fica zerado: so diagonal (escala) e translacao mudam */
+      /* colisao igual a da banheira: so a parede da bacia (anel de quadradinhos de ~0,36 m, topo a 0,754 m) e o pedestal bloqueiam. O interior e a agua ficam livres:
+         o gatinho pula na borda e desce pisando no fundo azulejado (0,286 m), e pula de volta para fora. */
+      var wRim = 0.58 * K, wFloor = 0.22 * K, wRad = 1.77, wHs = 0.17, wN = 48, wa, wz0, wz1, wzc, wHw;
+      for (k = 0; k < wN; k++) {   /* anel de parede (raio medio 1,77 = entre a borda de dentro 1,59 e a de fora 1,95) */
+        wa = k / wN * 6.2832;
+        colliders.push({ x1: CX + Math.cos(wa) * wRad - wHs, x2: CX + Math.cos(wa) * wRad + wHs, z1: CZ + Math.sin(wa) * wRad - wHs, z2: CZ + Math.sin(wa) * wRad + wHs, h: wRim });
+      }
+      for (wz0 = -1.5; wz0 < 1.49; wz0 += 0.25) {   /* fundo da bacia: faixas que cobrem o disco interno, para o gatinho pisar a 0,286 m em vez de afundar */
+        wz1 = wz0 + 0.25; wzc = (wz0 <= 0 && wz1 >= 0) ? 0 : Math.min(Math.abs(wz0), Math.abs(wz1));
+        wHw = Math.sqrt(Math.max(1.5 * 1.5 - wzc * wzc, 0.01));
+        colliders.push({ x1: CX - wHw, x2: CX + wHw, z1: CZ + wz0, z2: CZ + wz1, h: wFloor });
+      }
+      [[0.86, 0.34], [0.34, 0.86], [0.6, 0.6]].forEach(function (q4) { colliders.push({ x1: CX - q4[0], x2: CX + q4[0], z1: CZ - q4[1], z2: CZ + q4[1], h: 1.6 }); });   /* pedestal + taca de cima: topo da colisao a 1,6 m (a borda da taca fica a 1,65 m; pulo maximo do gatinho 1,36 m, entao da para pular do aro da bacia, a 0,754 m, e ficar em cima da taca) */
+      return { x: CX, z: CZ, drops: drops, dm: dm, rings: rings, wms: wms, wy: WL, shines: [], sph: new THREE.Sphere(new THREE.Vector3(CX, 1.1, CZ), 3.2), fr: new THREE.Frustum(), fm: new THREE.Matrix4(), last: -1, vis: false,
+        jetY: 1.885, jetV: 2.7, jetT: 0.663, jetLo: WU + 0.005, shR: 0.81, shY: 1.62, shT: 0.456, shLo: WL + 0.005 };
+    })();
     /* ----- casinha de cachorro (centro em YARD.kennel; porta virada para +x): paredes pintadas, base e molduras brancas, porta em arco e telhado de duas aguas.
        Mesmas colisoes de antes (corpo ate 0.95 e telhado ate 1.07); so texturas simples ja existentes ('paint' e 'wood'). ----- */
     var KX = YARD.kennel.x, KZ = YARD.kennel.z, KW = 1.5, KD = 1.3, KH = 0.95, KF = KX + KW / 2;   /* KF: x da frente (porta) */
@@ -3726,6 +4010,8 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     hedge({ fixed: -7.6, a0: 13.45, a1: 23.92, c: 18.8, gap: 1.0, arch: false, h: 0.5, rot: true, seed: 7733, core: false });
     /* arco de arbusto na passagem entre o fim da parede norte da casa (x = 11,2) e o inicio da parede sul do parquinho (x = 13,45): mesmo arco florido do gramado sul (vao de 1,8 m), em z = -7,75, abrindo do lado do caminho de pedras para o gramado do fundo */
     hedge({ fixed: -7.75, a0: 10.76, a1: 14.04, c: 12.4, rot: true, core: false, seed: 9171 });
+    /* arco de arbusto no canto noroeste da casa (espelho do arco acima): passagem entre a face leste da parede do campo de futebol (x = -12,75) e o fim da parede norte da casa (x = -11,2), em z = -7,75, abrindo do gramado do meio para o gramado do pula-pula */
+    hedge({ fixed: -7.75, a0: -13.64, a1: -10.36, c: -12.0, rot: true, core: false, seed: 9172 });
     /* parede norte e parede leste do parquinho: ficam entre o parquinho e as cercas de madeira (norte z = -15,35 e leste x = 23,35, como no campo de futebol) */
     hedge({ fixed: -15.35, a0: 13.45, a1: 23.92, c: 18.8, arch: false, h: 0.5, rot: true, seed: 7734, core: false });
     hedge({ fixed: 23.35, a0: -15.92, a1: -6.85, c: -10.65, arch: false, h: 0.5, seed: 7735, core: false });
@@ -3783,12 +4069,15 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       if (x > 13.2 && x < 24 && z > -16 && z < -6.6) return false;   /* parquinho e suas paredes de arbusto */
       if (x > -24 && x < -12.7 && z > -16 && z < -7.4) return false;   /* campo de futebol e suas paredes de arbusto */
       if (x > -13.6 && x < 13.6 && z < -14.5) return false;   /* parede de arbusto da cerca norte */
+      if (x > -13.8 && x < -10.2 && z > -8.8 && z < -6.7) return false;   /* arco de arbusto do canto noroeste da casa */
       if (x > -10.1 && x < 10.1 && z > 14.5) return false;   /* parede de arbusto da cerca sul */
       if (x > 9.9 && x < 18.1 && z > 14.5) return false;   /* parede de arbusto da cerca sul (lado leste) */
       if (x > 22.4 && ((z > -7 && z < -2.4) || (z > 0.2 && z < 11.2))) return false;   /* paredes de arbusto da cerca leste, dos dois lados do portao */
       if (x < -21.8 && z > -8.2 && z < 16) return false;   /* parede de arbusto da cerca oeste */
       for (i = 0; i < YARD.beds.length; i++) if (Math.abs(x - YARD.beds[i][0]) < 1.9 && Math.abs(z - YARD.beds[i][1]) < 0.9) return false;
+      for (i = 0; i < YARD.bedsV.length; i++) if (Math.abs(x - YARD.bedsV[i][0]) < 0.9 && Math.abs(z - YARD.bedsV[i][1]) < 1.9) return false;   /* canteiro comprido da parede oeste */
       for (i = 0; i < YARD.benches.length; i++) if (Math.hypot(x - YARD.benches[i][0], z - YARD.benches[i][1]) < 1.25) return false;
+      for (i = 0; i < YARD.tables.length; i++) if (Math.hypot(x - YARD.tables[i][0], z - YARD.tables[i][1]) < 1.9) return false;   /* mesas redondas com cadeiras */
       if (x > 17.5 && x < 24 && z > 10.8 && z < 16) return false;   /* area de churrasqueira */
       if (x > 9.3 && x < 10.8 && z > 7 && z < 16) return false;   /* parede de arbusto */
       if (x > 9.9 && x < 12 && z > -7.5 && z < 7.6) return false;   /* parede de arbusto da lateral leste da casa */
@@ -3796,10 +4085,12 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       if (Math.abs(Math.abs(x) - 11.8) < 0.5 && (Math.abs(z - 9.5) < 0.5 || Math.abs(z - 13.7) < 0.5)) return false;   /* postes de luz dos arcos */
       if (Math.abs(x - YARD.kennel.x) < 1.1 && Math.abs(z - YARD.kennel.z) < 1.0) return false;
       if (Math.abs(x - (YARD.kennel.x + 1.25)) < 0.55 && z > YARD.kennel.z - 0.1 && z < YARD.kennel.z + 1.6) return false;   /* pratinhos ao lado da casinha */
+      if (Math.hypot(x - TRAMP.x, z - TRAMP.z) < TRAMP.r + 1.3) return false;   /* pula-pula e o degrau */
       for (i = 0; i < trees.length; i++) if (Math.hypot(x - trees[i][0], z - trees[i][1]) < 0.45) return false;
       for (i = 0; i < bushes.length; i++) if (bushes[i][2] !== 0 && Math.hypot(x - bushes[i][0], z - bushes[i][1]) < 0.75) return false;
       for (i = 0; i < tabs.length; i++) if (Math.hypot(x - tabs[i][0], z - tabs[i][1]) < 0.55) return false;
       for (i = 0; i < ROSES.length; i++) if (Math.hypot(x - ROSES[i][0], z - ROSES[i][1]) < 0.95) return false;
+      if (Math.hypot(x - 18.0, z - 7.1) < 3.1) return false;   /* posicao antiga do chafariz (mantida so para o sorteio das pedrinhas nao mudar); a nova (15,5 / 5,6) e tratada no laco das pedrinhas */
       return true;
     }
     /* pedras grandes (com colisão: o gatinho contorna ou pula por cima) e pedrinhas soltas */
@@ -3858,6 +4149,8 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     for (k = 0, tries = 0; k < 26 && tries < 400; tries++) {
       var qx = (grnd() * 2 - 1) * (FX - 1), qz = (grnd() * 2 - 1) * (FZ - 1);
       if (!free(qx, qz)) continue;
+      var fdx = qx - 15.5, fdz = qz - 5.6, fdd = Math.hypot(fdx, fdz);
+      if (fdd < 3.1) { qx = 15.5 + fdx / (fdd || 1) * 3.1; qz = 5.6 + (fdd ? fdz / fdd : 1) * 3.1; }   /* chafariz (piso de raio 2,7): pedrinha que cairia no piso vai para a beirada, sem mudar o sorteio das outras */
       if (qx > VINE.x1 && qx < VINE.x2 && qz > VINE.z1 && qz < VINE.z2) { qx = -18.9 + (qx - VINE.x1) * 0.1; qz = Math.max(qz, -1.2); }   /* parreiral: a pedrinha vai para a faixa de grama ao lado */
       rock(qx, qz, 0.06 + grnd() * 0.09, false); k++;
     }
@@ -4118,7 +4411,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     cyl({ x: FX - 0.02, z: lz, r: 0.12, r2: 0.018, h: 0.09, y: FENCE_H + 0.78, color: 0x3a3e42, mat: { roughness: 0.55, metalness: 0.25 }, seg: 14, collide: false, cast: false });   /* chapeu */
   });
   cyl({ x: 10.5, z: -1.3, r: 0.012, h: 0.05, y: 2.28, color: 0x333333, collide: false, cast: false });   /* fio da luz da varanda, presa na marquise */
-  [[10.5, 2.2, -1.3], [14.2, 1.5, -3], [16, 1.5, 4.4], [11, 1.7, -9.2], [-22.2, 1.6, 8.35], [11.8, 1.6, 9.5], [-22.2, 1.6, 14.25], [11.8, 1.6, 13.7],   /* os dois do lado oeste agora ficam nos cantos oeste do deque da piscina */
+  [[10.5, 2.2, -1.3], [14.2, 1.5, -3], [15.5, 1.5, 1.8], [11, 1.7, -9.2], [-22.2, 1.6, 8.35], [11.8, 1.6, 9.5], [-22.2, 1.6, 14.25], [11.8, 1.6, 13.7],   /* os dois do lado oeste agora ficam nos cantos oeste do deque da piscina */
     /* campo de futebol: um poste em cada canto do gramado (x = -22,0 e -14,8, ou seja, cx -/+ 3,6 com cx = -18,4; z = -14,45 ao norte, atras dos bancos, e -8,4 ao sul, junto a parede de arbusto) */
     [-22.0, 1.7, -14.45], [-14.8, 1.7, -14.45], [-22.0, 1.7, -8.4], [-14.8, 1.7, -8.4]].forEach(function (q, i) {   /* os 2 do corredor sul (antes dos do campo): postes do lado de fora dos arcos de arbusto; o primeiro item (varanda) nao tem poste */
     /* cada poste e um "slot": a lampada (bulbM) e um halo aditivo (sprite, quase de graca) ficam sempre; a PointLight de verdade e emprestada de um
@@ -4159,7 +4452,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
 
   /* ---------- clima: chuva às vezes e lua vermelha rara (1% das noites). Tudo sai do relógio compartilhado do servidor, então todos veem o mesmo céu.
      Para testar: abra a página com ?lua=vermelha e/ou ?chuva no endereço. ---------- */
-  var redForceNid = null;   /* comando /luavermelha: id da noite em que a lua vermelha foi forcada (vale so para essa noite) */
+  var redForceNid = null;   /* comando /redmoon: id da noite em que a lua vermelha foi forcada (vale so para essa noite) */
   var rainForce = null;   /* comandos do chat: null = chuva natural, 0 = sem chuva, 1 = chuva forte */
   var rainK = 0, redK = 0, wInit = false, redAnnounced = -1, QS = (location.search || '') + (location.hash || ''), FORCE_RED = /lua/i.test(QS), FORCE_RAIN = /chuva|rain/i.test(QS);
   var cRedSky = new THREE.Color(0xa3121f), cMoonRed = new THREE.Color(0xff6a4a), cHRed = new THREE.Color(0xa04a50), cMoonW = new THREE.Color(0xeef2ff), cMoonR = new THREE.Color(0xe2301e);
@@ -4180,13 +4473,13 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
   }
   /* a "noite" N vai do meio-dia anterior ao meio-dia seguinte, então a troca acontece de dia, sem estalo no céu */
   function isRedNight(id) { return FORCE_RED || id === redForceNid || hash01(id * 7 + 1) < 0.01; }
-  /* a chuva vem em blocos de 75 s reais (3 h do jogo): 22% dos blocos têm chuva, de garoa a temporal */
-  function rainAmount(seg) { return FORCE_RAIN ? 1 : (hash01(seg * 5 + 3) < 0.22 ? 0.5 + 0.5 * hash01(seg * 11 + 5) : 0); }
+  /* a chuva vem em blocos de 75 s reais (3 h do jogo): 5% dos blocos têm chuva (eram 22%), de garoa a temporal */
+  function rainAmount(seg) { return FORCE_RAIN ? 1 : (hash01(seg * 5 + 3) < 0.05 ? 0.5 + 0.5 * hash01(seg * 11 + 5) : 0); }
   function updateWeather(dt, night) {
     var T = Date.now() + clockOff, nid = Math.floor((T + DAY_MS * 0.5) / DAY_MS), red = isRedNight(nid);
     var redT = red ? smooth(0.55, 0.95, night) : 0, rainT = rainAmount(Math.floor(T / (DAY_MS / 8)));
     if (red && night > 0.2) rainT = 0;   /* na noite de lua vermelha o céu fica limpo */
-    if (rainForce !== null) rainT = rainForce;   /* /chuva e /parar */
+    if (rainForce !== null) rainT = rainForce;   /* /rain e /stoprain */
     if (!wInit) { rainK = rainT; redK = redT; wInit = true; }
     else { rainK += (rainT - rainK) * Math.min(1, dt * 0.35); redK += (redT - redK) * Math.min(1, dt * 0.6); }
     if (redK > 0.6 && redAnnounced !== nid && started) { redAnnounced = nid; say('🔴 Red moon! What a rare night...', 5500); }
@@ -4354,7 +4647,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     skyCol.copy(cNight).lerp(cDay, day).lerp(cWarm, warm * 0.55);
     if (LOFI) skyCol.lerp(hazeCol.copy(cHazeN).lerp(cHazeD, day), 0.3);   /* céu e fog na mesma cor enevoada, sem linha de horizonte */
     if (redK > 0.001) skyCol.lerp(cRedSky, redK);
-    if (rainK > 0.001) { rainCol.copy(cRainN).lerp(cRainD, day); skyCol.lerp(rainCol, rainK * 0.85); }
+    if (rainK > 0.001) { rainCol.copy(cRainN).lerp(cRainD, day); skyCol.lerp(rainCol, rainK * 0.85); skyCol.multiplyScalar(1 - 0.18 * rainK); }   /* na chuva o fundo e a nevoa (mesma cor, sem linha de horizonte) escurecem mais um pouco: ate 18% no temporal */
     scene.background.copy(skyCol); scene.fog.color.copy(skyCol);
     if (SIL) SIL.update(night, rainK);
     scene.fog.near = 16 - 9.6 * rainK - 4.8 * redK; scene.fog.far = 40 - 20.8 * rainK - 12 * redK;
@@ -4474,9 +4767,10 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     return g;
   }
   [
+    /* peixe do pula-pula: a 2,6 m, sobre o centro da lona. Pega com o gatinho entre 1,85 e 2,85 m: pulo normal do chao chega a 1,36 m (nao alcanca), pulo na lona (8,6) chega a 2,55 m (alcanca) */
     [-6, 0.85, -6.0], [5.8, 1.1, -3], [3.0, 1.27, -6.4], [-7, 0.9, 5.0],
     [0.9, 1.15, 6.35], [1.8, 0.85, 4.8], [7.3, 0.95, 6.2], [-9, 0.55, 1.6],
-    [16, 0.85, 5.5], [-16, 1.4, -9], [-7.5, 0.6, -11], [21.5, 0.55, -1.3]
+    [FOUNT ? FOUNT.x : 15.5, 2.1, FOUNT ? FOUNT.z : 5.6], [-16, 1.4, -9], [TRAMP.x, 2.6, TRAMP.z], [21.5, 0.55, -1.3]
   ].forEach(function (p, i) {
     var f = makeFish();
     f.position.set(p[0], p[1], p[2]);
@@ -5123,6 +5417,18 @@ var DEFS = {
     g.add(pm(new THREE.LatheGeometry(V([[.082, .0128], [.098, .0168]]), 28), M(0x5f8fc2, sd), 0, 0, 0));
     g.add(pm(new THREE.LatheGeometry(V([[.1, .0182], [.104, .0196]]), 28), M(0x5f8fc2, sd), 0, 0, 0));
     var dot = pm(new THREE.CircleGeometry(.02, 24), M(0xa8c8e6, { roughness: .3 }), 0, .0091, 0); dot.rotation.x = -HP; dot.castShadow = false; g.add(dot); } },
+  bule: { r: .11, h: .16, brk: 1, liq: 0xb8742f, liqR: .22, shard: 0xf4f1ea, bounce: .15, lie: [0, HP, .068], build: function (g, c) {
+    /* bule de porcelana (bico para +z, alca para -z, assim fica de lado sem enterrar bico nem alca): barriga torneada com duas faixas pintadas (azul no branco; branca quando tem cor),
+       tampa com botao, bico conico inclinado e alca em argola. Mesmo acabamento brilhante do prato e da caneca. */
+    var V = function (a) { return a.map(function (q) { return new THREE.Vector2(q[0], q[1]); }); };
+    var mb = M(c || 0xf6f3ec, { roughness: .24, side: THREE.DoubleSide }), mband = M(c ? 0xffffff : 0x5f8fc2, { roughness: .24 });
+    g.add(pm(new THREE.LatheGeometry(V([[0, 0], [.034, 0], [.04, .004], [.056, .02], [.066, .05], [.068, .075], [.062, .1], [.046, .118], [.038, .124], [.034, .12]]), 26), mb, 0, 0, 0));   /* barriga */
+    g.add(pm(Cy(.0675, .0675, .01, 26), mband, 0, .058, 0));          /* faixa pintada de baixo */
+    g.add(pm(Cy(.0645, .0645, .006, 26), mband, 0, .092, 0));         /* faixa fina de cima */
+    g.add(pm(Cy(.026, .04, .012, 22), mb, 0, .13, 0));                /* tampa */
+    g.add(pm(new THREE.SphereGeometry(.011, 12, 8), mband, 0, .145, 0));   /* botao da tampa */
+    var sp = pm(Cy(.009, .017, .0857, 12), mb, 0, .079, .0865); sp.rotation.x = .826; g.add(sp);   /* bico */
+    var hd = pm(new THREE.TorusGeometry(.03, .0075, 8, 16), mb, 0, .074, -.098); hd.rotation.y = HP; g.add(hd); } },
   perfume: { r: .045, h: .13, brk: 1, shard: 0xf4a8c0, bounce: .2, lie: [0, HP, .03], build: function (g) {
     g.add(pm(new THREE.BoxGeometry(.06, .08, .04), M(0xf4a8c0, { transparent: true, opacity: .7, roughness: .1 }), 0, .04, 0));
     g.add(pm(Cy(.012, .012, .02), M(0xe0b36a), 0, .09, 0)); g.add(pm(Cy(.02, .02, .03), M(0xe0b36a), 0, .115, 0)); } },
@@ -5427,7 +5733,7 @@ var SPAWN = [
   /* bexigas: dentro de casa e no quintal */
   ['bexiga', -3.6, 0, -0.6, 0, 0xe94b6b], ['bexiga', 3.0, 0, -1.2, 0, 0xf2c230], ['bexiga', -4.2, 0, 3.0, 0, 0x4aa3ff],
   ['bexiga', 0.2, 0, 3.9, 0, 0x6ac46a], ['bexiga', 6.0, 0, 1.6, 0, 0xb084e8],
-  ['bexiga', 15.5, 0, -2.0, 0, 0xff8a3d], ['bexiga', 12.4, 0, 8.6, 0, 0xe94b6b], ['bexiga', -13.0, 0, 0.5, 0, 0x4aa3ff], ['bexiga', 17.0, .04, -10.2, 0, 0xf2c230],
+  ['bexiga', 15.5, 0, -2.0, 0, 0xff8a3d], ['bexiga', 12.4, 0, 8.6, 0, 0xe94b6b], ['bexiga', -14.4, 0, 0.5, 0, 0x4aa3ff], ['bexiga', 17.0, .04, -10.2, 0, 0xf2c230],
   ['balde', 20.0, .04, -9.5, 0, 0xff6b6b],   /* balde na areia do parquinho */
   ['travesseiro', -7.6, .55, 6.3, .04, 0xfaf7f2], ['travesseiro', -6.4, .55, 6.3, -.04, 0xfaf7f2], ['almofada', -7, .55, 5.88, .35, 0xd9894a],   /* travesseiros e almofada da cama */
   ['notebook', -0.1, .8, 6.45, 0], ['portaLapis', .45, .8, 6.3, 0],   /* notebook e porta-lápis da escrivaninha */
@@ -5442,6 +5748,12 @@ var SPAWN = [
   ['almofada', 19.72, .47, 14.2, .3, 0xc2574a], ['almofada', 21.62, .47, 15.2, -.4, 0xf0b92e],      /* almofadas nos bancos (vermelho e amarelo, como a toalha e o ombrelone) */
   ['vasoPlanta', 18.45, 0, 11.95, 0, 0xf08fb0], ['vasoPlanta', 18.45, 0, 14.1, 0, 0xffd23f], ['vasoPlanta', 23.4, 0, 11.9, 0, 0xc79bf2],   /* vasos junto ao portinho e no canto norte */
   ['balde', 22.55, 0, 15.45],                                                                         /* balde ao lado da bancada */
+  /* mesas redondas do gramado oeste (tampo a 0,75): a da esquerda do print serve cha (bule, dois pratos com xicaras e um pudim), a outra tem lanche (bule verde, vasinho de flores, copos, garrafa de suco e um prato com maca) */
+  ['bule', -16.0, .75, -2.7, .7], ['prato', -16.45, .75, -2.7], ['prato', -15.55, .75, -2.7], ['caneca', -16.45, .75, -3.0, 0, 0xfff4e2], ['caneca', -15.55, .75, -2.4, 0, 0x5f8fc2], ['pudim', -16.0, .75, -2.2],
+  ['bule', -15.85, .75, 2.9, -.8, 0x9fd3c0], ['vaso', -16.3, .75, 3.25], ['prato', -16.0, .75, 2.55], ['maca', -16.0, .77, 2.55], ['copo', -15.55, .75, 3.15], ['copo', -16.4, .75, 2.8], ['garrafa', -15.55, .75, 3.45],
+  /* gramado oeste: um vaso de planta (quebravel) de cada lado, junto as sebes, e uma almofada na cadeira do lado oeste de cada mesa (azul e rosa, como as toalhas; assento a 0,45) */
+  ['vasoPlanta', -16.0, 0, -6.0, 0, 0xf08fb0], ['vasoPlanta', -16.0, 0, 5.85, 0, 0xc79bf2],
+  ['almofada', -17.12, .47, -2.7, .3, 0x5f8fc2], ['almofada', -17.12, .47, 3.0, -.3, 0xe58a8a],
   ['bolaFutebol', PITCH.cx, 0, PITCH.cz, 0, 0xffffff]   /* bola do campo (sempre por último: o índice é usado na sincronização online) */
 ];
 SPAWN.forEach(function (s) {
@@ -5835,7 +6147,7 @@ function updateNeeds(dt) {
   needs.thirst = Math.max(0, needs.thirst - 0.5 * (needs.idleT > 12 ? 1.8 : 1) * sl * dt);
   needs.fun = Math.max(0, needs.fun - 0.6 * (needs.idleF > 12 ? 1.8 : 1) * sl * dt);
   if (needs.hunger < 20 && !needs.lowH) { needs.lowH = true; say('😿 So hungry! Eat kibble, grab fishies or hunt a critter', 3200); }
-  if (needs.thirst < 20 && !needs.lowT) { needs.lowT = true; say('😿 So thirsty! Drink from the water bowl or a puddle', 3200); }
+  if (needs.thirst < 20 && !needs.lowT) { needs.lowT = true; say('😿 So thirsty! Drink from the water bowl, a puddle, or jump into the fountain, the pool or the bathtub', 3200); }
   if (needs.fun < 20 && !needs.lowF) { needs.lowF = true; say('🥱 So bored! Knock things over to make a mess', 3200); }
   needs.acc += dt; if (needs.acc > 0.2) { needs.acc = 0; needsDraw(); }
 }
@@ -6066,7 +6378,7 @@ function popBalloon(p, remote) {   /* estoura: some e deixa retalhos de borracha
   if (!p.counted) tally(p);
   if (!remote && Math.random() < 0.6) say(pick(['Pop! 🎈', 'Boom!', 'Oops, it popped!']), 1100);
 }
-function rmShard(s) { scene.remove(s.m); s.m.geometry.dispose(); s.m.material.dispose(); }
+function rmShard(s) { scene.remove(s.m); if (s.shared) return; s.m.geometry.dispose(); s.m.material.dispose(); }   /* s.shared: geometria e material compartilhados (pedacos de flor) nao sao liberados */
 function settle(p) {
   p.air = false; p.fromY = p.y; p.sq = 0;
   if (!p.d.round) { var L = p.d.lie; p.g.rotation.x = L ? L[0] : 0; p.g.rotation.z = L ? L[1] : 0; p.lay = !!L; }
@@ -6582,6 +6894,12 @@ function grabbableNear() {
   }
   return false;
 }
+/* bebedouros de agua parada que nunca acabam: piscina, chafariz e banheira registram aqui uma funcao que devolve true quando o gatinho esta dentro da agua ou na borda dela */
+var drinkSources = [];
+function waterSource() {
+  for (var i = 0; i < drinkSources.length; i++) if (drinkSources[i]()) return { source: true, x: cat.x, z: cat.z, off: 0 };   /* x/z = o proprio gatinho: ele bebe parado, sem andar ate a agua */
+  return null;
+}
 function findDrink(soft) {
   if (!cat.grounded) return null;
   var i, p, d, best = null, bd = 1e9, s, dx, dz, rr;
@@ -6594,6 +6912,7 @@ function findDrink(soft) {
   }
   if (best) return { bowl: best, x: best.x, z: best.z, off: 0.2 };
   if (soft && grabbableNear()) return null;   /* no controle, perto de um brinquedo/fruta o Y continua pegando */
+  var ws = waterSource(); if (ws) return ws;   /* piscina, chafariz ou banheira: agua que nao acaba */
   for (i = 0; i < stains.length; i++) {
     s = stains[i]; if (s.col === PUD_COL || s.t < 0.3 || Math.abs(s.m.position.y - cat.y) > 0.2) continue;
     dx = s.m.position.x - cat.x; dz = s.m.position.z - cat.z;
@@ -6605,7 +6924,9 @@ function findDrink(soft) {
 }
 function drinkNow(w) {
   var wine = false, n, sc, p, u, s, i;
-  if (w.bowl) {
+  if (w.source) {   /* piscina / chafariz / banheira: mata a sede igual ao pote, mas a agua nao diminui nem some (nada para sincronizar com os outros jogadores) */
+    hydrate(25);
+  } else if (w.bowl) {
     p = w.bowl; u = p.g.userData;
     n = (p.meals === undefined ? BOWL_MEALS : p.meals) - 1; p.meals = n;
     bowlView(p); mpWorld('meal', { i: props.indexOf(p) });   /* os outros jogadores veem a água descer */
@@ -6858,9 +7179,14 @@ function pollPad(dt) {
   function dz(v) { return Math.abs(v) < 0.18 ? 0 : v; }
   var p0 = press(0), p1 = press(1), p2 = press(2), p3 = press(3), p8 = press(8), p9 = press(9), p14 = press(14), p4 = press(4), p5 = press(5);   /* p4/p5: L1/R1 (abas das configurações) */   /* p14: direcional esquerdo */
   if (p0 || p1 || p2 || p3 || Math.abs(pad.axes[0] || 0) > 0.5 || Math.abs(pad.axes[1] || 0) > 0.5) inMode = 'pad';
-  if (!started) { gp.x = 0; gp.y = 0; gp.run = false; gp.jump = false; if (setWinOpen()) { setPad(pad, p0, p1, p9, press(12), press(13), p4, p5); return; } if (p0 || p1 || p2 || p3 || p9) begin(); return; }
+  if (!started) { gp.x = 0; gp.y = 0; gp.run = false; gp.jump = false; if (setWinOpen()) { setPad(pad, p0, p1, p9, press(12), press(13), p4, p5); return; } if (mpWinOpen()) { mpPad(pad, p0, p1, p9, press(12), press(13)); return; } introPad(pad, p0, p1, p9, press(12), press(13)); return; }
   if (pauseOpen) { gp.x = 0; gp.y = 0; gp.run = false; gp.jump = false; pausePad(pad, p0, p1, p9, press(12), press(13), p4, p5); return; }
   if (p9) { openPause(); return; }   /* Start abre o menu de pausa */
+  if (pmenuPad && !pmenu.hidden) {   /* menu do jogador aberto pelo controle: direcional cima/baixo escolhe, A confirma, B (ou o botão que abriu) fecha; o gato fica parado */
+    gp.x = 0; gp.y = 0; gp.run = false; gp.jump = false;
+    pmenuPadNav(press(12), press(13), p0, p1 || p14 || press(11));
+    return;
+  }
   gp.x = dz(pad.axes[0] || 0); gp.y = dz(pad.axes[1] || 0);
   gp.run = dn(4) || dn(5) || dn(6) || dn(7) || dn(10);
   gp.jump = dn(0) && performance.now() - pauseClosedAt > 300;
@@ -6870,10 +7196,10 @@ function pollPad(dt) {
   if (dn(13)) dist = Math.min(8, dist + 3 * dt);
   if (p2) swat();
   if (p1) { if (tagG.ask) tagAnswer(false); else meow(); }
-  if (p14) tagKey();   /* direcional esquerdo: convidar / aceitar convite do pega-pega */
-  if (p3) { if (tagG.ask) tagKey(); else if (!eat(true)) toggleGrab(); }   /* Y: come a ração se houver ao alcance; senão pega/solta o brinquedo (com um convite na tela, aceita) */
+  if (p14) tagKey(true);   /* direcional esquerdo: abre o menu do jogador mais perto / aceita convite do pega-pega */
+  if (p3) { if (tagG.ask) tagKey(true); else if (!eat(true)) toggleGrab(); }   /* Y: come a ração se houver ao alcance; senão pega/solta o brinquedo (com um convite na tela, aceita) */
   if (p8) tidyUp();   /* botao do controle (Select/Back): arruma com o som de restauracao */
-  if (press(11)) tagKey();   /* clique do analógico direito: pega-pega (igual ao Y) */
+  if (press(11)) tagKey(true);   /* clique do analógico direito: menu do jogador (igual ao direcional esquerdo) */
 }
 
 /* ---------- novo modelo do gato (glTF embutido) ---------- */
@@ -6956,7 +7282,7 @@ function animateModel(t, dt, moving) {
 
   /* ---------- menu de pausa (Esc / Start do controle): Resume, Controls (teclas), Settings (volume) e Quit Game ---------- */
   var pauseOpen = false, pauseClosedAt = 0, padNavT = 0, padAxisY = 0;
-  function pauseBox() { return !$('pauseSet').hidden ? $('pauseSet') : !$('pauseHelp').hidden ? $('pauseHelp') : $('pauseMain'); }
+  function pauseBox() { return !$('pauseFriends').hidden ? $('pauseFriends') : !$('pauseSet').hidden ? $('pauseSet') : !$('pauseHelp').hidden ? $('pauseHelp') : $('pauseMain'); }
   function pauseItems() { return spItems(pauseBox()); }
   var pauseIdx = 0;
   function pauseMark(i) {   /* marca o item selecionado com uma classe própria: o contorno do navegador só aparece em certos casos e sumia com controle */
@@ -6964,7 +7290,7 @@ function animateModel(t, dt, moving) {
     Array.prototype.forEach.call($('pause').querySelectorAll('.sel'), function (e) { e.classList.remove('sel'); });
     it[pauseIdx].classList.add('sel'); return it[pauseIdx];
   }
-  function pauseSel(i) { var e = pauseMark(i); e.focus(); spReveal(e); }
+  function pauseSel(i) { var e = pauseMark(i); e.focus(); spReveal(e); if (e.closest && e.closest('.frlist') && e.scrollIntoView) e.scrollIntoView({ block: 'nearest' }); }
   function pauseMove(d) { pauseSel(pauseIdx + d); }
   function pauseIcons(d) {   /* nos ícones de baixo (Settings à esquerda, Quit à direita), esquerda/direita troca de um para o outro */
     var it = pauseItems(), cur = it[pauseIdx];
@@ -6973,13 +7299,14 @@ function animateModel(t, dt, moving) {
   }
   $('pause').addEventListener('focusin', function (e) { var i = pauseItems().indexOf(e.target); if (i >= 0) pauseMark(i); });
   function pauseShow(view) {   /* view: false = menu principal, true = Settings, 'help' = Controls */
-    $('pauseMain').hidden = view !== false; $('pauseSet').hidden = view !== true; $('pauseHelp').hidden = view !== 'help';
+    $('pauseMain').hidden = view !== false; $('pauseSet').hidden = view !== true; $('pauseHelp').hidden = view !== 'help'; $('pauseFriends').hidden = view !== 'friends';
+    if (view === 'friends') renderFriends();
     $('pause').querySelector('.dialog').classList.toggle('wide', view === 'help'); $('pause').querySelector('.dialog').classList.toggle('sp-on', view === true);
     spRefresh(); pauseSel(0);
   }
   function openPause() {
     if (!started || pauseOpen) return;
-    if (typeof chatClose === 'function') chatClose();
+    if (typeof chatClose === 'function') chatClose(); pmenuClose();
     pauseOpen = true; keys = {}; joy.x = 0; joy.y = 0; touchJump = false; gp.x = 0; gp.y = 0; gp.run = false; gp.jump = false;
     $('pause').hidden = false; pauseShow(false);
   }
@@ -6988,7 +7315,7 @@ function animateModel(t, dt, moving) {
     pauseOpen = false; pauseClosedAt = performance.now(); keys = {};
     $('pause').hidden = true; if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
   }
-  function pauseBack() { if (!$('pauseSet').hidden || !$('pauseHelp').hidden) pauseShow(false); else closePause(); }
+  function pauseBack() { if (!$('pauseFriends').hidden) { pauseShow(false); pauseSel(pauseItems().indexOf($('pFriends'))); } else if (!$('pauseSet').hidden || !$('pauseHelp').hidden) pauseShow(false); else closePause(); }
   function setVolume(v) {
     v = Math.max(0, Math.min(1, v)); if (window.UISfx) UISfx.setVolume(v);
     if (actxMaster && actx) actxMaster.gain.setTargetAtTime(v * v, actx.currentTime, 0.02);
@@ -7165,6 +7492,41 @@ function animateModel(t, dt, moving) {
   }
   $('menuBtn').addEventListener('click', openPause);
   $('pResume').addEventListener('click', closePause);
+  /* ---------- lista de amigos (menu de pausa): bolinha verde = na sala agora; convidar para o pega-pega e remover ---------- */
+  var frLast = '';
+  function frList() {
+    return Object.keys(friendNames).map(function (k) {
+      var nm = friendNames[k], id = mp.room ? idByName(nm) : null;
+      return { name: nm, id: id, on: !!id, busy: !!(id && mp.remotes[id] && mp.remotes[id].tg) };
+    }).sort(function (a, b) { return (b.on - a.on) || a.name.toLowerCase().localeCompare(b.name.toLowerCase()); });
+  }
+  function frSig(l) { return l.map(function (f) { return f.name + ':' + (f.on ? 1 : 0) + (f.busy ? 1 : 0); }).join('|'); }
+  function frBtn(icon, title, fn) {
+    var b = document.createElement('button'); b.type = 'button'; b.className = 'frbtn'; b.title = title; b.setAttribute('aria-label', title); b.innerHTML = PI[icon]; b.addEventListener('click', fn); return b;
+  }
+  function renderFriends() {
+    var host = $('pFrList'), list = frList();
+    frLast = frSig(list); host.textContent = '';
+    $('pFrTitle').textContent = 'Friends' + (list.length ? ' (' + list.length + ')' : ''); $('pFrEmpty').hidden = list.length > 0;
+    list.forEach(function (f) {
+      var row = document.createElement('div'), dot = document.createElement('i'), info = document.createElement('div'), nm = document.createElement('span'), st = document.createElement('span');
+      row.className = 'frrow' + (f.on ? ' on' : ''); dot.className = 'frdot'; info.className = 'frinfo'; nm.className = 'frname'; st.className = 'frst';
+      nm.textContent = f.name; st.textContent = f.busy ? 'Playing tag' : f.on ? 'Online' : 'Offline';
+      info.appendChild(nm); info.appendChild(st); row.appendChild(dot); row.appendChild(info);
+      if (f.on && !f.busy) row.appendChild(frBtn('paw', 'Invite ' + f.name + ' to tag', function () { var id = f.id; closePause(); tagInvite(id); }));
+      row.appendChild(frBtn('del', 'Remove ' + f.name + ' from friends', function () {
+        friendCommand('removefriend', f.name, function (m) { chatAdd('Notice', m, false); });
+        var i = pauseIdx; renderFriends(); pauseSel(i);
+      }));
+      host.appendChild(row);
+    });
+  }
+  setInterval(function () {   /* a lista acompanha quem entra e sai da sala enquanto está aberta */
+    if (!pauseOpen || $('pauseFriends').hidden || frSig(frList()) === frLast) return;
+    var i = pauseIdx; renderFriends(); pauseSel(i);
+  }, 1500);
+  $('pFriends').addEventListener('click', function () { pauseShow('friends'); });
+  $('pFrBack').addEventListener('click', function () { pauseBack(); });
   $('pSettings').addEventListener('click', function () { pauseShow(true); });
   $('pControls').addEventListener('click', function () { pauseShow('help'); });
   $('pHelpBack').addEventListener('click', function () { pauseShow(false); });
@@ -7227,15 +7589,15 @@ function animateModel(t, dt, moving) {
     if (e.code === 'KeyM') meow();
     if (e.code === 'KeyG') toggleGrab();
     if (e.code === 'KeyC' && !e.ctrlKey && !e.metaKey) eat();
-    if (e.code === 'KeyP') tagKey();
+    if (e.code === 'KeyP') tagKey(false);
     if (e.code === 'KeyF') swat();
     if (e.code === 'KeyR') tidyUp();
   });
   window.addEventListener('keyup', function (e) { keys[e.code] = false; });
   window.addEventListener('blur', function () { keys = {}; });
   function mpWinOpen() { return !$('mpWin').hidden; }
-  function openMp() { if (started) return; $('mpWin').hidden = false; var rc = $('roomCode'); if (!rc.hidden) rc.focus(); else $('mpJoin').focus(); }
-  function closeMp() { $('mpWin').hidden = true; $('nick').focus(); }
+  function openMp() { if (started) return; mpSel(null); $('mpWin').hidden = false; var rc = $('roomCode'); if (!rc.hidden) rc.focus(); else $('mpJoin').focus(); }
+  function closeMp() { $('mpWin').hidden = true; mpSel(null); $('nick').focus(); }
   /* nome do jogador: só letras e números (até 10), salvo ao digitar e preenchido de novo ao abrir o jogo */
   function cleanNick(v) { try { return String(v || '').replace(/[^\p{L}\p{N}]/gu, '').slice(0, 10); } catch (e) { return String(v || '').replace(/[^A-Za-z0-9]/g, '').slice(0, 10); } }
   try { var savedNick = cleanNick(localStorage.getItem('luna_nick')); if (savedNick) $('nick').value = savedNick; } catch (e) {}
@@ -7269,6 +7631,57 @@ function animateModel(t, dt, moving) {
     var now = performance.now();
     if (dx && el && el.hasAttribute && el.hasAttribute('data-act') && now - setNavT > 220) { setNavT = now; var nf = spFoot(el, dx); if (nf !== el) setSel(setItems().indexOf(nf)); }
     else if (dx && el && el.matches && el.matches('[data-k],[data-fs]') && now - setNavT > (el.type === 'range' ? 110 : 220)) { setNavT = now; var nd = spAct(el, dx, false); if (nd !== el) setSel(setItems().indexOf(nd)); }
+  }
+  /* controle na tela inicial: analógico/direcional navegam (nome, Single player, Multiplayer, Settings/Quit), A confirma, Start começa o single player */
+  function padVis(e) { return !!e && e.getClientRects().length > 0; }
+  function padBlur() { var a = document.activeElement; if (a && a.tagName === 'INPUT' && a.blur) a.blur(); }
+  var introEl = null, introAxisY = 0, introNavT = 0;
+  function introRows() {   /* linhas do menu: a de baixo tem Settings (esquerda) e Quit (direita) */
+    return [['nick'], ['startSolo'], ['start'], ['startSet', 'startQuit']].map(function (r) { return r.map($).filter(padVis); }).filter(function (r) { return r.length; });
+  }
+  function introSel(el) {
+    Array.prototype.forEach.call($('intro').querySelectorAll('.sel'), function (e) { e.classList.remove('sel'); });
+    introEl = el; if (el) el.classList.add('sel');
+  }
+  $('intro').addEventListener('pointerdown', function () { introSel(null); });
+  function introPad(pad, pA, pB, pStart, pUp, pDown) {
+    var rows = introRows(), ay = pad.axes[1] || 0, ayDir = ay > 0.6 ? 1 : ay < -0.6 ? -1 : 0, now = performance.now();
+    var mv = pDown ? 1 : pUp ? -1 : (ayDir && ayDir !== introAxisY ? ayDir : 0);
+    var dx = ((pad.buttons[15] && pad.buttons[15].pressed) ? 1 : 0) - ((pad.buttons[14] && pad.buttons[14].pressed) ? 1 : 0);
+    if (!dx && Math.abs(pad.axes[0] || 0) > 0.6) dx = pad.axes[0] > 0 ? 1 : -1;
+    var hx = dx && now - introNavT > 220; if (hx) introNavT = now;
+    introAxisY = ayDir;
+    if (pStart) { begin('solo'); return; }
+    var pos = null, r, c;
+    for (r = 0; r < rows.length; r++) for (c = 0; c < rows[r].length; c++) if (rows[r][c] === introEl) pos = [r, c];
+    if (!pos) { if (pA || pB || mv || hx) introSel($('startSolo')); return; }   /* primeiro toque: só mostra a seleção */
+    if (pB) { padBlur(); return; }
+    if (mv) { padBlur(); r = (pos[0] + mv + rows.length) % rows.length; introSel(rows[r][Math.min(pos[1], rows[r].length - 1)]); return; }
+    if (hx && rows[pos[0]][pos[1] + dx]) { introSel(rows[pos[0]][pos[1] + dx]); return; }
+    if (pA) { if (introEl.tagName === 'INPUT') introEl.focus(); else introEl.click(); }
+  }
+  var mpEl = null, mpAxisY = 0;
+  function mpItems() { return ['roomBtn', 'roomCode', 'srv', 'mpJoin', 'mpHost', 'mpBack'].map($).filter(padVis); }
+  function mpSel(el) {
+    Array.prototype.forEach.call($('mpWin').querySelectorAll('.sel'), function (e) { e.classList.remove('sel'); });
+    mpEl = el; if (el) el.classList.add('sel');
+  }
+  $('mpWin').addEventListener('pointerdown', function () { mpSel(null); });
+  function mpPad(pad, pA, pB, pStart, pUp, pDown) {
+    var it = mpItems(), ay = pad.axes[1] || 0, ayDir = ay > 0.6 ? 1 : ay < -0.6 ? -1 : 0;
+    var mv = pDown ? 1 : pUp ? -1 : (ayDir && ayDir !== mpAxisY ? ayDir : 0);
+    mpAxisY = ayDir;
+    if (!$('roomList').hidden) {   /* lista de salas aberta: cima/baixo escolhem, A confirma, B fecha a lista */
+      var key = function (k) { $('roomBtn').dispatchEvent(new KeyboardEvent('keydown', { key: k, bubbles: true, cancelable: true })); };
+      if (mv) key(mv > 0 ? 'ArrowDown' : 'ArrowUp'); else if (pA) key('Enter'); else if (pB) key('Escape');
+      return;
+    }
+    if (pB) { padBlur(); closeMp(); return; }
+    if (pStart) { $('mpJoin').click(); return; }
+    var i = it.indexOf(mpEl);
+    if (i < 0) { if (pA || mv) mpSel(it[0]); return; }
+    if (mv) { padBlur(); mpSel(it[(i + mv + it.length) % it.length]); return; }
+    if (pA) { if (it[i].tagName === 'INPUT') it[i].focus(); else it[i].click(); }
   }
   function closeSet() { $('setWin').hidden = true; }
   $('startSet').addEventListener('click', openSet);
@@ -7643,19 +8056,28 @@ function animateModel(t, dt, moving) {
   /* nome sobre a cabeca dos outros jogadores: pilula arredondada do tamanho do texto (antes era uma barra retangular fixa), fonte do jogo, borda clara bem fina,
      sombrinha no texto (sem setinha). Desenhada em dobro de resolucao para ficar nitida. */
   function mpLabel(txt) {
+    var fr = !!(friendNames && friendNames[String(txt).toLowerCase()]);   /* amigo: pílula dourada com coração */
     txt = String(txt).slice(0, 16);
     var F = '700 54px "Baloo 2", "Nunito", system-ui, sans-serif', cv = document.createElement('canvas'), g = cv.getContext('2d');
-    g.font = F; var tw = Math.ceil(g.measureText(txt).width), W = Math.max(120, tw + 64), H = 128, x0 = 6, x1 = W - 6, y0 = 24, y1 = 104, r = (y1 - y0) / 2, cx = W / 2;
+    g.font = F; var tw = Math.ceil(g.measureText(txt).width), hw = fr ? Math.ceil(g.measureText('\u2665 ').width) : 0, W = Math.max(120, tw + hw + 64), H = 128, x0 = 6, x1 = W - 6, y0 = 24, y1 = 104, r = (y1 - y0) / 2, cx = W / 2;
     cv.width = W; cv.height = H; g = cv.getContext('2d');
     g.beginPath(); g.moveTo(x0 + r, y0); g.lineTo(x1 - r, y0); g.arc(x1 - r, y0 + r, r, -Math.PI / 2, Math.PI / 2);
     g.lineTo(x0 + r, y1); g.arc(x0 + r, y0 + r, r, Math.PI / 2, Math.PI * 1.5); g.closePath();
-    g.fillStyle = 'rgba(32,28,44,0.55)'; g.fill(); g.lineWidth = 3; g.strokeStyle = 'rgba(255,244,226,0.3)'; g.lineJoin = 'round'; g.stroke();
-    g.font = F; g.textAlign = 'center'; g.textBaseline = 'middle';
-    g.fillStyle = 'rgba(0,0,0,0.35)'; g.fillText(txt, cx, y0 + r + 4);
-    g.fillStyle = '#fff4e2'; g.fillText(txt, cx, y0 + r + 1);
+    g.fillStyle = fr ? 'rgba(84,52,14,0.82)' : 'rgba(32,28,44,0.55)'; g.fill(); g.lineWidth = fr ? 5 : 3; g.strokeStyle = fr ? 'rgba(255,208,96,0.95)' : 'rgba(255,244,226,0.3)'; g.lineJoin = 'round'; g.stroke();
+    g.font = F; g.textBaseline = 'middle';
+    if (fr) {
+      var sx = cx - (hw + tw) / 2; g.textAlign = 'left';
+      g.fillStyle = 'rgba(0,0,0,0.4)'; g.fillText('\u2665 ', sx, y0 + r + 4); g.fillText(txt, sx + hw, y0 + r + 4);
+      g.fillStyle = '#ff7f9c'; g.fillText('\u2665 ', sx, y0 + r + 1);
+      g.fillStyle = '#ffe08a'; g.fillText(txt, sx + hw, y0 + r + 1);
+    } else {
+      g.textAlign = 'center';
+      g.fillStyle = 'rgba(0,0,0,0.35)'; g.fillText(txt, cx, y0 + r + 4);
+      g.fillStyle = '#fff4e2'; g.fillText(txt, cx, y0 + r + 1);
+    }
     var t = new THREE.CanvasTexture(cv); t.generateMipmaps = false; t.minFilter = THREE.LinearFilter; t.magFilter = THREE.LinearFilter;
-    var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, opacity: 0.9, depthTest: false }));
-    sp.scale.set(W * 0.5 / 512, H * 0.5 / 512, 1); sp.position.y = 0.43; sp.renderOrder = 9;
+    var sp = new THREE.Sprite(new THREE.SpriteMaterial({ map: t, transparent: true, opacity: fr ? 1 : 0.9, depthTest: false }));
+    sp.scale.set(W * 0.5 / 512 * (fr ? 1.12 : 1), H * 0.5 / 512 * (fr ? 1.12 : 1), 1); sp.position.y = fr ? 0.45 : 0.43; sp.renderOrder = 9;
     return sp;
   }
   function mpMake(hex, name) {
@@ -7925,7 +8347,7 @@ function animateModel(t, dt, moving) {
     if (key === tagG.hud) return;
     tagG.hud = key; el.hidden = !txt; el.textContent = txt; el.className = it ? 'it' : '';
   }
-  function tagLabel() { $('tagBtn').textContent = tagG.st ? '🐾 Leave tag' : '🐾 Invite (P)'; }
+  function tagLabel() { $('tagBtn').textContent = '🐾 Players (P)'; }   /* o botão abre o menu do jogador mais perto (convidar, amigo, mute; e sair do pega-pega) */
   function tagLeave() { tagG.st = 0; tagG.inv = null; say('You left the game of tag', 1800); tagLabel(); }
   /* gato mais próximo que ainda não está brincando */
   function tagNear() {
@@ -7937,24 +8359,32 @@ function animateModel(t, dt, moving) {
     }
     return best;
   }
-  function tagInvite() {
+  function tagInvite(target) {   /* target: id do jogador escolhido no menu do botão direito (qualquer distância); sem target (controle) convida o mais próximo */
     if (!started) return;
     if (!mp.room) { say('Join an online room to play tag', 3200); return; }
-    var id = tagNear(), now = performance.now();
-    if (!id) { say('Get close to another cat and press P to invite', 3200); return; }
+    var id = target || tagNear(), now = performance.now();
+    if (target && !mp.remotes[target]) { say('That player is not in the room anymore', 2600); return; }
+    if (target && mp.remotes[target].tg) { say((mp.remotes[target].nm || 'That cat') + ' is already playing tag', 2600); return; }
+    if (!id) { say('Get close to another cat to invite', 3200); return; }
     if (tagG.inv && tagG.inv.until > now) { say('Waiting for a reply to the invite…', 1800); return; }
     tagG.inv = { to: id, until: now + 15000 };
     mp.room.emit('tinv', { to: id }).catch(function () {});
     say('Invite sent to ' + (mp.remotes[id].nm || 'the kitten') + '… 🐾', 2600);
   }
-  /* P / Y: aceita um convite que chegou; senão convida o gato mais próximo; senão (já brincando) sai */
-  function tagKey() {
+  /* P / botão "Players" / controle (direcional esquerdo, clique do analógico direito, Y com convite): aceita um convite que chegou;
+     senão abre o menu (convidar, amigo, mute) do jogador mais perto; já brincando e sem ninguém perto, o menu só tem "Leave tag"; aperte de novo para fechar */
+  function tagKey(viaPad) {
     if (!started) return;
     if (tagG.ask) { tagAnswer(true); return; }
     if (!mp.room) { say('Join an online room to play tag', 3200); return; }
-    if (tagNear() || !tagG.st) tagInvite(); else tagLeave();
+    if (!pmenu.hidden) { pmenuClose(); return; }
+    var id = nearestPlayer();
+    if (id) pmenuAtCat(id, viaPad);
+    else if (tagG.st) pmenuOpen('', innerWidth / 2 - 60, innerHeight / 2, null, viaPad);
+    else say('Get close to another cat to open its menu', 3200);
   }
-  $('tagBtn').addEventListener('click', function () { if (tagG.st) tagLeave(); else tagInvite(); });
+  $('tagBtn').addEventListener('click', function () { tagKey(false); });
+  tagLabel();
   $('tinvYes').addEventListener('click', function () { tagAnswer(true); });
   $('tinvNo').addEventListener('click', function () { tagAnswer(false); });
 
@@ -8146,6 +8576,7 @@ function animateModel(t, dt, moving) {
       function send(o) { if (ws.readyState === 1) ws.send(JSON.stringify(o)); return Promise.resolve(); }
       var api = {
         emit: function (t, d) { return send({ t: 'emit', topic: t, data: d }); },
+        cmd: function (c, a) { return send({ t: 'cmd', c: c, a: a }); },   /* comandos do chat: o servidor aplica e avisa todos */
         on: function (t, f) { (subs[t] = subs[t] || []).push(f); return function () {}; },
         presence: function (p) { Object.keys(p).forEach(function (k) { pres[k] = p[k]; }); return send({ t: 'pres', patch: p }); },
         onPeers: function (f) { pl.push(f); return function () {}; }
@@ -8153,12 +8584,16 @@ function animateModel(t, dt, moving) {
       ws.onmessage = function (ev) {
         var m; try { m = JSON.parse(ev.data); } catch (e) { return; }
         if (m.t === 'full') { full = true; reject(new Error('full')); return; }
-        else if (m.t === 'hello') { if (typeof m.now === 'number') clockOff = m.now - Date.now(); me = m.peer; peers = m.peers || {}; peers[me] = pres; ready = true; resolve(api); setTimeout(fire, 0); if (!pingT) { pingT = setInterval(doPing, 2000); doPing(); } }
+        else if (m.t === 'hello') { if (typeof m.now === 'number') clockOff = m.now - Date.now(); me = m.peer; if (m.env) { rainForce = m.env.rain === undefined ? null : m.env.rain; redForceNid = m.env.red === undefined ? null : m.env.red; } peers = m.peers || {}; peers[me] = pres; ready = true; resolve(api); setTimeout(fire, 0); if (!pingT) { pingT = setInterval(doPing, 2000); doPing(); } }
         else if (m.t === 'pong') { if (typeof m.c === 'number') { gotPong = true; pingShow(performance.now() - m.c); } }
         else if (m.t === 'pres') { var o = peers[m.peer] || (peers[m.peer] = {}); Object.keys(m.patch || {}).forEach(function (k) { o[k] = m.patch[k]; }); fire(); }
         else if (m.t === 'leave') { delete peers[m.peer]; fire(); }
         else if (m.t === 'clock') { if (typeof m.now === 'number') clockOff = m.now - Date.now(); }
-        else if (m.t === 'emit') { (subs[m.topic] || []).forEach(function (f) { f({ topic: m.topic, data: m.data, peer: m.peer, isMe: false, kind: 'viewer' }); }); }
+        else if (m.t === 'chatack') { var pd = chatPending.shift(); if (pd && m.ok === false) { pd.className += ' bad'; pd.title = 'Not sent'; } }
+        else if (m.t === 'env') { rainForce = m.rain === undefined ? null : m.rain; redForceNid = m.red === undefined ? null : m.red; }   /* chuva/lua vermelha comandadas por alguem da sala */
+        else if (m.t === 'notice') { if (cmdWait) { clearTimeout(cmdWait); cmdWait = null; } if (typeof m.msg === 'string') chatAdd('Notice', m.msg, false); }   /* avisos do filtro do chat (servidor) */
+        else if (m.t === 'emit') { if (m.peer === 'server' && cmdWait) { clearTimeout(cmdWait); cmdWait = null; }   /* o servidor respondeu ao comando */
+          (subs[m.topic] || []).forEach(function (f) { f({ topic: m.topic, data: m.data, peer: m.peer, isMe: false, kind: 'viewer' }); }); }
       };
       ws.onerror = function () { if (!ready) reject(new Error('ws')); };
       ws.onclose = function () { if (!ready) reject(new Error(full ? 'full' : 'ws')); else { clearInterval(pingT); pingShow(null); peers = {}; peers[me] = pres; fire(); say('Connection lost: reload the page', 4000); } };
@@ -8168,16 +8603,19 @@ function animateModel(t, dt, moving) {
   function chatAdd(name, text, mine) {
     var log = $('chatlog'), d = document.createElement('div'), b = document.createElement('b');
     if (mine) d.className = 'me';
-    b.textContent = String(name).slice(0, 16) + ': '; d.appendChild(b); d.appendChild(document.createTextNode(String(text).slice(0, 120)));
+    else if (name !== 'Notice' && friendNames && friendNames[String(name).toLowerCase()]) d.className = 'fr';
+    b.textContent = String(name).slice(0, 16) + ': '; d.appendChild(b); d.appendChild(document.createTextNode(String(text).slice(0, 50)));
     log.appendChild(d);
     while (log.children.length > 8) log.removeChild(log.firstChild);
     setTimeout(function () { if ($('chatbar').hidden) d.className += ' old'; }, 9000);
+    return d;
   }
+  var chatPending = [];   /* mensagens suas esperando a resposta do servidor (chatack): se o filtro barrar, a linha fica vermelha */
   var EMOJIS = '😺 😸 😹 😻 😼 😽 🙀 😿 😾 🐱 🐟 🐾 ❤️ 😂 😍 😎 😴 🥺 😡 👍 👏 🎉 🔥 ✨ 💤 🥛 🐭 🐦 🦋 🌸 🌳 🏠'.split(' ');
   var SHORT = [[':)', '🙂'], [':D', '😄'], [':(', '😿'], [';)', '😉'], ['<3', '❤️'], [':gato:', '😺'], [':peixe:', '🐟'], [':pata:', '🐾']];
   EMOJIS.forEach(function (e) {
     var b = document.createElement('button'); b.type = 'button'; b.textContent = e;
-    b.addEventListener('click', function () { var i = $('chatin'); if (i.value.length + e.length <= 120) i.value += e; i.focus(); });
+    b.addEventListener('click', function () { var i = $('chatin'); if (i.value.length + e.length <= 50) i.value += e; i.focus(); });
     $('emojis').appendChild(b);
   });
   $('emojis').addEventListener('mousedown', function (e) { e.preventDefault(); });
@@ -8195,12 +8633,13 @@ function animateModel(t, dt, moving) {
   }
   /* comandos do chat (comecam com /): mudam o horario e o clima so no seu jogo e nao viram fala do gatinho: so aparece um aviso no chat.
      O relogio do servidor so volta a mandar se todos estiverem dormindo. */
-  var CMD_TIMES = { dia: ['day', 12], day: ['day', 12], tarde: ['afternoon', 17], afternoon: ['afternoon', 17], noite: ['night', 21], night: ['night', 21], madrugada: ['dawn', 3], dawn: ['dawn', 3] };
-  var CMD_LIST = [['/dia', 'Change to day (12:00)'], ['/tarde', 'Change to afternoon (17:00)'], ['/noite', 'Change to night (21:00)'], ['/madrugada', 'Change to dawn (03:00)'],
-                  ['/chuva', 'Start the rain'], ['/parar', 'Stop the rain'], ['/chuva auto', 'Natural weather again'],
-                  ['/luavermelha', 'Red moon for this night only'], ['/luavermelha off', 'Back to the normal moon']];
+  var CMD_TIMES = { day: ['day', 12], afternoon: ['afternoon', 17], night: ['night', 21], dawn: ['dawn', 3] };
+  var CMD_LIST = [['/day', 'Change to day (12:00)'], ['/afternoon', 'Change to afternoon (17:00)'], ['/night', 'Change to night (21:00)'], ['/dawn', 'Change to dawn (03:00)'],
+                  ['/rain', 'Start the rain'], ['/stoprain', 'Stop the rain'], ['/rain auto', 'Natural weather again'],
+                  ['/redmoon', 'Red moon for this night only'], ['/redmoon off', 'Back to the normal moon'],
+                  ['/mute ', 'Hide a player, only for you: /mute name'], ['/unmute ', 'Show a player again: /unmute name'], ['/mutelist', 'Players you muted'], ['/friends', 'Your friends list']];
   function cmdListShow() {   /* ao digitar "/" aparece a lista; continua filtrando conforme a pessoa digita */
-    var box = $('cmdlist'), v = $('chatin').value.toLowerCase(), show = v.charAt(0) === '/', list;
+    var box = $('cmdlist'), v = $('chatin').value.toLowerCase(), show = v.charAt(0) === '/' && !/^\/(mute|unmute)\s+\S/.test(v), list;
     if (!show) { box.hidden = true; return; }
     list = CMD_LIST.filter(function (c) { return c[0].indexOf(v.replace(/\s+$/, '')) === 0; });
     if (!list.length) list = CMD_LIST;
@@ -8209,43 +8648,210 @@ function animateModel(t, dt, moving) {
       var d = document.createElement('div'), b = document.createElement('b'), sp = document.createElement('span');
       b.textContent = c[0]; sp.textContent = c[1]; d.appendChild(b); d.appendChild(sp);
       d.addEventListener('mousedown', function (e) { e.preventDefault(); });
-      d.addEventListener('click', function () { var i = $('chatin'); i.value = c[0]; i.focus(); cmdListShow(); });
+      d.addEventListener('click', function () { var i = $('chatin'); i.value = c[0]; i.focus(); cmdListShow(); });   /* clicar so preenche; o comando roda ao apertar Enter */
       box.appendChild(d);
     });
     box.hidden = false;
   }
   $('chatin').addEventListener('input', cmdListShow);
+  /* Online o servidor aplica o comando e avisa TODOS da sala (horario via 'clock', chuva/lua via 'env'); so no modo solo o efeito e local. */
+  /* silenciar: so no seu jogo. Esconde o chat, o balao e o miau de quem voce silenciou (por nome e pelo id desta sessao; o nome fica salvo neste aparelho). */
+  var mutedNames = {}, mutedIds = {};
+  try { JSON.parse(localStorage.getItem('luna_muted') || '[]').forEach(function (n) { if (typeof n === 'string') mutedNames[n.toLowerCase()] = n; }); } catch (e) {}
+  function saveMuted() { try { localStorage.setItem('luna_muted', JSON.stringify(Object.keys(mutedNames).map(function (k) { return mutedNames[k]; }))); } catch (e) {} }
+  /* amigos: lista salva neste aparelho (só para você), adicionar/remover pelo botão direito no nome */
+  var friendNames = {};
+  try { JSON.parse(localStorage.getItem('luna_friends') || '[]').forEach(function (n) { if (typeof n === 'string') friendNames[n.toLowerCase()] = n; }); } catch (e) {}
+  function saveFriends() { try { localStorage.setItem('luna_friends', JSON.stringify(Object.keys(friendNames).map(function (k) { return friendNames[k]; }))); } catch (e) {} }
+  function refreshFriendLabels() {
+    Object.keys(mp.remotes).forEach(function (id) {
+      var r = mp.remotes[id], u = r.root && r.root.userData, nm = remoteName(id); if (!u || !u.lab || !nm) return;
+      var old = u.lab; r.root.remove(old); if (old.material) { if (old.material.map) old.material.map.dispose(); old.material.dispose(); }
+      u.lab = mpLabel(nm); r.root.add(u.lab);
+    });
+  }
+  function friendCommand(c, name, note) {
+    var k = String(name || '').toLowerCase();
+    if (c === 'friends') { var fl = Object.keys(friendNames).map(function (x) { return friendNames[x]; }); note(fl.length ? 'Friends: ' + fl.join(', ') + '.' : "You haven't added any friends yet."); return; }
+    if (!k) return;
+    if (k === String(mp.nick || '').toLowerCase()) { note("You can't add yourself as a friend."); return; }
+    if (c === 'addfriend') {
+      if (friendNames[k]) { note(friendNames[k] + ' is already your friend.'); return; }
+      friendNames[k] = name; saveFriends(); refreshFriendLabels(); note(name + ' is now your friend.');
+    } else {   /* removefriend */
+      if (!friendNames[k]) { note(name + ' is not in your friends list.'); return; }
+      var nm = friendNames[k]; delete friendNames[k]; saveFriends(); refreshFriendLabels(); note(nm + ' was removed from your friends.');
+    }
+  }
+  function remoteName(id) { var r = mp.remotes[id]; return r ? (r.nm || r.dn || '') : ''; }
+  function isMuted(peer, name) {
+    if (peer === 'server') return false;   /* avisos do servidor nunca sao silenciados */
+    var n = String(name || remoteName(peer)).toLowerCase();
+    return !!(mutedIds[peer] || (n && mutedNames[n]));
+  }
+  function muteCommand(c, q, note) {
+    var ql = q.toLowerCase(), names = Object.keys(mutedNames).map(function (k) { return mutedNames[k]; }), hit;
+    if (c === 'mutelist') { note(names.length ? 'Muted: ' + names.join(', ') + '.' : "You haven't muted anyone."); return; }
+    if (c === 'mute') {
+      if (!ql) { note('Type /mute and the name of the player, like /mute Luna.'); return; }
+      if (ql === String(mp.nick || '').toLowerCase()) { note("You can't mute yourself."); return; }
+      var ids = Object.keys(mp.remotes), ex = ids.filter(function (id) { return remoteName(id).toLowerCase() === ql; });
+      hit = ex.length ? ex : ids.filter(function (id) { return remoteName(id).toLowerCase().indexOf(ql) === 0; });
+      var nm = {}; hit.forEach(function (id) { nm[remoteName(id)] = 1; });
+      if (!hit.length) { note('Nobody here is called "' + q + '".'); return; }
+      if (Object.keys(nm).length > 1) { note('More than one player matches: ' + Object.keys(nm).join(', ') + '. Type the full name.'); return; }
+      hit.forEach(function (id) { mutedIds[id] = 1; mutedNames[remoteName(id).toLowerCase()] = remoteName(id); });
+      saveMuted(); note('Muted ' + remoteName(hit[0]) + '. Only you stop seeing them. Type /unmute ' + remoteName(hit[0]) + ' to undo.');
+    } else {   /* unmute */
+      if (!ql) { note('Type /unmute and the name of the player, or /unmute all.'); return; }
+      var ks = Object.keys(mutedNames), gone = ql === 'all' ? ks : ks.filter(function (k) { return k === ql; });
+      if (!gone.length) gone = ks.filter(function (k) { return k.indexOf(ql) === 0; });
+      if (!gone.length) { note('You have not muted "' + q + '".'); return; }
+      gone.forEach(function (k) { Object.keys(mutedIds).forEach(function (id) { if (remoteName(id).toLowerCase() === k) delete mutedIds[id]; }); delete mutedNames[k]; });
+      if (ql === 'all') mutedIds = {};
+      saveMuted(); note(ql === 'all' ? 'Everyone is unmuted.' : 'Unmuted ' + gone.join(', ') + '.');
+    }
+  }
+  /* botão direito sobre o nome de um jogador (a plaquinha acima do gato ou o nome no chat): menu com Mute / Unmute, só para você */
+  var pmenu = document.createElement('div'), pmenuLeave = document.createElement('button'), pmenuHint = document.createElement('div'), pmenuTitle = document.createElement('div'), pmenuPad = false, pmenuSel = 0, pmenuTag = document.createElement('button'), pmenuTagId = null, pmenuFriend = document.createElement('button'), pmenuBtn = document.createElement('button'), pmenuName = '', pmenuV = new THREE.Vector3(), pmenuS = new THREE.Vector3();
+  pmenu.id = 'pmenu'; pmenu.hidden = true; pmenuBtn.type = 'button'; pmenuFriend.type = 'button'; pmenuTag.type = 'button'; pmenuLeave.type = 'button'; pmenuHint.className = 'phint'; pmenuHint.textContent = '▲▼ choose · A confirm · B close'; pmenuTitle.className = 'ptitle'; pmenu.appendChild(pmenuTitle); pmenu.appendChild(pmenuLeave); pmenu.appendChild(pmenuTag); pmenu.appendChild(pmenuFriend); pmenu.appendChild(pmenuBtn); pmenu.appendChild(pmenuHint); document.body.appendChild(pmenu);
+  function pmenuClose() { pmenu.hidden = true; pmenuPad = false; }
+  var PI_ST = 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"', PI_SPK = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>', PI = {
+    paw: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="11" r="2.2"/><circle cx="9.5" cy="6.2" r="2.2"/><circle cx="14.5" cy="6.2" r="2.2"/><circle cx="18.5" cy="11" r="2.2"/><path d="M12 12c-3.2 0-6 3-6 6 0 2.1 2 3 4 2.5 1-.3 1.4-.5 2-.5s1 .2 2 .5c2 .5 4-.4 4-2.5 0-3-2.8-6-6-6z"/></svg>',
+    add: '<svg viewBox="0 0 24 24" ' + PI_ST + '><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>',
+    del: '<svg viewBox="0 0 24 24" ' + PI_ST + '><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/></svg>',
+    mute: '<svg viewBox="0 0 24 24" ' + PI_ST + '>' + PI_SPK + '<line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>',
+    unmute: '<svg viewBox="0 0 24 24" ' + PI_ST + '>' + PI_SPK + '<path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>',
+    leave: '<svg viewBox="0 0 24 24" ' + PI_ST + '><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
+  };
+  function pmenuSet(btn, icon, text) { btn.innerHTML = PI[icon]; var sp = document.createElement('span'); sp.textContent = text; btn.appendChild(sp); }   /* ícone + texto em cada opção */
+  function pmenuItems() { return [pmenuLeave, pmenuTag, pmenuFriend, pmenuBtn].filter(function (b) { return !b.hidden && !b.disabled; }); }
+  function pmenuMark() { var its = pmenuItems(); [pmenuLeave, pmenuTag, pmenuFriend, pmenuBtn].forEach(function (b) { b.classList.remove('sel'); }); if (pmenuPad && its.length) its[Math.max(0, Math.min(pmenuSel, its.length - 1))].classList.add('sel'); }
+  function pmenuPadNav(up, down, ok, back) {   /* controle: escolhe com o direcional, A confirma, B fecha */
+    var its = pmenuItems();
+    if (back) { pmenuClose(); pauseClosedAt = performance.now(); return; }
+    if (!its.length) return;
+    if (up) pmenuSel = (pmenuSel + its.length - 1) % its.length;
+    if (down) pmenuSel = (pmenuSel + 1) % its.length;
+    pmenuSel = Math.max(0, Math.min(pmenuSel, its.length - 1)); pmenuMark();
+    if (ok) { pauseClosedAt = performance.now(); its[pmenuSel].click(); }   /* pauseClosedAt: o A ainda apertado não vira pulo */
+  }
+  function nearestPlayer() {   /* jogador mais perto (qualquer um, mesmo brincando de pega-pega) */
+    var best = null, bd = 1.75, id, r, o, d;
+    for (id in mp.remotes) {
+      r = mp.remotes[id]; if (!r.root || !remoteName(id)) continue; o = r.root.position;
+      d = Math.hypot(o.x - cat.x, o.z - cat.z);
+      if (d < bd && Math.abs(o.y - cat.y) < 1.2) { bd = d; best = id; }
+    }
+    return best;
+  }
+  function pmenuAtCat(id, viaPad) {   /* abre o menu ao lado do gato desse jogador: à direita do corpo (ou à esquerda se faltar espaço), centralizado na altura do gato */
+    var r = mp.remotes[id], rc = canvas.getBoundingClientRect(), f = rc.height / (2 * Math.tan(camera.fov * Math.PI / 360));
+    var v = new THREE.Vector3(r.root.position.x, r.root.position.y + 0.4, r.root.position.z), dist = camera.position.distanceTo(v);
+    v.project(camera);
+    if (v.z > 1 || dist < 0.1) { pmenuOpen(remoteName(id), innerWidth / 2, innerHeight / 2, id, viaPad); return; }   /* gato atrás da câmera: centro da tela */
+    var off = Math.max(36, Math.min(220, 0.5 * f / dist + 14));   /* meia largura do gato na tela + folga */
+    pmenuOpen(remoteName(id), rc.left + (v.x * 0.5 + 0.5) * rc.width, rc.top + (-v.y * 0.5 + 0.5) * rc.height, id, viaPad, off);
+  }
+  function idByName(name) {   /* jogador da sala com esse nome (prefere quem ainda não está no pega-pega) */
+    var q = String(name).toLowerCase(), ids = Object.keys(mp.remotes).filter(function (i) { return remoteName(i).toLowerCase() === q; });
+    return ids.filter(function (i) { return !mp.remotes[i].tg; })[0] || ids[0] || null;
+  }
+  function pmenuOpen(name, x, y, id, viaPad, off) {
+    var on = !!mutedNames[name.toLowerCase()]; pmenuName = name;
+    pmenuPad = !!viaPad; pmenuSel = 0; pmenuHint.hidden = !pmenuPad;
+    pmenuLeave.hidden = !tagG.st; pmenuSet(pmenuLeave, 'leave', 'Leave tag');   /* sair do pega-pega fica no menu */
+    pmenuFriend.hidden = pmenuBtn.hidden = !name; pmenuTitle.hidden = !name; pmenuTitle.textContent = name;   /* o nome vai no topo do menu, não nas opções */
+    pmenuTagId = mp.room ? (id || idByName(name)) : null;   /* convidar só online e só quem está na sala (nome vindo do chat pode já ter saído) */
+    pmenuTag.hidden = !pmenuTagId || !name;
+    if (pmenuTagId && name) { var busy = !!mp.remotes[pmenuTagId].tg; pmenuTag.disabled = busy; pmenuSet(pmenuTag, 'paw', busy ? 'Already playing tag' : 'Invite to tag'); }
+    var fr = !!friendNames[name.toLowerCase()];
+    pmenuSet(pmenuFriend, fr ? 'del' : 'add', fr ? 'Remove friend' : 'Add friend'); pmenuFriend.setAttribute('data-rm', fr ? '1' : '');
+    pmenuSet(pmenuBtn, on ? 'unmute' : 'mute', on ? 'Unmute' : 'Mute'); pmenuBtn.setAttribute('data-un', on ? '1' : '');
+    pmenu.hidden = false; pmenuMark();
+    var mw = pmenu.offsetWidth, mh = pmenu.offsetHeight;
+    if (off) { x = (x + off + mw > innerWidth - 4) ? x - off - mw : x + off; y = y - mh / 2; }   /* ancorado no gato: ao lado dele, sem cobri-lo */
+    pmenu.style.left = Math.max(4, Math.min(x, innerWidth - mw - 4)) + 'px'; pmenu.style.top = Math.max(4, Math.min(y, innerHeight - mh - 4)) + 'px';
+  }
+  pmenuLeave.addEventListener('click', function () { pmenuClose(); tagLeave(); });
+  pmenuTag.addEventListener('click', function () { var id = pmenuTagId; pmenuClose(); if (id) tagInvite(id); });
+  pmenuFriend.addEventListener('click', function () {
+    var rm = !!pmenuFriend.getAttribute('data-rm'); pmenuClose();
+    friendCommand(rm ? 'removefriend' : 'addfriend', pmenuName, function (m) { chatAdd('Notice', m, false); });
+  });
+  pmenuBtn.addEventListener('click', function () {
+    var un = !!pmenuBtn.getAttribute('data-un'); pmenuClose();
+    muteCommand(un ? 'unmute' : 'mute', pmenuName, function (m) { chatAdd('Notice', m, false); });
+  });
+  document.addEventListener('pointerdown', function (e) { if (!pmenu.hidden && !pmenu.contains(e.target)) pmenuClose(); }, true);
+  window.addEventListener('blur', pmenuClose);
+  canvas.addEventListener('wheel', pmenuClose, { passive: true });
+  window.addEventListener('keydown', function (e) { if (!pmenu.hidden && e.code === 'Escape') { e.preventDefault(); e.stopPropagation(); pmenuClose(); } }, true);   /* Esc fecha só o menu (não abre a pausa) */
+  function nameTagAt(cx, cy) {   /* id do jogador cuja plaquinha de nome está sob o mouse (o mais perto da câmera) */
+    var rc = canvas.getBoundingClientRect(), best = null, bd = 1e9, f = rc.height / (2 * Math.tan(camera.fov * Math.PI / 360));
+    Object.keys(mp.remotes).forEach(function (id) {
+      var lab = mp.remotes[id].root && mp.remotes[id].root.userData.lab; if (!lab || !lab.visible) return;
+      lab.getWorldPosition(pmenuV); var dist = camera.position.distanceTo(pmenuV); if (dist < 0.1) return;
+      var sx = pmenuV.clone().project(camera); if (sx.z > 1) return;
+      lab.getWorldScale(pmenuS);
+      var w = Math.max(60, pmenuS.x * f / dist), h = Math.max(26, pmenuS.y * f / dist);
+      var px = rc.left + (sx.x * 0.5 + 0.5) * rc.width, py = rc.top + (-sx.y * 0.5 + 0.5) * rc.height;
+      if (Math.abs(cx - px) <= w / 2 && Math.abs(cy - py) <= h / 2 && dist < bd) { bd = dist; best = id; }
+    });
+    return best;
+  }
+  document.addEventListener('contextmenu', function (e) {
+    if (!started || pauseOpen) return;
+    var b = e.target && e.target.closest ? e.target.closest('#chatlog b[data-pl]') : null, name = '', id;
+    if (b) name = b.getAttribute('data-pl');
+    else if (e.target === canvas) { id = nameTagAt(e.clientX, e.clientY); if (id) name = remoteName(id); }
+    if (!name || name.toLowerCase() === String(mp.nick || '').toLowerCase()) return;
+    e.preventDefault();
+    id = id || idByName(name);   /* clicou no nome no chat: o menu também abre perto do gato desse jogador */
+    if (id && mp.remotes[id] && mp.room) pmenuAtCat(id, false); else pmenuOpen(name, e.clientX, e.clientY, undefined, false);
+  });
   function chatCommand(txt) {
     var parts = txt.slice(1).trim().toLowerCase().split(/\s+/), c = parts[0] || '', arg = parts[1] || '', tm = CMD_TIMES[c], who = mp.nick || 'Player';
     function note(m) { chatAdd('Notice', m, false); }
+    if (c === 'friends') { friendCommand('friends', '', note); return; }   /* local: nao vai ao servidor */
+    if (c === 'mute' || c === 'unmute' || c === 'mutelist') { muteCommand(c, txt.slice(1).trim().split(/\s+/).slice(1).join(' '), note); return; }   /* locais: nao vao ao servidor */
+    if (!tm && c !== 'rain' && c !== 'stoprain' && c !== 'redmoon') { note('Unknown command. Type / to see the list.'); return; }
+    if (mp.room && mp.room.cmd) {
+      mp.room.cmd(c, arg);
+      clearTimeout(cmdWait);   /* servidor novo responde com um aviso na hora; se nao responder (servidor antigo), aplica so para voce */
+      cmdWait = setTimeout(function () { cmdWait = null; note('The server did not answer (outdated?): applied only for you.'); localCommand(); }, 1500);
+      return;
+    }
+    localCommand();
+    function localCommand() {
     if (tm) {
       var T = Date.now() + clockOff, base = Math.floor(T / DAY_MS) * DAY_MS;
       clockOff += base + tm[1] / 24 * DAY_MS - T;
       note(who + ' changed the time to ' + tm[0] + '.');
-    } else if (c === 'chuva' || c === 'rain') {
+    } else if (c === 'rain') {
       if (arg === 'auto') { rainForce = null; note(who + ' set the weather back to natural.'); }
       else { rainForce = 1; note(who + ' made it rain.'); }
-    } else if (c === 'luavermelha' || c === 'redmoon' || c === 'lua') {
+    } else if (c === 'redmoon') {
       if (arg === 'off' || arg === 'auto') { redForceNid = null; note(who + ' brought the normal moon back.'); }
       else {
         if (nightK < 0.6) { var T2 = Date.now() + clockOff; clockOff += Math.floor(T2 / DAY_MS) * DAY_MS + 21 / 24 * DAY_MS - T2; }   /* a lua vermelha so aparece de noite: vai para as 21:00 */
         redForceNid = Math.floor((Date.now() + clockOff + DAY_MS * 0.5) / DAY_MS);   /* so esta noite (do meio-dia ao meio-dia seguinte) */
         note(who + ' summoned the red moon for tonight.');
       }
-    } else if (c === 'parar' || c === 'pararchuva' || c === 'stop' || c === 'stoprain') {
+    } else if (c === 'stoprain') {
       rainForce = 0; note(who + ' stopped the rain.');
-    } else {
-      note('Unknown command. Type / to see the list.');
+    }
     }
   }
+  var cmdWait = null;
   function chatSend() {
     var t = $('chatin').value.trim();
     if (t.charAt(0) === '/') { chatClose(); chatCommand(t); return; }   /* comandos especiais: so no seu jogo, nao vao para o chat */
     SHORT.forEach(function (s) { t = t.split(s[0]).join(s[1]); });
-    t = t.slice(0, 120); chatClose();
+    t = t.slice(0, 50); chatClose();
     if (!t) return;
     if (mp.room) mp.room.emit('chat', { n: mp.nick || 'Kitten', t: t }).catch(function () {});
-    chatAdd('You', t, true); if (window.UISfx) UISfx.play('send', 80);
+    var mine = chatAdd('You', t, true); if (mp.room) { chatPending.push(mine); if (chatPending.length > 20) chatPending.shift(); } if (window.UISfx) UISfx.play('send', 80);
     say(t.length > 40 ? t.slice(0, 38) + '…' : t, 2800);
     if (!mp.room) chatAdd('Notice', 'You are playing solo: nobody sees this message.', false);
   }
@@ -8282,7 +8888,7 @@ function animateModel(t, dt, moving) {
     return false;
   }
   function hearMeow(m) {
-    var d = m.data; if (m.isMe || !d) return;
+    var d = m.data; if (m.isMe || !d || isMuted(m.peer)) return;
     var x = fin(d.x), z = fin(d.z), dx = x - cat.x, dz = z - cat.z, dist = Math.hypot(dx, dz), v = Math.max(0, 1 - dist / 36);
     var muff = dist > 0.5 && wallBetween(cat.x, cat.z, x, z);
     var pan = dist > 0.5 ? Math.max(-1, Math.min(1, (dx * Math.cos(yaw) - dz * Math.sin(yaw)) / dist)) : 0;
@@ -8344,7 +8950,7 @@ function animateModel(t, dt, moving) {
       room.onPeers(mpPeers, function () {});
       room.on('props', mpApply, function () {});
       room.on('tidy', function (m) { if (!m.isMe) arrumar(true); }, function () {});
-      room.on('chat', function (m) { var d = m.data; if (!m.isMe && d && typeof d.t === 'string') { chatAdd(typeof d.n === 'string' ? d.n : '?', d.t, false); if (window.UISfx) UISfx.play('recv', 80); var r = mp.remotes[m.peer]; if (r) mpBubble(r, d.t); } }, function () {});
+      room.on('chat', function (m) { var d = m.data; if (!m.isMe && d && typeof d.t === 'string' && !isMuted(m.peer, d.n)) { var ce = chatAdd(typeof d.n === 'string' ? d.n : '?', d.t, false); if (ce && m.peer !== 'server' && typeof d.n === 'string') { ce.classList.add('pl'); ce.firstChild.setAttribute('data-pl', d.n); } if (window.UISfx) UISfx.play('recv', 80); var r = mp.remotes[m.peer]; if (r) mpBubble(r, d.t); } }, function () {});
       room.on('meow', hearMeow, function () {});
       room.on('tag', tagReceive, function () {});
       room.on('tinv', tagInvReceive, function () {});
@@ -8389,6 +8995,7 @@ function animateModel(t, dt, moving) {
     for (i = 0; i < FX_TREES.length; i++) { d = FX_TREES[i]; if (Math.hypot(x - d[0], z - d[1]) < 0.9) return true; }
     if (Math.hypot(x - YARD.kennel.x, z - YARD.kennel.z) < 1.3 || YARD.benches.some(function (b) { return Math.hypot(x - b[0], z - b[1]) < 1.15; })) return true;
     if (Math.hypot(x - TRAMP.x, z - TRAMP.z) < TRAMP.r + 0.5) return true;
+    if (YARD.tables.some(function (t) { return Math.hypot(x - t[0], z - t[1]) < 1.9; })) return true;   /* mesas redondas com cadeiras */
     if (x > 17.5 && x < 24 && z > 10.8 && z < 16) return true;   /* area de churrasqueira */
     if (x > 9.3 && x < 10.8 && z > 7 && z < 16) return true;   /* parede de arbusto */
     if (x > 13.2 && z < -6.6) return true;   /* parquinho e suas paredes de arbusto */
@@ -8433,6 +9040,11 @@ function animateModel(t, dt, moving) {
     FX_TREES.forEach(function (t) { birdPerches.push([t[0] + rnd(-0.3, 0.3), 3.7 * t[2] + 0.1, t[1] + rnd(-0.3, 0.3)]); });
     YARD.benches.forEach(function (b) { for (var k = 0; k < 3; k++) { var q = benchPt(b, -0.4 + k * 0.4, 0.26); birdPerches.push([q[0], 1.08, q[1]]); } });
     birdPerches.push([YARD.kennel.x - 0.3, 1.21, YARD.kennel.z], [YARD.kennel.x + 0.3, 1.21, YARD.kennel.z]);
+    if (FOUNT) {   /* borda da fonte: 12 poleiros no aro da bacia (entre as bolinhas de pedra, topo a 0,754 m) e 4 na borda da taca de cima (topo a 1,65 m) */
+      var fa, fk;
+      for (fk = 0; fk < 12; fk++) { fa = (fk + 0.5) / 12 * 6.2832; birdPerches.push([FOUNT.x + Math.cos(fa) * 1.77, 0.58 * 1.3 + 0.13, FOUNT.z + Math.sin(fa) * 1.77]); }
+      for (fk = 0; fk < 4; fk++) { fa = (fk + 0.5) / 4 * 6.2832; birdPerches.push([FOUNT.x + Math.cos(fa) * 0.77, 1.27 * 1.3 + 0.13, FOUNT.z + Math.sin(fa) * 0.77]); }
+    }
   })();
   function makeBird(ci) {
     var m = bMats[ci], g = new THREE.Group(), b = { g: g, st: 'rest', sub: 'idle', t: rnd(0.5, 3), ph: rnd(0, 6.28), fl: 0, cool: 0, gy: 0.13, hu: 0, pk: 0, hvx: 0, hvz: 0, yaw: rnd(0, 6.28), arc: 0, u: 0, dur: 1 };
@@ -9368,6 +9980,7 @@ function animateModel(t, dt, moving) {
      ===================================================================================== */
   function poolIn(x, z, m) { m = m || 0; return x > POOL.cx - POOL.w / 2 - m && x < POOL.cx + POOL.w / 2 + m && z > POOL.cz - POOL.d / 2 - m && z < POOL.cz + POOL.d / 2 + m; }
   var poolWater = null, poolShine = null, poolFloat = null, shineTex = null, swings = [], seesaw = null, ripples = [], poolWas = false, ripT = 0, poolSaid = false;
+  var fountWas = false, fountSaid = false, fountRipT = 0;   /* splash do gatinho na bacia da fonte (igual ao da piscina) */
   function bar(x1, y1, z1, x2, y2, z2, r, color) {
     var a = new THREE.Vector3(x1, y1, z1), b = new THREE.Vector3(x2, y2, z2), dir = b.clone().sub(a), len = dir.length();
     var m = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 8), M(color, { roughness: 0.42, metalness: 0.15 }));   /* metal pintado: leve brilho */
@@ -9385,7 +9998,8 @@ function animateModel(t, dt, moving) {
     [-1, 1].forEach(function (sd) {
       box({ x: cx + sd * (W / 2 + T / 2), z: cz, w: T, d: D, h: 0.4, y: 0.05, color: 0xf2f5f7, tex: 'ceramic', collide: true });
     });
-    poolWater = new THREE.Mesh(new THREE.PlaneGeometry(W, D), new THREE.MeshStandardMaterial({ color: 0x3fb8e0, emissive: 0x2a9fd0, emissiveIntensity: 0.15, roughness: 0.12, metalness: 0.1, transparent: true, opacity: 0.66, depthWrite: false }));
+    /* Lambert (sem brilho especular): a agua nao reflete mais as luzes dos postes (antes: Standard liso, roughness 0,12, que desenhava a mancha de cada lampada). O brilho da agua vem so da textura de celulas (poolShine). A agua do chafariz usa este mesmo material. */
+    poolWater = new THREE.Mesh(new THREE.PlaneGeometry(W, D), new THREE.MeshLambertMaterial({ color: 0x3fb8e0, emissive: 0x2a9fd0, emissiveIntensity: 0.15, transparent: true, opacity: 0.66, depthWrite: false }));
     poolWater.rotation.x = -Math.PI / 2; poolWater.position.set(cx, 0.32, cz); scene.add(poolWater);
     /* brilho da agua: celulas de luz arredondadas e bem suaves (traco largo e fraco + traco fino), repetem sem emenda */
     var cv = document.createElement('canvas'); cv.width = cv.height = 256;
@@ -9407,6 +10021,17 @@ function animateModel(t, dt, moving) {
     shineTex = new THREE.CanvasTexture(cv); shineTex.wrapS = shineTex.wrapT = THREE.RepeatWrapping; shineTex.repeat.set(3, 2);
     poolShine = new THREE.Mesh(new THREE.PlaneGeometry(W, D), new THREE.MeshBasicMaterial({ map: shineTex, transparent: true, opacity: 0.16, depthWrite: false, blending: THREE.AdditiveBlending }));
     poolShine.rotation.x = -Math.PI / 2; poolShine.position.set(cx, 0.325, cz); scene.add(poolShine);
+    /* agua da fonte (chafariz): usa o MESMO material da agua da piscina (cor, transparencia, luz da noite) e o mesmo brilho de celulas de luz por cima (mesmo desenho e mesma velocidade;
+       so a repeticao muda, para as celulas terem o mesmo tamanho que na piscina). As opacidades e o deslize sao atualizados em updPoolPlay e updFountain. */
+    if (FOUNT && FOUNT.wms) FOUNT.wms.forEach(function (w) {
+      var tx = new THREE.CanvasTexture(shineTex.image), g2 = new THREE.CircleGeometry(w.r, 40), sh;
+      tx.wrapS = tx.wrapT = THREE.RepeatWrapping; tx.repeat.set(2 * w.r / W * 3, 2 * w.r / D * 2);
+      w.m.material = poolWater.material;
+      g2.rotateX(-Math.PI / 2);
+      sh = new THREE.Mesh(g2, new THREE.MeshBasicMaterial({ map: tx, transparent: true, opacity: 0.16, depthWrite: false, blending: THREE.AdditiveBlending }));
+      sh.position.set(FOUNT.x, w.y + 0.005, FOUNT.z); sh.renderOrder = 2; scene.add(sh);
+      FOUNT.shines.push({ m: sh, tx: tx });
+    });
     [-0.25, 0.25].forEach(function (dz) { bar(cx + W / 2 - 0.12, 0.06, cz + dz, cx + W / 2 - 0.12, 0.8, cz + dz, 0.022, 0xc8cfd6); });
     [0.25, 0.5].forEach(function (yy) { bar(cx + W / 2 - 0.12, yy, cz - 0.25, cx + W / 2 - 0.12, yy, cz + 0.25, 0.014, 0xc8cfd6); });
     function lounger(x, z) {
@@ -9513,6 +10138,12 @@ function animateModel(t, dt, moving) {
       o2.connect(g2); g2.connect(out); o2.start(s2); o2.stop(s2 + 0.22);
     }
   }
+  /* beber: so com o gatinho DENTRO da agua (piscina, bacia do chafariz ou banheira); do lado de fora ou em cima da borda/aro nao bebe. Mesmos criterios de "dentro" do splash:
+     piscina: abaixo de 0,5 m e dentro do retangulo da agua | chafariz: dentro da parede da bacia (raio 1,6) e abaixo do nivel da agua + 0,18 | banheira: dentro das paredes (x 5,92 a 8,68 / z 5,77 a 6,63) e abaixo de 0,5 m (agua a 0,32).
+     A agua nunca acaba: so mata a sede (ver drinkNow). */
+  drinkSources.push(function () { return cat.y < 0.5 && poolIn(cat.x, cat.z, -0.1); });
+  drinkSources.push(function () { return !!FOUNT && cat.y < FOUNT.wy + 0.18 && Math.hypot(cat.x - FOUNT.x, cat.z - FOUNT.z) < 1.6; });
+  drinkSources.push(function () { return cat.y < 0.5 && cat.x > 5.92 && cat.x < 8.68 && cat.z > 5.77 && cat.z < 6.63; });
   function updPoolPlay(t, dt) {
     if (!poolWater) return;
     poolWater.material.opacity = 0.64 + Math.sin(t * 1.3) * 0.03;
@@ -9538,6 +10169,23 @@ function animateModel(t, dt, moving) {
       if (ripT <= 0) {
         ripT = 0.22;
         for (var i = 0; i < ripples.length; i++) if (ripples[i].age >= 0.9) { ripples[i].age = 0; ripples[i].m.position.set(cat.x, 0.335, cat.z); ripples[i].m.visible = true; break; }
+      }
+    }
+    /* fonte (chafariz): pular dentro da bacia de baixo faz o MESMO que a piscina: respingos, "plof" + bolhinhas, frase e ondinhas ao andar na agua.
+       Dentro = dentro da parede da bacia (raio 1,6) e abaixo da borda (topo 0,754): nivel da agua + 0,18, a mesma folga da piscina (0,32 -> 0,5). */
+    if (FOUNT) {
+      var inF = cat.y < FOUNT.wy + 0.18 && Math.hypot(cat.x - FOUNT.x, cat.z - FOUNT.z) < 1.6;
+      if (inF && !fountWas) {
+        burst(cat.x, FOUNT.wy + 0.03, cat.z, 0xbfeaff); burst(cat.x, FOUNT.wy - 0.02, cat.z, 0x7fd8ff); splashSound();
+        if (!fountSaid) { fountSaid = true; say('Splash! 💦', 1300); }
+      }
+      fountWas = inF;
+      if (inF && spd > 0.5) {
+        fountRipT -= dt;
+        if (fountRipT <= 0) {
+          fountRipT = 0.22;
+          for (var fi = 0; fi < ripples.length; fi++) if (ripples[fi].age >= 0.9) { ripples[fi].age = 0; ripples[fi].m.renderOrder = 3; ripples[fi].m.position.set(cat.x, FOUNT.wy + 0.015, cat.z); ripples[fi].m.visible = true; break; }
+        }
       }
     }
     /* bolas na piscina: boiam, freiam na água e fazem splash ao cair */
@@ -9753,6 +10401,37 @@ function animateModel(t, dt, moving) {
     og.gain.setValueAtTime(0.0001, t); og.gain.exponentialRampToValueAtTime(0.12, t + 0.01); og.gain.exponentialRampToValueAtTime(0.0001, t + 0.13);
     o.connect(og); og.connect(a.destination); o.start(t); o.stop(t + 0.15);
   }
+  /* chafariz (leve): so anima quando o gatinho esta a menos de 30 m E o chafariz esta na tela (teste de frustum de 1 esfera); a ~30 Hz no maximo; gotas escritas direto no array
+     de matrizes; PQ.rain reduz o numero de gotas. Fora disso nao faz nada (as malhas ja nao sao desenhadas: tem esfera de corte propria). */
+  function updFountain(t) {
+    var F = FOUNT, i, d, u, tt, y, a, ring, o, arr, n, s2, sh;
+    if (!F || t - F.last < 0.033) return;
+    if (Math.hypot(cat.x - F.x, cat.z - F.z) > 30) return;
+    F.fm.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); F.fr.setFromProjectionMatrix(F.fm);
+    if (!F.fr.intersectsSphere(F.sph)) return;
+    F.last = t;
+    for (i = 0; i < F.shines.length; i++) { sh = F.shines[i]; sh.tx.offset.set(t * 0.03, Math.sin(t * 0.4) * 0.1); sh.m.material.opacity = poolShine ? poolShine.material.opacity : 0.14; }   /* mesmo deslize e mesma opacidade (dia/noite) do brilho da piscina */
+    n = Math.max(10, Math.min(F.drops.length, Math.round(F.drops.length * Math.min(1, PQ.rain === undefined ? 1 : PQ.rain)))); F.dm.count = n;
+    arr = F.dm.instanceMatrix.array;
+    for (i = 0; i < n; i++) {
+      d = F.drops[i]; o = i * 16;
+      if (d.jet) {   /* sobe do alto do repuxo e cai na taca de cima */
+        u = (t / F.jetT + d.ph) % 1; tt = u * F.jetT; y = F.jetY + F.jetV * tt - 4.9 * tt * tt;
+        arr[o + 12] = F.x + Math.cos(d.a) * d.vr * tt; arr[o + 13] = y; arr[o + 14] = F.z + Math.sin(d.a) * d.vr * tt;
+        s2 = y > F.jetLo ? 0.03 : 0.0001; arr[o] = s2; arr[o + 5] = s2; arr[o + 10] = s2;
+      } else {   /* cai da borda da taca de cima na bacia de baixo */
+        u = (t / F.shT + d.ph) % 1; tt = u * F.shT; y = F.shY - 4.9 * tt * tt; a = F.shR + d.vr * tt;
+        arr[o + 12] = F.x + Math.cos(d.a) * a; arr[o + 13] = y; arr[o + 14] = F.z + Math.sin(d.a) * a;
+        if (y > F.shLo) { arr[o] = 0.026; arr[o + 5] = 0.045; arr[o + 10] = 0.026; } else { arr[o] = 0.0001; arr[o + 5] = 0.0001; arr[o + 10] = 0.0001; }
+      }
+    }
+    F.dm.instanceMatrix.needsUpdate = true;
+    for (i = 0; i < F.rings.length; i++) {   /* onda que se abre e some */
+      ring = F.rings[i]; u = (t / ring.per + ring.ph) % 1;
+      ring.m.scale.setScalar((ring.r0 + ring.dr * u) / 0.97);
+      ring.m.material.opacity = 0.4 * (1 - u) * Math.min(1, u * 8);
+    }
+  }
   function updFlowers() {
     if (cat.y > 0.5) return;   /* pulando por cima, não pisa */
     for (var i = 0; i < flowers.length; i++) {
@@ -9765,32 +10444,46 @@ function animateModel(t, dt, moving) {
   }
   /* a flor se despedaca: petalas, miolo e pedacos do talo voam e ficam espalhados na terra do canteiro (como os cacos dos objetos:
      so somem e a flor volta ao arrumar a casa). As pecas sao viradas para longe do gatinho e limitadas ao canteiro. */
+  /* geometrias e materiais dos pedacos de flor: criados uma vez e compartilhados por todos (antes cada pedaco criava os seus, o que dava soluco ao pisar nas flores) */
+  var FBIT = (function () {
+    var pg = new THREE.SphereGeometry(1, 8, 6), cg = new THREE.SphereGeometry(0.03, 8, 6), sg = new THREE.CylinderGeometry(0.012, 0.012, 0.11, 6);
+    pg.scale(0.05, 0.016, 0.03); cg.scale(1, 0.7, 1); sg.rotateZ(Math.PI / 2);
+    return { pg: pg, cg: cg, sg: sg, mat: {} };
+  })();
+  /* mostra/esconde uma flor nas malhas instanciadas: esconder = matriz com escala 0; mostrar = matriz original */
+  var FL_ZERO = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1];
+  function flowerShow(f, on) {
+    if (!FLI) return;
+    function put(im, base, n) {
+      var arr = im.instanceMatrix.array, org = im.userData.orig, j, o;
+      for (j = 0; j < n; j++) { o = (base + j) * 16; if (on) arr.set(org.subarray(o, o + 16), o); else arr.set(FL_ZERO, o); }
+      im.instanceMatrix.needsUpdate = true;
+    }
+    put(FLI.stem, f.fi, 1); put(FLI.leaf, f.fi * 2, 2); put(FLI.petal, f.fi * 7, 7); put(FLI.ctr, f.fi, 1);
+  }
   function breakFlower(f) {
     var ox = f.x - cat.x, oz = f.z - cat.z, ol = Math.hypot(ox, oz) || 1, k, an;
     ox /= ol; oz /= ol;
-    f.alive = false; f.stem.visible = false; f.head.visible = false; flowersLost++;
+    f.alive = false; flowerShow(f, false); flowersLost++;
     function bit(geo, col, x, y, z, spread, up) {
-      var m = new THREE.Mesh(geo, new THREE.MeshStandardMaterial({ color: col, roughness: 0.6 })), a = Math.random() * 6.2832, u = 0.15 + Math.random() * spread;
+      var m = new THREE.Mesh(geo, FBIT.mat[col] || (FBIT.mat[col] = new THREE.MeshStandardMaterial({ color: col, roughness: 0.6 }))), a = Math.random() * 6.2832, u = 0.15 + Math.random() * spread;
       var vx = Math.cos(a) * u + ox * 0.35, vz = Math.sin(a) * u * 0.5 + oz * 0.2;
-      if (Math.abs(x + vx * 0.45 - f.bx) > 1.5) vx = -vx;     /* nao cai fora da moldura do canteiro */
-      if (Math.abs(z + vz * 0.45 - f.bz) > 0.46) vz = -vz;
+      if (Math.abs(x + vx * 0.45 - f.bx) > (f.v ? 0.46 : 1.5)) vx = -vx;     /* nao cai fora da moldura do canteiro (f.v: canteiro girado) */
+      if (Math.abs(z + vz * 0.45 - f.bz) > (f.v ? 1.5 : 0.46)) vz = -vz;
       m.position.set(x, y, z); m.rotation.set((Math.random() - 0.5) * 0.5, Math.random() * 6.2832, (Math.random() - 0.5) * 0.5); m.castShadow = true; scene.add(m);
-      shards.push({ m: m, vx: vx, vy: up + Math.random() * 1.4, vz: vz, fy: 0.112, life: 7, rs: (Math.random() - 0.5) * 8 });
+      shards.push({ m: m, vx: vx, vy: up + Math.random() * 1.4, vz: vz, fy: 0.112, life: 7, rs: (Math.random() - 0.5) * 8, shared: 1 });
     }
     for (k = 0; k < 7; k++) {   /* petalas */
       an = k / 7 * 6.2832;
-      var pg = new THREE.SphereGeometry(1, 8, 6); pg.scale(0.05, 0.016, 0.03);
-      bit(pg, f.col, f.x + Math.cos(an) * 0.055, 0.38, f.z + Math.sin(an) * 0.055, 0.8, 1.0);
+      bit(FBIT.pg, f.col, f.x + Math.cos(an) * 0.055, 0.38, f.z + Math.sin(an) * 0.055, 0.8, 1.0);
     }
-    var cg = new THREE.SphereGeometry(0.03, 8, 6); cg.scale(1, 0.7, 1);
-    bit(cg, f.col === 0xffd23f ? 0xe08a2a : 0xf2c14e, f.x, 0.38, f.z, 0.5, 1.2);   /* miolo */
+    bit(FBIT.cg, f.col === 0xffd23f ? 0xe08a2a : 0xf2c14e, f.x, 0.38, f.z, 0.5, 1.2);   /* miolo */
     for (k = 0; k < 2; k++) {   /* talo partido em dois */
-      var sg = new THREE.CylinderGeometry(0.012, 0.012, 0.11, 6); sg.rotateZ(Math.PI / 2);
-      bit(sg, 0x4f9a4f, f.x, 0.16 + k * 0.1, f.z, 0.5, 0.4);
+      bit(FBIT.sg, 0x4f9a4f, f.x, 0.16 + k * 0.1, f.z, 0.5, 0.4);
     }
     burst(f.x, 0.3, f.z, f.col);
   }
-  function resetFlowers() { flowersLost = 0; flowers.forEach(function (f) { f.alive = true; f.stem.visible = true; f.head.visible = true; }); }
+  function resetFlowers() { flowersLost = 0; flowers.forEach(function (f) { if (!f.alive) flowerShow(f, true); f.alive = true; }); }
   function updMice(t, dt) {
     mice.forEach(function (m) {
       if (m.st === 'gone') { m.t -= dt; if (m.t <= 0) spawnMouse(m); return; }
@@ -9961,6 +10654,7 @@ function animateModel(t, dt, moving) {
     updTramp(t, dt);
     updGirl(t, dt);
     updFlowers();
+    updFountain(t);
     updateBubble();
     smPoll();
     renderer.render(scene, camera);
