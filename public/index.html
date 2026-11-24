@@ -493,7 +493,13 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
 #pause .pfcol { flex: 0 1 1.85rem; min-width: 1.2rem; aspect-ratio: 1; padding: 0; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.35); cursor: pointer; background: radial-gradient(circle, var(--c, rgba(255, 255, 255, 0.9)) 0 33%, transparent 36%), conic-gradient(#ffc9d6, #fff1b8, #cdeccb, #bfeee6, #c4e0fa, #e3cdf7, #ffc9d6); }
 #pause .pfcol:hover { transform: scale(1.1); }
 #pause .pfcol.on { border-color: #fff; box-shadow: 0 0 0 0.15rem #ffd060; }
-#pause .pfpicker { margin-top: 0.7rem; padding: 0.85rem 0.9rem 0.95rem; border-radius: 1rem; border: 1px solid var(--line); background: rgba(255, 238, 214, 0.06); display: grid; gap: 0.7rem; box-shadow: inset 0 0.1rem 0.5rem rgba(8, 4, 20, 0.25); }
+#pause .pfpicker { position: absolute; z-index: 3; width: 15.5rem; box-sizing: border-box; padding: 0.85rem 0.9rem 0.95rem; border-radius: 1.125rem; border: 1px solid rgba(255, 238, 214, 0.2); background: linear-gradient(165deg, rgba(58, 44, 74, 0.97), rgba(27, 21, 39, 0.98)); display: grid; gap: 0.7rem; text-align: left; box-shadow: 0 1.5rem 3.75rem rgba(4, 2, 12, 0.6), inset 0 1px 0 rgba(255, 255, 255, 0.1); animation: pfpkin 0.18s ease-out; }
+@keyframes pfpkin { from { opacity: 0; transform: translateY(0.4rem) scale(0.97); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { #pause .pfpicker { animation: none; } }
+#pause .pfpktop { display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; }
+#pause .pfpkttl { font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+#pause .pfpkx { flex: none; width: 1.7rem; height: 1.7rem; padding: 0 0 0.1rem; border-radius: 50%; display: grid; place-items: center; font: inherit; font-size: 1.2rem; font-weight: 700; line-height: 1; color: var(--ink); background: rgba(255, 238, 214, 0.08); border: 1px solid var(--line); cursor: pointer; }
+#pause .pfpkx:hover { filter: brightness(1.3); }
 #pause .pfpicker[hidden] { display: none; }
 #pause .pfpkhead { display: flex; align-items: center; gap: 0.7rem; }
 #pause .pfpv { flex: none; width: 2.5rem; height: 2.5rem; border-radius: 50%; border: 0.1875rem solid rgba(255, 255, 255, 0.7); box-shadow: 0 0.2rem 0.6rem rgba(0, 0, 0, 0.3); }
@@ -506,7 +512,7 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
 #pause .pfrng:active::-webkit-slider-thumb { cursor: grabbing; transform: scale(1.08); }
 #pause .pfmsg { margin: 0.6rem 0 0; font-size: 0.8rem; font-weight: 700; color: #ffb3a1; }
 #pause #pvNote { color: var(--muted); }
-#pause .pfbtn.sel, #pause .pfnamein.sel, #pause .pftarr.sel, #pause .pfdescin.sel, #pause .pfav.sel, #pause .pfavx.sel, #pause .pfe.sel, #pause .pfsw.sel, #pause .pfcol.sel, #pause .pfrng.sel, #pause .pfin.sel { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; filter: brightness(1.2); }
+#pause .pfbtn.sel, #pause .pfnamein.sel, #pause .pftarr.sel, #pause .pfdescin.sel, #pause .pfav.sel, #pause .pfavx.sel, #pause .pfe.sel, #pause .pfsw.sel, #pause .pfcol.sel, #pause .pfrng.sel, #pause .pfin.sel, #pause .pfpkx.sel { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; filter: brightness(1.2); }
 #pause .pic:hover, #intro .pic:hover { transform: translateY(-0.125rem); filter: brightness(1.15); }
 #pause .pic.sel, #intro .pic.sel { outline: 0.1875rem solid #fff; outline-offset: 0.1875rem; filter: brightness(1.15); }
 #pause input[type=range]:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; border-radius: 0.5rem; }
@@ -894,6 +900,7 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
     </div>
   </div>
   <div id="pause" class="overlay" hidden role="dialog" aria-modal="true" aria-label="Pause menu">
+    <div id="pfPicker" class="pfpicker" role="dialog" aria-label="Custom color" hidden></div>
     <div class="dialog">
       <div id="pauseMain">
         <h2>Paused</h2>
@@ -927,7 +934,6 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
         <div id="pfEmojis" class="pfgrid"></div>
         <div class="pflabel">Background color</div>
         <div id="pfColors" class="pfswrow"></div>
-        <div id="pfPicker" class="pfpicker" hidden></div>
         <p id="pfMsg" class="pfmsg" hidden></p>
         <div class="pmenu pfacts"><button id="pfCancel" class="go alt" type="button">Cancel</button><button id="pfSave" class="go" type="button">Save</button></div>
       </div>
@@ -7367,7 +7373,13 @@ function animateModel(t, dt, moving) {
   /* ---------- menu de pausa (Esc / Start do controle): Resume, Controls (teclas), Settings (volume) e Quit Game ---------- */
   var pauseOpen = false, pauseClosedAt = 0, padNavT = 0, padAxisY = 0;
   function pauseBox() { return !$('pauseProfile').hidden ? $('pauseProfile') : !$('pauseProfView').hidden ? $('pauseProfView') : !$('pauseFriends').hidden ? $('pauseFriends') : !$('pauseSet').hidden ? $('pauseSet') : !$('pauseHelp').hidden ? $('pauseHelp') : $('pauseMain'); }
-  function pauseItems() { return spItems(pauseBox()); }
+  function pauseItems() {
+    var it = spItems(pauseBox());
+    if (!$('pauseProfile').hidden && !$('pfPicker').hidden) {   /* a janela de cor fica fora do menu no HTML, mas na navegação vem logo depois do botão de cor */
+      var at = it.indexOf($('pfCol')) + 1, pk = spItems($('pfPicker')); it = it.slice(0, at).concat(pk, it.slice(at));
+    }
+    return it;
+  }
   var pauseIdx = 0;
   function pauseMark(i) {   /* marca o item selecionado com uma classe própria: o contorno do navegador só aparece em certos casos e sumia com controle */
     var it = pauseItems(); pauseIdx = (i + it.length) % it.length;
@@ -7384,7 +7396,7 @@ function animateModel(t, dt, moving) {
   $('pause').addEventListener('focusin', function (e) { var i = pauseItems().indexOf(e.target); if (i >= 0) pauseMark(i); });
   function pauseShow(view) {   /* view: false = menu principal, true = Settings, 'help' = Controls */
     $('pauseMain').hidden = view !== false; $('pauseSet').hidden = view !== true; $('pauseHelp').hidden = view !== 'help'; $('pauseFriends').hidden = view !== 'friends';
-    $('pauseProfile').hidden = view !== 'profile'; $('pauseProfView').hidden = view !== 'pview';
+    $('pauseProfile').hidden = view !== 'profile'; $('pauseProfView').hidden = view !== 'pview'; if (view !== 'profile') pfPkClose();
     if (view === 'friends') renderFriends();
     if (view === 'profile') pfEdit();
     if (view === 'pview') renderPView();
@@ -7400,10 +7412,11 @@ function animateModel(t, dt, moving) {
   function closePause() {
     if (!pauseOpen) return;
     if (!$('pauseProfile').hidden) pfCommit();   /* fechou o menu com o perfil aberto: o que foi editado fica salvo */
+    pfPkClose();
     pauseOpen = false; pauseClosedAt = performance.now(); keys = {};
     $('pause').hidden = true; if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
   }
-  function pauseBack() { if (!$('pauseProfile').hidden) { pfLeave(); return; } if (!$('pauseProfView').hidden) { pvBack(); return; } if (!$('pauseFriends').hidden) { pauseShow(false); pauseSel(pauseItems().indexOf($('pFriends'))); } else if (!$('pauseSet').hidden || !$('pauseHelp').hidden) pauseShow(false); else closePause(); }
+  function pauseBack() { if (!$('pfPicker').hidden) { pfPkClose(); var ci = pauseItems().indexOf($('pfCol')); if (ci >= 0) pauseSel(ci); return; } if (!$('pauseProfile').hidden) { pfLeave(); return; } if (!$('pauseProfView').hidden) { pvBack(); return; } if (!$('pauseFriends').hidden) { pauseShow(false); pauseSel(pauseItems().indexOf($('pFriends'))); } else if (!$('pauseSet').hidden || !$('pauseHelp').hidden) pauseShow(false); else closePause(); }
   function setVolume(v) {
     v = Math.max(0, Math.min(1, v)); if (window.UISfx) UISfx.setVolume(v);
     if (actxMaster && actx) actxMaster.gain.setTargetAtTime(v * v, actx.currentTime, 0.02);
@@ -7620,14 +7633,14 @@ function animateModel(t, dt, moving) {
   $('pProfile').addEventListener('click', function () { pauseShow('profile'); });
 
   /* ---------- perfil do jogador (menu de pausa > Profile) ----------
-     Foto (miniatura 96x96 em JPEG), título (lista de títulos de gato), descrição (até 50 caracteres), emoji e cor de fundo.
+     Foto (miniatura 176x176 em JPEG), título (lista de títulos de gato), descrição (até 50 caracteres), emoji e cor de fundo.
      Fica salvo neste aparelho (luna_profile) e é enviado à sala pelo tópico 'profile'. O servidor valida tudo e filtra a descrição;
      mesmo assim o cliente revalida o que recebe (pfClean) e só usa textContent / data URL de JPEG. Ver o perfil de outro jogador:
      botão direito no nome (opção Profile) ou o botão de perfil na lista Friends. */
   var PF_TITLES = ['Curious Kitten', 'Sleepy Kitten', 'Mouse Hunter', 'Fish Thief', 'Nap Champion', 'Zoomies Master', 'Sofa Conqueror', 'Midnight Prowler', 'Fluffy Menace', 'Purrfect Friend', 'Yard Explorer', 'Box Enthusiast'];
   var PF_EMOJIS = ['\uD83D\uDC31', '\uD83D\uDE3A', '\uD83D\uDE38', '\uD83D\uDE3B', '\uD83D\uDE3C', '\uD83D\uDE40', '\uD83D\uDC08', '\uD83D\uDC08\u200D\u2B1B', '\uD83D\uDC1F', '\uD83D\uDC2D', '\uD83D\uDC26', '\uD83E\uDD8B', '\uD83C\uDF38', '\uD83C\uDF19', '\u2B50', '\uD83D\uDD25', '\uD83D\uDC9C', '\uD83D\uDC96', '\uD83C\uDF40', '\uD83C\uDF80', '\uD83D\uDC51', '\uD83E\uDDF6', '\uD83E\uDD5B', '\uD83D\uDC3E'];
   var PF_COLORS = ['#d9ccf2', '#ffc9d6', '#ffd8b8', '#fff1b8', '#cdeccb', '#bfeee6', '#c4e0fa', '#e3cdf7', '#f9d2ea'];
-  var PF_DEF = { ph: '', t: 0, d: '', e: PF_EMOJIS[0], bg: PF_COLORS[0] }, PF_MAXD = 50, PF_MAXPH = 9200, PF_PHOTO_TARGET = 9000;
+  var PF_DEF = { ph: '', t: 0, d: '', e: PF_EMOJIS[0], bg: PF_COLORS[0] }, PF_MAXD = 50, PF_MAXPH = 20000, PF_PHOTO_TARGET = 19500;
   function pfClone(o) { return JSON.parse(JSON.stringify(o)); }
   function pfClean(p) {   /* valida um perfil (o seu salvo ou o de outro jogador): nunca confia no que vem de fora */
     if (!p || typeof p !== 'object') return null;
@@ -7695,7 +7708,7 @@ function animateModel(t, dt, moving) {
   }
   function pfMsg(t) { var m = $('pfMsg'); m.textContent = t || ''; m.hidden = !t; }
   /* --- edição --- */
-  function pfEdit() { pfDraft = pfClone(myProf); pfNickVal = pfName(); pfNickEdited = false; pfMsg(''); $('pfPicker').hidden = true; $('pfCol').setAttribute('aria-expanded', 'false'); pfRender(); }
+  function pfEdit() { pfDraft = pfClone(myProf); pfNickVal = pfName(); pfNickEdited = false; pfMsg(''); pfPkClose(); pfRender(); }
   function pfRender() {
     if (!pfDraft) return;
     var selId = ($('pfCard').querySelector('.sel') || {}).id;   /* o cartão é redesenhado: mantém a seleção do teclado/controle */
@@ -7731,7 +7744,7 @@ function animateModel(t, dt, moving) {
       b.addEventListener('click', function () { if (pfDraft) { pfDraft.bg = c; pfRender(); } }); $('pfColors').appendChild(b);
     });
     var ci = document.createElement('button'); ci.type = 'button'; ci.id = 'pfCol'; ci.className = 'pfcol'; ci.title = 'Custom color'; ci.setAttribute('aria-label', 'Custom color'); ci.setAttribute('aria-expanded', 'false');
-    ci.addEventListener('click', function () { var bx = $('pfPicker'); bx.hidden = !bx.hidden; ci.setAttribute('aria-expanded', String(!bx.hidden)); if (!bx.hidden) { pfPkSync(); if (bx.scrollIntoView) bx.scrollIntoView({ block: 'nearest' }); } }); $('pfColors').appendChild(ci);
+    ci.addEventListener('click', function () { if ($('pfPicker').hidden) pfPkOpen(); else pfPkClose(); }); $('pfColors').appendChild(ci);
   })();
   /* --- seletor de cor próprio (matiz / saturação / luminosidade): no lugar do seletor nativo do navegador --- */
   function pfHsl2Hex(h, s, l) { s /= 100; l /= 100; var a = s * Math.min(l, 1 - l), f = function (n) { var k = (n + h / 30) % 12, c = l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)); return Math.round(255 * c).toString(16).padStart(2, '0'); }; return '#' + f(0) + f(8) + f(4); }
@@ -7743,7 +7756,8 @@ function animateModel(t, dt, moving) {
   var pfPk = { h: 270, s: 60, l: 90 }, pfPkSkip = '';   /* pfPkSkip: quem está mexendo agora ('sl' = slider, 'hex' = campo), para não reescrever o que a pessoa está arrastando/digitando */
   (function () {
     var bx = $('pfPicker');
-    bx.innerHTML = '<div class="pfpkhead"><div id="pfPv" class="pfpv"></div><input id="pfHex" class="pfin pfhex" type="text" maxlength="7" autocomplete="off" spellcheck="false" aria-label="Color code" placeholder="#d9ccf2"></div>'
+    bx.innerHTML = '<div class="pfpktop"><span class="pfpkttl">Custom color</span><button id="pfPkX" class="pfpkx" type="button" title="Close" aria-label="Close custom color">\u00d7</button></div>'
+      + '<div class="pfpkhead"><div id="pfPv" class="pfpv"></div><input id="pfHex" class="pfin pfhex" type="text" maxlength="7" autocomplete="off" spellcheck="false" aria-label="Color code" placeholder="#d9ccf2"></div>'
       + '<label class="pfpkrow"><span>Hue</span><input id="pfH" class="pfrng" type="range" min="0" max="359" step="1" aria-label="Hue"></label>'
       + '<label class="pfpkrow"><span>Saturation</span><input id="pfS" class="pfrng" type="range" min="0" max="100" step="1" aria-label="Saturation"></label>'
       + '<label class="pfpkrow"><span>Lightness</span><input id="pfL" class="pfrng" type="range" min="15" max="96" step="1" aria-label="Lightness"></label>';
@@ -7758,8 +7772,19 @@ function animateModel(t, dt, moving) {
       var v = this.value.trim(); if (!v || !pfDraft) return; if (v.charAt(0) !== '#') v = '#' + v;
       if (/^#[0-9a-fA-F]{6}$/.test(v)) { pfDraft.bg = v.toLowerCase(); pfPk = pfHex2Hsl(pfDraft.bg); pfPkSkip = 'hex'; pfRender(); pfPkSkip = ''; }
     });
+    $('pfPkX').addEventListener('click', function () { pfPkClose(); var i = pauseItems().indexOf($('pfCol')); if (i >= 0) pauseSel(i); });
     $('pfHex').addEventListener('blur', function () { if (pfDraft) this.value = pfDraft.bg; });
   })();
+  function pfPkPlace() {   /* põe a janela de cor ao lado do menu (direita; se não couber, esquerda; em tela estreita, por cima do menu) centrada na altura do menu */
+    var bx = $('pfPicker'), ov = $('pause'), dl = ov.querySelector('.dialog'), cb = $('pfCol'); if (bx.hidden || !dl || !cb) return;
+    var o = ov.getBoundingClientRect(), d = dl.getBoundingClientRect(), c = cb.getBoundingClientRect(), w = bx.offsetWidth, h = bx.offsetHeight, gap = 14, vw = o.width, vh = window.innerHeight, x, y;
+    if (d.right + gap + w <= o.right - 8) x = d.right + gap; else if (d.left - gap - w >= o.left + 8) x = d.left - gap - w; else x = Math.max(o.left + 8, Math.min(o.right - w - 8, d.left + (d.width - w) / 2));
+    y = Math.max(8, Math.min(d.top + (d.height - h) / 2, vh - h - 8));   /* centrada na altura do menu */
+    bx.style.left = (x - o.left + ov.scrollLeft) + 'px'; bx.style.top = (y - o.top + ov.scrollTop) + 'px';
+  }
+  function pfPkOpen() { var bx = $('pfPicker'); bx.hidden = false; $('pfCol').setAttribute('aria-expanded', 'true'); pfPkSync(); pfPkPlace(); }
+  function pfPkClose() { $('pfPicker').hidden = true; $('pfCol').setAttribute('aria-expanded', 'false'); }
+  window.addEventListener('resize', pfPkPlace);
   function pfPkSync() {
     if (!pfDraft || $('pfPicker').hidden) return;
     if (pfHsl2Hex(pfPk.h, pfPk.s, pfPk.l) !== pfDraft.bg) pfPk = pfHex2Hsl(pfDraft.bg);
@@ -7772,13 +7797,14 @@ function animateModel(t, dt, moving) {
     $('pfL').style.setProperty('--trk', 'linear-gradient(90deg, hsl(' + h + ', ' + sa + '%, 15%), hsl(' + h + ', ' + sa + '%, 55%), hsl(' + h + ', ' + sa + '%, 96%))');
     ['pfH', 'pfS', 'pfL'].forEach(function (id) { $(id).style.setProperty('--thumb', hex); });
     $('pfPv').style.background = hex;
+    pfPkPlace();
   }
   function pfTitleStep(d) { if (pfDraft) { pfDraft.t = (pfDraft.t + d + PF_TITLES.length) % PF_TITLES.length; pfRender(); } }
   function pfPickPhoto() { $('pfFile').click(); }
   function pfDelPhoto() { if (pfDraft) { pfDraft.ph = ''; pfMsg(''); pfRender(); pauseSel(pauseItems().indexOf($('pfAvBtn'))); } }
   $('pfSave').addEventListener('click', function () { pauseBack(); });
   $('pfCancel').addEventListener('click', function () { pfDraft = null; pauseBack(); });   /* descarta o rascunho: ao sair, nada é salvo */
-  $('pfFile').addEventListener('change', function () {   /* foto: recorta o centro em quadrado, reduz para 96x96 e comprime até caber (vai para os outros jogadores) */
+  $('pfFile').addEventListener('change', function () {   /* foto: recorta o centro em quadrado, reduz para 176x176 (menor só se não couber) e comprime até caber (vai para os outros jogadores) */
     var f = this.files && this.files[0]; this.value = ''; if (!f || !pfDraft) return;
     if (!/^image\//.test(f.type)) { pfMsg('Please choose an image file.'); return; }
     var fr = new FileReader();
@@ -7788,11 +7814,20 @@ function animateModel(t, dt, moving) {
       im.onerror = function () { pfMsg('Could not open that image. Try another one.'); };
       im.onload = function () {
         if (!pfDraft) return;
-        var S = 96, cv = document.createElement('canvas'), g, q = [0.8, 0.65, 0.5, 0.35, 0.25], out = '', i, sz = Math.min(im.width, im.height);
-        cv.width = cv.height = S; g = cv.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, S, S);
-        g.drawImage(im, (im.width - sz) / 2, (im.height - sz) / 2, sz, sz, 0, 0, S, S);
-        for (i = 0; i < q.length; i++) { out = cv.toDataURL('image/jpeg', q[i]); if (out.length <= PF_PHOTO_TARGET) break; }
-        if (!/^data:image\/jpeg;base64,/.test(out) || out.length > PF_PHOTO_TARGET) { pfMsg('That photo is too detailed. Try another one.'); return; }
+        var sz = Math.min(im.width, im.height), sx = (im.width - sz) / 2, sy = (im.height - sz) / 2, out = '', si, qi, S, src = im, sw = sz, shx = sx, shy = sy;
+        var sizes = [176, 144, 112, 96], q = [0.86, 0.78, 0.7, 0.6, 0.5, 0.4, 0.3];
+        for (si = 0; si < sizes.length && !out; si++) {
+          S = sizes[si];
+          var cur = im, cx = sx, cy = sy, cw = sz, tmp;
+          while (cw / 2 >= S) {   /* reduz pela metade em etapas: a redução de uma vez só deixa a foto serrilhada */
+            tmp = document.createElement('canvas'); tmp.width = tmp.height = Math.floor(cw / 2); var tg = tmp.getContext('2d'); tg.imageSmoothingQuality = 'high';
+            tg.drawImage(cur, cx, cy, cw, cw, 0, 0, tmp.width, tmp.height); cur = tmp; cx = cy = 0; cw = tmp.width;
+          }
+          var cv = document.createElement('canvas'), g; cv.width = cv.height = S; g = cv.getContext('2d'); g.imageSmoothingQuality = 'high';
+          g.fillStyle = '#fff'; g.fillRect(0, 0, S, S); g.drawImage(cur, cx, cy, cw, cw, 0, 0, S, S);
+          for (qi = 0; qi < q.length; qi++) { var t = cv.toDataURL('image/jpeg', q[qi]); if (/^data:image\/jpeg;base64,/.test(t) && t.length <= PF_PHOTO_TARGET) { out = t; break; } }
+        }
+        if (!out) { pfMsg('That photo is too detailed. Try another one.'); return; }
         pfDraft.ph = out; pfMsg(''); pfRender();
       };
       im.src = fr.result;
@@ -7804,7 +7839,7 @@ function animateModel(t, dt, moving) {
   function pfSendIfSet() { if (!pfIsDefault(myProf)) pfSend(); }   /* quem nunca personalizou o perfil não precisa mandar nada */
   function pfIn(m) {
     var d = m && m.data; if (!d || typeof d !== 'object' || m.isMe) return;
-    if (d.req) { pfSendIfSet(); return; }   /* servidor antigo repassa o pedido: cada jogador responde com o seu */
+    if (d.req) { if (!d.to || d.to === mp.me) pfSendIfSet(); return; }   /* servidor antigo repassa o pedido: só quem foi pedido (ou todos, num pedido geral) responde com o seu */
     var c = pfClean(d.p); if (!c) return;
     peerProf[m.peer] = c; var nm = remoteName(m.peer); if (nm) profByName[nm.toLowerCase()] = c;
     if (!$('pauseProfView').hidden && pvState && pvState.id === m.peer) renderPView();
@@ -7821,6 +7856,7 @@ function animateModel(t, dt, moving) {
     pvState = { id: id || null, name: name || '', from: from };
     if (!pauseOpen) openPause();
     pauseShow('pview');
+    if (id && mp.room) mp.room.emit('profile', { req: 1, to: id }).catch(function () {});   /* pede o perfil de agora ao servidor: o cartão já aparece com o que tem e se atualiza sozinho quando a resposta chega */
   }
   function renderPView() {
     if (!pvState) return;
