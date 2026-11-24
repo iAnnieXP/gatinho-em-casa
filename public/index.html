@@ -646,13 +646,14 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
 /* configurações do jogo (som, gráficos, câmera): salvas no navegador */
 (function () {
   var DEF = { music: 100, sfx: 100, amb: 100, meow: 100, chat: 100, birds: true, clock: true, rain: true, crickets: true, uiClicks: true,
-    quality: 'high', pr: 1, fps: 0, showFps: false, lofi: true, mist: true, chroma: true, fov: 62, sens: 100, invX: false, invY: false };
+    quality: 'high', pr: 1, shadow: 1024, fps: 0, showFps: false, lofi: true, mist: false, chroma: true, fov: 62, sens: 100, invX: false, invY: false };
   var cur = {}, subs = [], k;
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
   function fix(key, v) {
     if (typeof v !== typeof DEF[key]) return DEF[key];
     if (key === 'quality') return (v === 'low' || v === 'med' || v === 'high') ? v : DEF.quality;
     if (key === 'fps') return (v === 30 || v === 60) ? v : 0;
+    if (key === 'shadow') return (v === 512 || v === 1024 || v === 2048) ? v : DEF.shadow;
     if (key === 'pr') return (v === 0.75 || v === 1 || v === 1.5 || v === 2) ? v : DEF.pr;
     if (key === 'fov') return clamp(Math.round(v) || DEF.fov, 50, 100);
     if (key === 'sens') return clamp(Math.round(v) || DEF.sens, 25, 200);
@@ -1011,7 +1012,7 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
   var sun = new THREE.DirectionalLight(0xfff2dc, 0.75);
   sun.position.set(5, 15, 7);
   sun.castShadow = true;
-  sun.shadow.mapSize.set(2048, 2048);
+  sun.shadow.mapSize.set(1024, 1024);
   sun.shadow.camera.left = -15; sun.shadow.camera.right = 15;
   sun.shadow.camera.top = 12; sun.shadow.camera.bottom = -12;
   sun.shadow.camera.near = 1; sun.shadow.camera.far = 40;
@@ -4489,7 +4490,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
   }
   /* luz da varanda e dois postes do quintal, acesos à noite */
   var nightLights = [], bulbM = new THREE.MeshBasicMaterial({ color: 0x77736a });
-  var NL_POOL = 6, nlSlots = [], nlOrder = [], nlPool = [];   /* NL_POOL: quantas luzes reais de poste existem ao mesmo tempo */
+  var NL_POOL = 4, nlSlots = [], nlOrder = [], nlPool = [];   /* NL_POOL: quantas luzes reais de poste existem ao mesmo tempo */
   var nlGlowTex = (function () {   /* brilho macio (gradiente radial) para o halo dos postes */
     var c = document.createElement('canvas'); c.width = c.height = 64; var g = c.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
     gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.25, 'rgba(255,255,255,0.45)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
@@ -7442,6 +7443,7 @@ function animateModel(t, dt, moving) {
     { id: 'gfx', name: 'Graphics', rows: [
       { t: 'fs' },
       { t: 'opt', k: 'quality', label: 'Quality', opts: [['low', 'Low'], ['med', 'Medium'], ['high', 'High']] },
+      { t: 'opt', k: 'shadow', label: 'Shadow resolution', opts: [[512, 'Low'], [1024, 'Medium'], [2048, 'High']] },
       { t: 'opt', k: 'pr', label: 'Pixel ratio', opts: [[0.75, '0.75'], [1, '1'], [1.5, '1.5'], [2, '2']] },
       { t: 'opt', k: 'fps', label: 'FPS limit', opts: [[30, '30'], [60, '60'], [0, 'Unlimited']] },
       { t: 'tog', k: 'showFps', label: 'Show FPS' },
@@ -8375,13 +8377,14 @@ function animateModel(t, dt, moving) {
   resize();
 
   /* ---------- gráficos: qualidade (sombras, partículas), pixel ratio (resolução), campo de visão, campo de visão, limite e contador de FPS ---------- */
-  var GQ = { low: { sh: 0, rain: 0.3, sparks: 4 }, med: { sh: 1024, rain: 0.6, sparks: 7 }, high: { sh: 2048, rain: 1, sparks: 10 } };
+  var GQ = { low: { sh: 0, rain: 0.3, sparks: 4 }, med: { sh: 1, rain: 0.6, sparks: 7 }, high: { sh: 1, rain: 1, sparks: 10 } };   /* sh: 0 = sem sombras (Low); senão a resolução vem de Settings > Graphics > Shadow resolution */
   function applyGfx() {
     var C = LunaCfg, q = GQ[C.get('quality')] || GQ.high;
     renderer.setPixelRatio(C.get('pr'));
     if (q.sh) {
+      var res = C.get('shadow');
       sun.castShadow = true;
-      if (sun.shadow.mapSize.x !== q.sh) { sun.shadow.mapSize.set(q.sh, q.sh); if (sun.shadow.map) { sun.shadow.map.dispose(); sun.shadow.map = null; } }
+      if (sun.shadow.mapSize.x !== res) { sun.shadow.mapSize.set(res, res); if (sun.shadow.map) { sun.shadow.map.dispose(); sun.shadow.map = null; } }
     } else sun.castShadow = false;
     PQ.rain = q.rain; PQ.sparks = q.sparks;
     camera.fov = C.get('fov'); camera.updateProjectionMatrix();
