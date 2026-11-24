@@ -1032,7 +1032,7 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
     sun.position.set(tx + sunOff.x, ty + sunOff.y, tz + sunOff.z); sun.target.position.set(tx, ty, tz);
   }
   scene.add(sun); scene.add(sun.target);
-  var roomLamps = [];
+  var roomLamps = [], ROOM_LIT_MAX = 4;   /* quantas luzes de teto da casa ficam acesas ao mesmo tempo */
   function lamp(x, y, z, intensity) {
     var l = new THREE.PointLight(0xffb86b, intensity, 8, 2);   /* luz de abajur: âmbar quente */
     l.position.set(x, y, z);
@@ -2020,21 +2020,6 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     });
     box({ x: cx, z: cz, w: 1.44, d: 0.64, h: 0.022, y: 0.09, color: 0x7a5233, collide: false, cast: false });
   })();
-  /* poltrona: pes de madeira, base estofada, almofada do assento (topo em 0.45, onde os objetos apoiam), encosto com painel acolchoado e capa de madeira no topo; pano liso ('cloth'), colisao igual a de antes (assento 1.1 x 1.0 ate 0.45, encosto 1.1 x 0.25 ate 0.9) */
-  (function () {
-    var ax = -3, az = -2.8, bz = -3.35, CL = 0xc27a40, CU = 0xd9894a, WD = 0x6b4426;
-    colliders.push({ x1: ax - 0.55, x2: ax + 0.55, z1: az - 0.5, z2: az + 0.5, h: 0.45 });
-    colliders.push({ x1: ax - 0.55, x2: ax + 0.55, z1: bz - 0.125, z2: bz + 0.125, h: 0.9 });
-    [-1, 1].forEach(function (sx) { [-1, 1].forEach(function (sz) {
-      box({ x: ax + sx * 0.5, z: az + sz * 0.44, w: 0.07, d: 0.07, h: 0.08, y: 0, color: WD, collide: false, cast: false });   /* pes */
-    }); });
-    box({ x: ax, z: az, w: 1.1, d: 1.0, h: 0.2, y: 0.08, color: CL, tex: 'cloth', collide: false });                   /* base estofada */
-    box({ x: ax, z: az, w: 1.11, d: 1.01, h: 0.012, y: 0.2, color: 0x7a3f1c, tex: 'cloth', collide: false, cast: false });   /* friso escuro entre base e almofada */
-    box({ x: ax, z: az + 0.03, w: 1.02, d: 0.92, h: 0.238, y: 0.212, color: CU, tex: 'cloth', collide: false });         /* almofada do assento */
-    box({ x: ax, z: bz, w: 1.1, d: 0.25, h: 0.87, color: CL, tex: 'cloth', collide: false });                            /* encosto */
-    box({ x: ax, z: bz + 0.12, w: 0.94, d: 0.02, h: 0.4, y: 0.47, color: CU, tex: 'cloth', collide: false, cast: false });   /* painel acolchoado do encosto */
-    box({ x: ax, z: bz, w: 1.12, d: 0.27, h: 0.03, y: 0.87, color: WD, collide: false, cast: false });                   /* capa de madeira no topo */
-  })();
   /* rack da TV: tampo, corpo com portas e nicho aberto, pés, puxadores; TV com moldura fina, pé, tela com imagem e LED */
   (function () {
     var rx = -9.57, rz = -3.5, xf = rx + 0.28, WD = 0x8a5a38, DKW = 0x2a1a10;   /* xf: frente do corpo (virada para +x) */
@@ -2523,9 +2508,6 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       box({ x: cx + s * 0.29, z: cz - 0.15, w: 0.035, d: 0.03, h: 0.2, y: 0.42, color: DK, tex: null, collide: false, cast: false });
     });
   })();
-  box({ x: 1.8, z: 4.8, w: 1.0, d: 1.0, h: 0.5, color: 0xc99a62 });
-  box({ x: 1.8, z: 4.8, w: 0.8, d: 0.8, h: 0.02, y: 0.5, color: 0x7a5832, collide: false });
-  box({ x: 1.8, z: 4.3, w: 0.6, d: 0.04, h: 0.3, y: 0.52, color: 0xb88950, collide: false });
   /* vaso grande do escritório: agora é um objeto derrubável (veja DEFS.plantaGrande) */
 
   /* ----- Banheiro ----- */
@@ -2684,25 +2666,25 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
      bosque com banco e roseiras (sudeste), entrada do portao com arbustos dos dois lados e mesinha, canteiros e rosas na cerca oeste.
      bench: x, z do centro (encosto para +z); kennel: x, z do centro (porta virada para +x). */
   var YARD = {
-    trees: [[3.2, -12.6, 1.2], [9.0, -12.0, 1], [6.2, -14.0, 1.1], [21.0, 2.8, 1.1], [20.6, -5.0, 1.2], [-3, -12.5, 1.1], [0.4, 13.2, 1.1], [-21.2, -3, 1.1]],
-    bushes: [[-4, -9.7], [0.5, -9.7], [-10.5, 9.5], [8.7, 9.5, 0], [21.5, -3.1, 0], [21.5, 0.5, 0], [5.0, -10.2], [8.4, -10.3],
+    trees: [[3.0, -11.65, 1.2], [9.0, -11.65, 1], [21.0, 2.8, 1.1, 4], [20.6, -5.0, 1.2, 5], [-3, -11.65, 1.1, 6], [0.4, 13.2, 1.1, 7], [-21.2, -3, 1.1, 8]],   /* [x, z, escala, semente opcional do visual (padrao: indice + 1; as arvores depois da removida mantem a semente antiga)]. Corredor ao norte da casa: ficaram 3 arvores (a de x = 6,2 foi removida), em z = -11,65 (centro do corredor, entre a parede de arbusto da casa e a da cerca norte) e igualmente espacadas em x = -3, 3 e 9 */
+    bushes: [[-4, -9.7, 0], [0.5, -9.7, 0], [8.7, 9.5, 0], [21.5, -3.1, 0], [21.5, 0.5, 0], [5.0, -10.2, 0], [8.4, -10.3, 0],   /* as 5 moitas do corredor ao norte da casa (x = -4; 0,5; 3,4; 5; 8,4) foram removidas */
       /* junto as paredes da casa (embaixo de janelas fechadas e nos cantos; as janelas abertas e o caminho da porta ficam livres) */
-      [3.4, -9.7], [-10.4, 13.7], [7.9, 10.0, 0], [10.9, 0.7], [10.9, -3.3], [10.9, 5.2]]   /* as tres moitas da lateral leste: x 10,9 -> 12,8 (na frente da parede de arbusto) */,
-    beds: [[5.6, 9.5], [-5.6, 9.5]],   /* (o canteiro em [-7.2, -11] e a moita em [-9.5, -9.7] foram removidos para dar lugar ao pula-pula) */
-    tabs: [[19.2, 3.6], [0.4, 9.6], [-12.4, 5.8], [12.8, 14.3], [16.2, 14.3], [-21.9, 5.8]],   /* [3] e [4]: uma de cada lado do banco [14.5, 14.2], coladas no arbusto do fundo | [2] e [5]: nos dois cantos da parede de arbusto em frente a piscina (a que ficava na entrada, x = -17,9, foi removida) */
+      [3.4, -9.7, 0], [7.9, 10.0, 0], [10.9, 0.7], [10.9, -3.3], [10.9, 5.2]]   /* as tres moitas da lateral leste: x 10,9 -> 12,8 (na frente da parede de arbusto) */,
+    beds: [[-5.6, 9.5]],   /* corredor sul: ficou so o canteiro de baixo da janela (x = -5,6); o do lado leste (5,6 / 9,5) foi removido | (o canteiro em [-7.2, -11] e a moita em [-9.5, -9.7] foram removidos para dar lugar ao pula-pula) */
+    tabs: [[3.4, 9.6], [-12.4, 5.8], [12.8, 14.3], [16.2, 14.3], [-21.9, 5.8]],   /* [2] e [3]: uma de cada lado do banco [14.5, 14.2], coladas no arbusto do fundo | [1] e [4]: nos dois cantos da parede de arbusto em frente a piscina (a que ficava na entrada, x = -17,9, foi removida) */
     /* bancos: x, z, giro (0: encosto em +z, olhando para o norte; 1: encosto em +x; 2: encosto em -z; 3: encosto em -x).
        [0] encostado na cerca norte do cercadinho da churrasqueira, por fora (com vaso) | piscina (olhando a agua) | jardim de rosas | encostados nas paredes da casa:
        sul (dois), norte (dois), oeste (dois) e leste (dois) */
-    benches: [[20.0, 10.85, 0], [-5.4, 14.2, 0], [2.8, 8.9, 2], [-6.3, -8.9, 0], [-12.05, -4.5, 1], [-12.05, 4.3, 1], [10.55, -5.5, 3], [8.6, -8.9, 0], [-2.1, 8.9, 2], [10.55, 3.0, 3], [5.4, 14.2, 0], [14.5, 14.2, 0],   /* banco do gramado sul, centrado entre o arbusto do arco (x = 10,9) e a cerca da churrasqueira (x = 18,1) */
+    benches: [[20.0, 10.85, 0], [-6.3, -8.9, 0], [-12.05, -4.5, 1], [-12.05, 4.3, 1], [10.55, -5.5, 3], [8.6, -8.9, 0], [0.9, 8.9, 2], [10.55, 3.0, 3], [14.5, 14.2, 0],   /* os dois bancos do corredor sul junto a cerca (x = -5,4 e 5,4, z = 14,2) foram removidos */   /* banco do gramado sul, centrado entre o arbusto do arco (x = 10,9) e a cerca da churrasqueira (x = 18,1) */
       /* campo de futebol (cx = -18,4): dois atrás, um de cada lado do placar, de frente para o campo (giro 2) | dois na frente, um de cada lado da entrada, de frente para o campo (giro 0) */
       [-20.3, -14.12, 2], [-16.5, -14.12, 2], [-20.7, -9.38, 0], [-16.1, -9.38, 0],
       /* parquinho: banco encostado por fora na parede de arbusto sul (z = -7,6; face de fora em z = -6,85), a oeste da entrada (x = 17,8 a 19,8), de frente para o sul (giro 2) */
       [15.8, -6.56, 2]],
     kennel: { x: -21.5, z: -6.0 },
     /* mesas redondas do gramado oeste (entre os bancos da parede oeste da casa e a cerca), uma de cada lado do centro: x, z do centro; cada uma com 4 cadeiras (uma em cada ponto cardeal) */
-    tables: [[-16.0, -2.7], [-16.0, 3.0]],
+    tables: [[-19.4, 1.0]],   /* so a mesa do lanche, empurrada para o oeste (x = -19,4, cadeira de tras a ~1 m do arbusto da cerca) e um pouco para o sul; a mesa do cha (z = -2,7) foi removida */
     /* canteiro comprido de flores junto a parede oeste da casa, entre os dois bancos (mesmo desenho dos outros canteiros, com o lado maior ao longo de z): x, z do centro */
-    bedsV: [[-12.35, 0.0]]
+    bedsV: []   /* canteiro comprido da parede oeste removido */
   };
   YARD.bench = { x: YARD.benches[0][0], z: YARD.benches[0][1] };   /* o banco do vaso */
   /* ponto do banco b em coordenadas locais (lx ao longo do banco, lz para o encosto) -> mundo */
@@ -2903,7 +2885,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     /* ----- caminho de pedras da entrada: leito de cascalho, lajes irregulares com sombra nas juntas, pedrinhas de contorno, tufos de grama e soleira no portao ----- */
     (function () {
       var ps = 20261122, k, n, j, x;
-      var BEDS = [], INST = { edge: [], grass: [] }, FL = [], RL = [];   /* acumuladores: leitos, instanciados, lajes por material e juntas -> fundidos no fim em poucas malhas */
+      var BEDS = [], INST = { edge: [], grass: [] }, FL = [], RL = [], ZP0, XA0, XB0, hw2g;   /* acumuladores: leitos, instanciados, lajes por material e juntas -> fundidos no fim em poucas malhas */
       function pr() { ps = (ps * 1664525 + 1013904223) >>> 0; return ps / 4294967296; }
       function hw(px) { return 0.86 + 0.05 * Math.sin(px * 1.9) + 0.04 * Math.sin(px * 0.7 + 1.2); }   /* meia-largura do leito em cada x */
       var CS = 256;   /* tamanho da textura que esta sendo desenhada (as lajes usam 512 para ter mais detalhe fino) */
@@ -3029,7 +3011,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
         mg.castShadow = a.castShadow; mg.receiveShadow = a.receiveShadow; mg.frustumCulled = false; scene.add(mg);
         list.forEach(function (l, i) { if (i) { l.geometry.dispose(); l.material.dispose(); } });
       }
-      function flag(spx, spz, idx) {
+      function flag(spx, spz, idx, skip) {   /* skip: laje removida (o sorteio pr() e consumido igual, so a malha deixa de ser criada) */
         var cnt = 11, pts = [], a, rr, sh = new THREE.Shape();
         for (k = 0; k < cnt; k++) { a = k / cnt * 6.2832 + (pr() - 0.5) * 0.25; rr = 0.86 + pr() * 0.2; pts.push([Math.cos(a) * 0.44 * rr, Math.sin(a) * 0.325 * rr]); }
         sh.moveTo((pts[cnt - 1][0] + pts[0][0]) / 2, (pts[cnt - 1][1] + pts[0][1]) / 2);
@@ -3039,26 +3021,31 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
         var uv = geo.attributes.uv, ox = pr(), oy = pr();
         for (k = 0; k < uv.count; k++) uv.setXY(k, uv.getX(k) + ox, uv.getY(k) + oy);
         var ry = (pr() - 0.5) * 0.5, mi = idx % mats.length;
-        (FL[mi] = FL[mi] || []).push(bakeGeo(geo, spx, spz, ry, 1, 1, 1));            /* laje: vai para a malha única do seu material */
-        RL.push(bakeGeo(geo, spx, spz, ry, 1.09, 0.5, 1.09));                         /* junta escura: malha única de todas as juntas */
+        if (!skip) {
+          (FL[mi] = FL[mi] || []).push(bakeGeo(geo, spx, spz, ry, 1, 1, 1));            /* laje: vai para a malha única do seu material */
+          RL.push(bakeGeo(geo, spx, spz, ry, 1.09, 0.5, 1.09));                         /* junta escura: malha única de todas as juntas */
+        }
         geo.dispose();
       }
       var sc2 = [];
       for (j = 0; j < 8; j++) {
         var spx = 11.8 + j * 1.5, spz = -1.3 + Math.sin(j * 1.7) * 0.3;
-        sc2.push([spx, spz]); flag(spx, spz, j);
-        pads.push({ x1: spx - 0.475, x2: spx + 0.475, z1: spz - 0.35, z2: spz + 0.35, h: 0.04 });   /* pedra do caminho */
+        var skp = [1, 3, 6].indexOf(j) >= 0;   /* lajes removidas (menos pedras no caminho da entrada) */
+        sc2.push([spx, spz]); flag(spx, spz, j, skp);
+        if (!skp) pads.push({ x1: spx - 0.475, x2: spx + 0.475, z1: spz - 0.35, z2: spz + 0.35, h: 0.04 });   /* pedra do caminho */
       }
 
       /* pedrinhas de contorno nas duas bordas do leito (uma malha so, instanciada) */
       var edge = [], sd;
       for (sd = -1; sd <= 1; sd += 2) for (x = 10.4 + pr() * 0.2; x < 23.5; x += 0.3 + pr() * 0.16) edge.push([x, GZ + sd * (hw(x) + (pr() - 0.5) * 0.07), 0.065 + pr() * 0.05]);
       var D = new THREE.Object3D(), rc = [0x9a9a96, 0x8a8a86, 0xaaa9a3, 0xb3ada0, 0x7b7a76], col = new THREE.Color();
-      var ie = new THREE.InstancedMesh(new THREE.DodecahedronGeometry(1, 0), M(0xffffff, { flatShading: true, roughness: 0.95 }), edge.length);
+      function edgeKeep(i, sl) { var v = Math.sin(i * 12.9898 + sl) * 43758.5453; v -= Math.floor(v); return v >= 0.45; }   /* ~45% das pedrinhas de borda somem (sorteio proprio: o pr() do caminho continua igual) */
+      var ie = new THREE.InstancedMesh(new THREE.DodecahedronGeometry(1, 0), M(0xffffff, { flatShading: true, roughness: 0.95 }), edge.filter(function (e, i) { return edgeKeep(i, 4.1); }).length), ki = 0;
       edge.forEach(function (e, i) {
         D.position.set(e[0], 0.004 + e[2] * 0.3, e[1]); D.rotation.set(pr() * 0.5, pr() * 6.2832, pr() * 0.5);
         D.scale.set(e[2] * (1 + pr() * 0.5), e[2] * (0.5 + pr() * 0.25), e[2] * (1 + pr() * 0.5)); D.updateMatrix();
-        ie.setMatrixAt(i, D.matrix); ie.setColorAt(i, col.setHex(rc[Math.floor(pr() * rc.length)]));
+        var ci = Math.floor(pr() * rc.length);
+        if (edgeKeep(i, 4.1)) { ie.setMatrixAt(ki, D.matrix); ie.setColorAt(ki, col.setHex(rc[ci])); ki++; }
       });
       ie.castShadow = true; ie.receiveShadow = true; ie.frustumCulled = false; INST.edge.push(ie);
 
@@ -3079,7 +3066,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       /* ----- passagem do corredor sul: do arco de arbusto oeste (agora em x = -12,5, na entrada do cercado da piscina) ao arco leste (x = 10,04), em z = 11,6. Mesmas lajes, leito de cascalho,
          pedrinhas de contorno e tufos do caminho da entrada (sorteio proprio no final, para nao mexer no caminho de la). ----- */
       (function () {
-        var ZP = 11.6, XA = -13.3, XB = 10.8, i2, x2, sd2;   /* XA: agora vai ate a borda leste do deque da piscina (x = -13,2) */
+        var ZP = 11.6, XA = -13.3, XB = 10.8, i2, x2, sd2; ZP0 = ZP; XA0 = XA; XB0 = XB; hw2g = hw2;   /* XA: agora vai ate a borda leste do deque da piscina (x = -13,2) */
         function hw2(px) { return 0.86 + 0.05 * Math.sin(px * 1.9 + 2) + 0.04 * Math.sin(px * 0.7 + 0.4); }
         var xs2 = []; for (x2 = XA; x2 < XB - 0.05; x2 += 0.35) xs2.push(x2); xs2.push(XB);
         var bed2 = new THREE.Shape();
@@ -3091,17 +3078,19 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
         var sc3 = [];
         for (i2 = -1; i2 < 15; i2++) {   /* i2 = -1: laje extra na entrada do cercado da piscina */
           var qx = -10.5 + i2 * 1.5, qz = ZP + Math.sin(i2 * 1.7 + 1) * 0.25;
-          sc3.push([qx, qz]); flag(qx, qz, i2 + 3);
-          pads.push({ x1: qx - 0.475, x2: qx + 0.475, z1: qz - 0.35, z2: qz + 0.35, h: 0.04 });
+          var skq = [0, 2, 5, 7, 10, 12].indexOf(i2) >= 0;   /* lajes removidas (menos pedras no corredor sul) */
+          sc3.push([qx, qz]); flag(qx, qz, i2 + 3, skq);
+          if (!skq) pads.push({ x1: qx - 0.475, x2: qx + 0.475, z1: qz - 0.35, z2: qz + 0.35, h: 0.04 });
         }
         var edge2 = [];
         for (sd2 = -1; sd2 <= 1; sd2 += 2) for (x2 = XA + pr() * 0.2; x2 < XB; x2 += 0.3 + pr() * 0.16) edge2.push([x2, ZP + sd2 * (hw2(x2) + (pr() - 0.5) * 0.07), 0.065 + pr() * 0.05]);
         var Dd = new THREE.Object3D(), rc2 = [0x9a9a96, 0x8a8a86, 0xaaa9a3, 0xb3ada0, 0x7b7a76], cl2 = new THREE.Color();
-        var ie2 = new THREE.InstancedMesh(new THREE.DodecahedronGeometry(1, 0), M(0xffffff, { flatShading: true, roughness: 0.95 }), edge2.length);
+        var ie2 = new THREE.InstancedMesh(new THREE.DodecahedronGeometry(1, 0), M(0xffffff, { flatShading: true, roughness: 0.95 }), edge2.filter(function (e, i) { return edgeKeep(i, 9.7); }).length), ki2 = 0;
         edge2.forEach(function (e, i) {
           Dd.position.set(e[0], 0.004 + e[2] * 0.3, e[1]); Dd.rotation.set(pr() * 0.5, pr() * 6.2832, pr() * 0.5);
           Dd.scale.set(e[2] * (1 + pr() * 0.5), e[2] * (0.5 + pr() * 0.25), e[2] * (1 + pr() * 0.5)); Dd.updateMatrix();
-          ie2.setMatrixAt(i, Dd.matrix); ie2.setColorAt(i, cl2.setHex(rc2[Math.floor(pr() * rc2.length)]));
+          var ci2 = Math.floor(pr() * rc2.length);
+          if (edgeKeep(i, 9.7)) { ie2.setMatrixAt(ki2, Dd.matrix); ie2.setColorAt(ki2, cl2.setHex(rc2[ci2])); ki2++; }
         });
         ie2.castShadow = true; ie2.receiveShadow = true; ie2.frustumCulled = false; INST.edge.push(ie2);
         var tf2 = [];
@@ -3116,6 +3105,51 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
           }
         });
         gm2.receiveShadow = true; gm2.frustumCulled = false; INST.grass.push(gm2);
+      })();
+
+      /* ----- transicao cascalho -> grama: em cada borda, uma faixa irregular (0,3 a 0,5 m) com degrade de areia para verde-oliva que some na grama, com graozinhos,
+         e uma franja de tufinhos baixos e esparsos. Sorteio proprio (fs): nao mexe no sorteio pr() dos caminhos. ----- */
+      (function () {
+        var fs = 515151;
+        function fr() { fs = (fs * 1664525 + 1013904223) >>> 0; return fs / 4294967296; }
+        var fc = document.createElement('canvas'); fc.width = fc.height = 64; var fg = fc.getContext('2d');
+        var gr = fg.createLinearGradient(0, 0, 64, 0);
+        gr.addColorStop(0, 'rgba(214,200,168,0.95)'); gr.addColorStop(0.3, 'rgba(194,178,132,0.62)'); gr.addColorStop(0.62, 'rgba(150,152,88,0.28)'); gr.addColorStop(1, 'rgba(120,152,72,0)');
+        fg.fillStyle = gr; fg.fillRect(0, 0, 64, 64);
+        for (var q = 0; q < 70; q++) {
+          var dx = 10 + fr() * 44, dy = fr() * 64, dr = 0.8 + fr() * 1.8; fg.fillStyle = fr() < 0.55 ? 'rgba(222,210,180,0.42)' : 'rgba(112,140,66,0.30)';
+          [-64, 0, 64].forEach(function (oy) { fg.beginPath(); fg.arc(dx, dy + oy, dr, 0, 6.2832); fg.fill(); });
+        }
+        var ft = new THREE.CanvasTexture(fc); ft.wrapS = THREE.ClampToEdgeWrapping; ft.wrapT = THREE.RepeatWrapping; ft.anisotropy = 4;
+        var fm = new THREE.MeshStandardMaterial({ map: ft, transparent: true, depthWrite: false, roughness: 1, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 });
+        function strip(xa, xb, zc, hwf, sd, ph) {
+          var n = Math.ceil((xb - xa) / 0.25), pos = [], nor = [], uvs = [], ix = [], i, x, zi, zo, ow, a;
+          for (i = 0; i <= n; i++) {
+            x = xa + (xb - xa) * i / n; zi = zc + sd * (hwf(x) - 0.05); ow = 0.38 + 0.1 * Math.sin(x * 3.1 + ph) + 0.06 * Math.sin(x * 7.7 + ph * 2); zo = zc + sd * (hwf(x) + ow);
+            pos.push(x, 0, zi, x, 0, zo); nor.push(0, 1, 0, 0, 1, 0); uvs.push(0, x * 0.9, 1, x * 0.9);
+            if (i < n) { a = i * 2; if (sd > 0) ix.push(a, a + 1, a + 2, a + 1, a + 3, a + 2); else ix.push(a, a + 2, a + 1, a + 1, a + 2, a + 3); }
+          }
+          var geo = new THREE.BufferGeometry();
+          geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3)); geo.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3)); geo.setAttribute('uv', new THREE.Float32BufferAttribute(uvs, 2)); geo.setIndex(ix);
+          var m = new THREE.Mesh(geo, fm); m.position.y = 0.003; m.receiveShadow = true; m.renderOrder = 1; scene.add(m);
+        }
+        var fb = [], Df = new THREE.Object3D(), cf = new THREE.Color(), fcols = [0x5f9a45, 0x4f8a3a, 0x7fb356, 0x6aa84a];
+        function fringe(xa, xb, zc, hwf, dens) {
+          var sdn, x;
+          for (sdn = -1; sdn <= 1; sdn += 2) for (x = xa; x < xb; x += 1 / dens * (0.5 + fr())) fb.push([x, zc + sdn * (hwf(x) + 0.12 + fr() * 0.42)]);
+        }
+        strip(10.4, 23.6, GZ, hw, 1, 0.7); strip(10.4, 23.6, GZ, hw, -1, 2.3);
+        strip(XA0, XB0, ZP0, hw2g, 1, 4.1); strip(XA0, XB0, ZP0, hw2g, -1, 5.9);
+        fringe(10.6, 23.4, GZ, hw, 2.2); fringe(XA0 + 0.2, XB0 - 0.2, ZP0, hw2g, 2.2);
+        var fgeo = new THREE.ConeGeometry(0.018, 0.12, 4, 1); fgeo.translate(0, 0.06, 0);
+        var fim = new THREE.InstancedMesh(fgeo, new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1 }), fb.length * 3), fi = 0;
+        fb.forEach(function (t) {
+          for (var b = 0; b < 3; b++) {
+            Df.position.set(t[0] + (fr() - 0.5) * 0.1, 0.004, t[1] + (fr() - 0.5) * 0.1); Df.rotation.set((fr() - 0.5) * 0.8, fr() * 6.2832, (fr() - 0.5) * 0.8);
+            Df.scale.set(1, 0.5 + fr() * 0.7, 1); Df.updateMatrix(); fim.setMatrixAt(fi, Df.matrix); fim.setColorAt(fi, cf.setHex(fcols[Math.floor(fr() * 4)])); fi++;
+          }
+        });
+        fim.receiveShadow = true; fim.frustumCulled = false; scene.add(fim);
       })();
 
       /* ----- FUSÃO FINAL dos dois caminhos (antes: ~60 malhas soltas + 4 instanciadas; agora: 5 lajes + 1 juntas + 1 cascalho + 2 instanciadas) ----- */
@@ -3222,7 +3256,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
         solids.push(trunk);
         colliders.push({ x1: x - 0.22 * k, x2: x + 0.22 * k, z1: z - 0.22 * k, z2: z + 0.22 * k, h: 1.9 * k });   /* o gatinho contorna o tronco */
       }
-      YARD.trees.forEach(function (t, i) { tree(t[0], t[1], t[2], i + 1); });
+      YARD.trees.forEach(function (t, i) { tree(t[0], t[1], t[2], t[3] || i + 1); });   /* t[3]: semente fixa do visual (mantida depois de remover uma arvore da lista) */
     })();
     YARD.bushes.forEach(function (b, i) {
       if (b[2] === 0) return;   /* moita removida (fica na lista so para o indice, e com ele a semente e o visual das outras, nao mudar) */
@@ -4048,13 +4082,17 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
           HL_ALL[bi].push({ m: new THREE.Matrix4().multiplyMatrices(grp.matrix, d.matrix), c: tone(q[5]), lo: LOW });
         });
       });
-      berries.forEach(function (q) {
+      berries.forEach(function (q, bi) {
         d.position.set(q[0], q[1], q[2]); d.rotation.set(0, 0, 0); d.scale.set(q[3], q[3], q[3]); d.updateMatrix();
-        HB_ALL.push({ m: new THREE.Matrix4().multiplyMatrices(grp.matrix, d.matrix), c: new THREE.Color(fruitC[Math.floor(rr() * 5)]), lo: LOW });
+        var bc = new THREE.Color(fruitC[Math.floor(rr() * 5)]);   /* o sorteio da cor continua sendo feito para toda frutinha (flores e demais paredes nao mudam) */
+        if (bi % 2) return;   /* metade das frutinhas removida: sai uma sim, uma nao */
+        HB_ALL.push({ m: new THREE.Matrix4().multiplyMatrices(grp.matrix, d.matrix), c: bc, lo: LOW });
       });
       flowers.forEach(function (q) {
         d.position.set(q[0], q[1], q[2]); d.rotation.set(0, 0, 0); d.scale.set(1, 0.7, 1); d.updateMatrix();
-        HF_ALL.push({ m: new THREE.Matrix4().multiplyMatrices(grp.matrix, d.matrix), c: new THREE.Color(flowC[Math.floor(rr() * 4)]) });
+        var fi = Math.floor(rr() * 4);   /* o sorteio continua sendo feito para toda florzinha (as outras nao mudam de lugar nem de cor) */
+        if (fi < 2) return;   /* florzinhas brancas (0xfff6f2, indices 0 e 1 de flowC) removidas dos arcos: ficam so as rosas e as amarelas */
+        HF_ALL.push({ m: new THREE.Matrix4().multiplyMatrices(grp.matrix, d.matrix), c: new THREE.Color(flowC[fi]) });
       });
     }
     /* cria as malhas instanciadas de todas as paredes de arbusto de uma vez (sem corte por frustum: a esfera de corte da malha base fica na origem e esconderia paredes longas) */
@@ -4146,7 +4184,10 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     var seed = 20261121, k, tries;
     function grnd() { seed = (seed * 1664525 + 1013904223) >>> 0; return seed / 4294967296; }
     /* onde NÃO entram pedras: dentro da casa, caminho de pedras, canteiros, banco, mesinhas, casinha, árvores e arbustos */
-    var trees = YARD.trees, bushes = YARD.bushes, tabs = YARD.tabs;
+    /* arvores e moitas ANTIGAS do corredor norte da casa (antes de as moitas sairem e as arvores irem para o meio do corredor): so para o sorteio das pedras e pedrinhas, que depende de free(),
+       continuar identico e o resto do quintal nao mudar. (Nenhuma pedrinha cai perto das novas posicoes das arvores.) */
+    var trees = [[3.2, -12.6, 1.2], [9.0, -12.0, 1], [6.2, -14.0, 1.1], [21.0, 2.8, 1.1], [20.6, -5.0, 1.2], [-3, -12.5, 1.1], [0.4, 13.2, 1.1], [-21.2, -3, 1.1]];
+    var bushes = [[-4, -9.7], [0.5, -9.7], [8.7, 9.5, 0], [21.5, -3.1, 0], [21.5, 0.5, 0], [5.0, -10.2], [8.4, -10.3], [3.4, -9.7], [7.9, 10.0, 0], [10.9, 0.7], [10.9, -3.3], [10.9, 5.2]], tabs = YARD.tabs;
     function free(x, z) {
       var i;
       if (Math.abs(x) > FX - 0.5 || Math.abs(z) > FZ - 0.5) return false;
@@ -4186,27 +4227,8 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     }
     /* pedras grandes (com colisão: o gatinho contorna ou pula por cima) e pedrinhas soltas */
     var rockCols = [0x9a9a96, 0x8a8a86, 0xaaa9a3, 0x7b7a76];
-    /* textura das pedras soltas (minimalista, com mais detalhe): granito claro com nuvens suaves, granulado fino de pontinhos claros e escuros, poucos poros,
-       uma fissurinha e um toque de liquen. Em tons proximos: a cor de cada pedra vem das cores por vertice (rockCols). O mesmo desenho serve de relevo. */
-    var rockTex = (function () {
-      var S = 256, c = document.createElement('canvas'), g, i, q, sd = 913;
-      function rr() { sd = (sd * 1664525 + 1013904223) >>> 0; return sd / 4294967296; }
-      function wrapBlob(px, py, r, col) { for (var ox = -S; ox <= S; ox += S) for (var oy = -S; oy <= S; oy += S) { var x = px + ox, y = py + oy; if (x + r < 0 || x - r > S || y + r < 0 || y - r > S) continue; var gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, col); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2); } }
-      c.width = c.height = S; g = c.getContext('2d');
-      g.fillStyle = '#e6e4de'; g.fillRect(0, 0, S, S);
-      for (i = 0; i < 14; i++) wrapBlob(rr() * S, rr() * S, 34 + rr() * 60, rr() < 0.5 ? 'rgba(255,255,250,0.28)' : 'rgba(110,104,92,0.16)');
-      for (i = 0; i < 160; i++) { q = 0.8 + rr() * 1.5; g.fillStyle = rr() < 0.5 ? 'rgba(255,255,252,0.5)' : 'rgba(70,66,58,0.3)'; g.beginPath(); g.arc(rr() * S, rr() * S, q, 0, 6.2832); g.fill(); }   /* granulado (bordas nao precisam emendar: sao pontos minusculos) */
-      for (i = 0; i < 4; i++) wrapBlob(rr() * S, rr() * S, 3 + rr() * 3, 'rgba(60,56,48,0.35)');   /* poros */
-      g.lineCap = 'round'; g.lineJoin = 'round';
-      for (i = 0; i < 1; i++) {   /* fissurinhas (com um fio de luz ao lado) */
-        var fx = 30 + rr() * 150, fy = 30 + rr() * 150, an = rr() * 6.28, pts = [[fx, fy]], j;
-        for (j = 0; j < 5; j++) { an += (rr() - 0.5) * 1.2; fx += Math.cos(an) * (10 + rr() * 22); fy += Math.sin(an) * (10 + rr() * 22); pts.push([fx, fy]); }
-        for (j = 0; j < 2; j++) { g.strokeStyle = j ? 'rgba(255,255,250,0.4)' : 'rgba(60,56,48,0.4)'; g.lineWidth = j ? 0.9 : 1.2; g.beginPath(); pts.forEach(function (p, n) { if (n) g.lineTo(p[0] + j, p[1] + j); else g.moveTo(p[0], p[1]); }); g.stroke(); }
-      }
-      for (i = 0; i < 0; i++) { var lx = rr() * S, ly = rr() * S; for (var n = 0; n < 9; n++) wrapBlob(lx + (rr() - 0.5) * 36, ly + (rr() - 0.5) * 26, 2 + rr() * 5, n % 3 ? 'rgba(150,160,118,0.34)' : 'rgba(214,212,172,0.36)'); }   /* liquen */
-      var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 4; return t;
-    })();
-    var rockMat = new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, map: rockTex, bumpMap: rockTex, bumpScale: 0.6, roughness: 0.95, flatShading: true });
+    /* pedras soltas: sem textura (antes: granito com granulado, poros, fissura e relevo). Cor lisa por vertice (rockCols) e faces planas (flatShading), no mesmo estilo low-poly do resto do quintal */
+    var rockMat = new THREE.MeshStandardMaterial({ color: 0xffffff, vertexColors: true, roughness: 0.95, flatShading: true });
     var gcol = new THREE.Color(), gmoss = new THREE.Color(0x6e7a52);
     function rock(x, z, r, solid) {
       var sx = 0.9 + grnd() * 0.5, sy = 0.55 + grnd() * 0.3, sz = 0.9 + grnd() * 0.5;
@@ -4242,179 +4264,11 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       if (!free(qx, qz)) continue;
       var fdx = qx - 15.5, fdz = qz - 5.6, fdd = Math.hypot(fdx, fdz);
       if (fdd < 3.1) { qx = 15.5 + fdx / (fdd || 1) * 3.1; qz = 5.6 + (fdd ? fdz / fdd : 1) * 3.1; }   /* chafariz (piso de raio 2,7): pedrinha que cairia no piso vai para a beirada, sem mudar o sorteio das outras */
-      if (qx > VINE.x1 && qx < VINE.x2 && qz > VINE.z1 && qz < VINE.z2) { qx = -18.9 + (qx - VINE.x1) * 0.1; qz = Math.max(qz, -1.2); }   /* parreiral: a pedrinha vai para a faixa de grama ao lado */
       rock(qx, qz, 0.06 + grnd() * 0.09, false); k++;
     }
   })();
 
-  /* ---------- parreiral de uva: duas fileiras de latada (postes, travessa, arames), pes de uva com tronco retorcido de casca simples, bracos ao longo do arame, brotos subindo
-     para a travessa, folhas de uva (textura simples desenhada em canvas, com nervuras) e cachos pendurados (roxos, verdes e vinho) com cabinho.
-     Nada bloqueia o gatinho: ele passa por baixo dos cachos. Fileira de dentro (x = -21,7) para antes da arvore da casinha (x = -21,2, z = -3). ---------- */
-  (function () {
-    var sd = 77031;
-    function vr() { sd = (sd * 1664525 + 1013904223) >>> 0; return sd / 4294967296; }
-    /* textura da folha: folha de uva de cinco lobulos, verde liso com nervuras claras e borda um pouco mais escura (fundo transparente) */
-    var lc = document.createElement('canvas'); lc.width = lc.height = 128;
-    (function (g) {
-      var cx = 64, cy = 74, lobes = [[0, 50, 20], [-0.95, 40, 16], [0.95, 40, 16], [-1.9, 28, 12], [1.9, 28, 12]], i, L;
-      function lobe(ang, len, wid, fill, stroke) {
-        g.save(); g.translate(cx, cy); g.rotate(ang); g.beginPath(); g.ellipse(0, -len * 0.55, wid, len * 0.55, 0, 0, 6.2832); g.fillStyle = fill; g.fill();
-        if (stroke) { g.lineWidth = 2; g.strokeStyle = stroke; g.stroke(); } g.restore();
-      }
-      for (i = 0; i < lobes.length; i++) { L = lobes[i]; lobe(L[0], L[1], L[2], '#4f9440', '#3d7a33'); }
-      for (i = 0; i < lobes.length; i++) { L = lobes[i]; lobe(L[0], L[1] - 3, L[2] - 3, '#62ad4e', null); }
-      g.strokeStyle = 'rgba(190,232,140,0.85)'; g.lineWidth = 1.6; g.lineCap = 'round';
-      lobes.forEach(function (l) {
-        g.save(); g.translate(cx, cy); g.rotate(l[0]); g.beginPath(); g.moveTo(0, 0); g.lineTo(0, -l[1] + 6); g.stroke();
-        [0.35, 0.65].forEach(function (f) { g.beginPath(); g.moveTo(0, -l[1] * f); g.lineTo(-l[2] * 0.6, -l[1] * f - 8); g.moveTo(0, -l[1] * f); g.lineTo(l[2] * 0.6, -l[1] * f - 8); g.stroke(); });
-        g.restore();
-      });
-      g.fillStyle = '#6a8f3a'; g.beginPath(); g.arc(cx, cy + 1, 3.5, 0, 6.2832); g.fill();   /* ponto do cabinho */
-    })(lc.getContext('2d'));
-    var leafTex = new THREE.CanvasTexture(lc); leafTex.anisotropy = 4;
-    /* textura da casca: marrom com veios claros e escuros ao longo do tronco */
-    var bc = document.createElement('canvas'); bc.width = 128; bc.height = 64;
-    (function (g) {
-      var i, y;
-      g.fillStyle = '#6e4b2f'; g.fillRect(0, 0, 128, 64);
-      for (i = 0; i < 46; i++) {
-        y = vr() * 64; g.strokeStyle = vr() < 0.5 ? 'rgba(48,30,18,0.5)' : 'rgba(150,108,70,0.4)'; g.lineWidth = 1 + vr() * 2;
-        g.beginPath(); g.moveTo(0, y); g.bezierCurveTo(40, y + (vr() - 0.5) * 6, 80, y + (vr() - 0.5) * 6, 128, y + (vr() - 0.5) * 4); g.stroke();
-      }
-    })(bc.getContext('2d'));
-    var barkTex = new THREE.CanvasTexture(bc); barkTex.wrapS = barkTex.wrapT = THREE.RepeatWrapping; barkTex.repeat.set(2, 1); barkTex.anisotropy = 4;
-    var barkM = new THREE.MeshStandardMaterial({ map: barkTex, roughness: 0.95, metalness: 0 });
-    function tube(pts, r, seg) {
-      var m = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(pts.map(function (q) { return new THREE.Vector3(q[0], q[1], q[2]); })), seg || 10, r, 6, false), barkM);
-      m.castShadow = true; m.receiveShadow = true; scene.add(m); mergeSet.add(m); return m;
-    }
-    /* terra do leito: textura simples (marrom com grãos escuros e claros, torrões e pedrinhas minúsculas) num montinho de topo arredondado, com borda de pedras e tufos de grama */
-    var sc = document.createElement('canvas'); sc.width = sc.height = 128;
-    (function (g) {
-      var i, x, y, r;
-      g.fillStyle = '#5b3f28'; g.fillRect(0, 0, 128, 128);
-      for (i = 0; i < 40; i++) {   /* manchas suaves */
-        x = vr() * 128; y = vr() * 128; r = 10 + vr() * 18;
-        var gr = g.createRadialGradient(x, y, 0, x, y, r); gr.addColorStop(0, vr() < 0.5 ? 'rgba(112,80,52,0.35)' : 'rgba(60,40,26,0.35)'); gr.addColorStop(1, 'rgba(0,0,0,0)');
-        g.fillStyle = gr; g.fillRect(x - r, y - r, r * 2, r * 2);
-      }
-      for (i = 0; i < 520; i++) {   /* graos */
-        g.fillStyle = vr() < 0.5 ? 'rgba(40,26,16,0.55)' : 'rgba(150,110,74,0.45)';
-        g.fillRect(vr() * 128, vr() * 128, 1 + vr() * 2, 1 + vr() * 2);
-      }
-      for (i = 0; i < 16; i++) {   /* torroes */
-        g.fillStyle = 'rgba(84,58,38,0.8)'; g.beginPath(); g.ellipse(vr() * 128, vr() * 128, 3 + vr() * 4, 2 + vr() * 3, vr() * 3, 0, 6.2832); g.fill();
-      }
-      for (i = 0; i < 8; i++) { g.fillStyle = 'rgba(170,166,156,0.8)'; g.beginPath(); g.arc(vr() * 128, vr() * 128, 1.2 + vr() * 1.4, 0, 6.2832); g.fill(); }   /* pedrinhas */
-    })(sc.getContext('2d'));
-    var soilTex = new THREE.CanvasTexture(sc); soilTex.wrapS = soilTex.wrapT = THREE.RepeatWrapping; soilTex.anisotropy = 4;
-    var soilM = new THREE.MeshStandardMaterial({ map: soilTex, roughness: 1, metalness: 0 });
-    var stones = [], tufts = [];
-    function soilBed(rw, zc, len) {
-      var W = 0.9, H = 0.07, D = len + 0.6, geo = new THREE.BoxGeometry(W, H, D, 8, 1, Math.max(4, Math.round(D * 3))), pa = geo.attributes.position, uv = geo.attributes.uv, i, e, st;
-      for (i = 0; i < pa.count; i++) {
-        pa.setY(i, pa.getY(i) + H / 2);
-        if (pa.getY(i) > H * 0.6) {   /* topo: montinho arredondado com ondulacao leve; as pontas descem */
-          e = Math.abs(pa.getX(i)) / (W / 2); st = Math.abs(pa.getZ(i)) / (D / 2);
-          pa.setY(i, H - 0.04 * e * e - 0.035 * Math.pow(st, 6) + Math.sin(pa.getZ(i) * 9 + pa.getX(i) * 5) * 0.006);
-        }
-      }
-      for (i = 0; i < uv.count; i++) uv.setXY(i, uv.getX(i) * 0.9, uv.getY(i) * D / 1.1);
-      geo.computeVertexNormals();
-      var m = new THREE.Mesh(geo, soilM); m.position.set(rw.x, 0, zc); m.receiveShadow = true; scene.add(m); mergeSet.add(m);
-      var sd2, z;
-      for (sd2 = -1; sd2 <= 1; sd2 += 2) for (z = zc - D / 2 + 0.1; z < zc + D / 2 - 0.05; z += 0.3 + vr() * 0.16) {
-        stones.push([rw.x + sd2 * (W / 2 + (vr() - 0.5) * 0.08), z, 0.045 + vr() * 0.04]);
-        if (vr() < 0.45) tufts.push([rw.x + sd2 * (W / 2 + 0.07 + vr() * 0.05), z + (vr() - 0.5) * 0.2]);
-      }
-    }
-    var rows = [{ x: -21.7, z0: -1.5, z1: 4.4 }, { x: -20.0, z0: -3.7, z1: 4.4 }];
-    var wood = 0x7a5230, wire = 0x8d8f93;
-    var leafTint = [0xffffff, 0xffffff, 0xeaf6d2, 0xd6eab0, 0xf4f0b8];
-    var grapePal = [[0x5a2d82, 0x6b3596, 0x4a2370], [0x9ccc5a, 0xb5d96a, 0x8fc04e], [0x8a2a55, 0x9b2d4f, 0x73203f]];
-    var leaves = [], blobs = [], grapes = [], stalks = [];
-    mergeOn = true;   /* postes, travessas, arames, troncos/braços e leitos de terra entram na fusão estática */
-    rows.forEach(function (rw) {
-      var len = rw.z1 - rw.z0, zc = (rw.z0 + rw.z1) / 2, n = Math.round(len / 1.4), i, j, t, side;
-      /* leito de terra */
-      soilBed(rw, zc, len);
-      /* postes (madeira com a textura simples do jogo) e travessa */
-      for (i = 0; i <= n; i++) {
-        var pz = rw.z0 + len * i / n;
-        cyl({ x: rw.x, z: pz, r: 0.05, r2: 0.04, h: 1.85, color: wood, tex: 'wood', seg: 8, collide: false, cast: false });
-        box({ x: rw.x, z: pz, w: 0.56, h: 0.05, d: 0.06, y: 1.7, color: wood, tex: 'wood', collide: false, cast: false });
-      }
-      /* arames: um no meio embaixo e dois nas pontas da travessa */
-      box({ x: rw.x, z: zc, w: 0.015, h: 0.015, d: len, y: 1.05, color: wire, tex: null, collide: false, cast: false });
-      box({ x: rw.x - 0.26, z: zc, w: 0.015, h: 0.015, d: len, y: 1.72, color: wire, tex: null, collide: false, cast: false });
-      box({ x: rw.x + 0.26, z: zc, w: 0.015, h: 0.015, d: len, y: 1.72, color: wire, tex: null, collide: false, cast: false });
-      /* pes de uva: tronco retorcido, dois bracos ao longo do arame e brotos subindo ate a travessa */
-      var gap = len / n;
-      for (i = 0; i < n; i++) {
-        var pcz = rw.z0 + gap * (i + 0.5), wob = (vr() - 0.5) * 0.08, arm = gap * 0.5 - 0.08;
-        tube([[rw.x + wob, 0, pcz], [rw.x - wob * 1.6, 0.3, pcz + 0.03], [rw.x + wob * 1.2, 0.62, pcz - 0.03], [rw.x - wob, 0.88, pcz + 0.02], [rw.x, 1.04, pcz]], 0.04, 14);
-        for (side = -1; side <= 1; side += 2) {
-          tube([[rw.x, 1.04, pcz], [rw.x + (vr() - 0.5) * 0.05, 1.08, pcz + side * arm * 0.35], [rw.x + (vr() - 0.5) * 0.05, 1.05, pcz + side * arm * 0.7], [rw.x, 1.07, pcz + side * arm]], 0.022, 10);
-          var sx = (vr() < 0.5 ? -1 : 1) * 0.26;
-          tube([[rw.x, 1.06, pcz + side * arm * 0.5], [rw.x + sx * 0.35, 1.3, pcz + side * arm * 0.52], [rw.x + sx * 0.75, 1.52, pcz + side * arm * 0.5], [rw.x + sx, 1.7, pcz + side * arm * 0.55]], 0.012, 8);
-        }
-      }
-      /* folhagem: base escura (poucas bolas facetadas, para dar corpo) e folhas de uva em cima, viradas para os dois lados da fileira */
-      for (t = rw.z0 - 0.2; t <= rw.z1 + 0.2; t += 0.3) {
-        var bs = 0.15 + vr() * 0.07;
-        blobs.push({ x: rw.x + (vr() - 0.5) * 0.3, y: 1.2 + vr() * 0.45, z: t, sx: bs * 0.9, sy: bs * 0.7, sz: bs * 1.2, c: vr() < 0.5 ? 0x3c7a35 : 0x468a3c });
-      }
-      for (t = rw.z0 - 0.25; t <= rw.z1 + 0.25; t += 0.14) {
-        for (j = 0; j < 4; j++) {
-          var sd2 = j % 2 ? 1 : -1;
-          leaves.push({ x: rw.x + sd2 * (0.05 + vr() * 0.28), y: 1.1 + vr() * 0.65, z: t + (vr() - 0.5) * 0.14, s: 0.3 + vr() * 0.18, yaw: sd2 * 1.5708 + (vr() - 0.5) * 0.9, pitch: -0.5 + vr() * 0.8, roll: vr() * 6.28, c: leafTint[Math.floor(vr() * leafTint.length)] });
-        }
-      }
-      /* cachos pendurados dos dois lados, cada um com cabinho */
-      for (t = rw.z0 + 0.2; t <= rw.z1 - 0.1; t += 0.55) {
-        for (side = -1; side <= 1; side += 2) {
-          var pr = vr(), pal = grapePal[pr < 0.55 ? 0 : (pr < 0.85 ? 1 : 2)];
-          var cx = rw.x + side * (0.1 + vr() * 0.12), cz = t + vr() * 0.2, top = 1.12 - vr() * 0.1, layers = [4, 3, 2, 1], L, a;
-          stalks.push({ x: cx, y: top + 0.05, z: cz });
-          for (L = 0; L < 4; L++) for (a = 0; a < layers[L]; a++) {
-            var ang = a * 6.2832 / layers[L] + L * 0.8, rad = (0.055 - L * 0.013) * (L === 3 ? 0 : 1);
-            grapes.push({ x: cx + Math.cos(ang) * rad, y: top - L * 0.065, z: cz + Math.sin(ang) * rad, r: 0.042 - L * 0.003, c: pal[Math.floor(vr() * pal.length)] });
-          }
-        }
-      }
-    });
-    mergeOn = false;
-    var D = new THREE.Object3D(), col = new THREE.Color();
-    var rcs = [0x9a9a96, 0x8a8a86, 0xaaa9a3, 0xb3ada0, 0x7b7a76];
-    var stm = new THREE.InstancedMesh(new THREE.DodecahedronGeometry(1, 0), M(0xffffff, { flatShading: true, roughness: 0.95 }), stones.length);
-    stones.forEach(function (q, i) {
-      D.position.set(q[0], q[2] * 0.3, q[1]); D.rotation.set(vr() * 0.5, vr() * 6.28, vr() * 0.5); D.scale.set(q[2] * (1 + vr() * 0.5), q[2] * (0.55 + vr() * 0.25), q[2] * (1 + vr() * 0.5)); D.updateMatrix();
-      stm.setMatrixAt(i, D.matrix); stm.setColorAt(i, col.setHex(rcs[Math.floor(vr() * rcs.length)]));
-    });
-    stm.castShadow = true; stm.receiveShadow = true; stm.frustumCulled = false; scene.add(stm);
-    var tfm = new THREE.InstancedMesh(new THREE.ConeGeometry(0.02, 0.15, 4), M(0xffffff, { roughness: 0.9 }), tufts.length * 3);
-    tufts.forEach(function (q, i) {
-      for (var b = 0; b < 3; b++) {
-        D.position.set(q[0] + (b - 1) * 0.025, 0.07, q[1] + (vr() - 0.5) * 0.03); D.rotation.set((vr() - 0.5) * 0.5, 0, (b - 1) * 0.35 + (vr() - 0.5) * 0.2); D.scale.set(1, 0.7 + vr() * 0.7, 1); D.updateMatrix();
-        tfm.setMatrixAt(i * 3 + b, D.matrix); tfm.setColorAt(i * 3 + b, col.setHex(vr() < 0.5 ? 0x6fae4a : 0x4f9a45));
-      }
-    });
-    tfm.receiveShadow = true; tfm.frustumCulled = false; scene.add(tfm);
-    var bm = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 1), M(0xffffff, { flatShading: true, roughness: 0.9 }), blobs.length);
-    blobs.forEach(function (l, i) { D.position.set(l.x, l.y, l.z); D.rotation.set(0, i * 1.7, 0); D.scale.set(l.sx, l.sy, l.sz); D.updateMatrix(); bm.setMatrixAt(i, D.matrix); bm.setColorAt(i, col.setHex(l.c)); });
-    bm.castShadow = true; bm.receiveShadow = true; bm.frustumCulled = false; scene.add(bm);
-    var lm = new THREE.InstancedMesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshStandardMaterial({ map: leafTex, alphaTest: 0.5, side: THREE.DoubleSide, roughness: 0.8, metalness: 0 }), leaves.length);
-    D.rotation.order = 'YXZ';
-    leaves.forEach(function (l, i) { D.position.set(l.x, l.y, l.z); D.rotation.set(l.pitch, l.yaw, l.roll); D.scale.setScalar(l.s); D.updateMatrix(); lm.setMatrixAt(i, D.matrix); lm.setColorAt(i, col.setHex(l.c)); });
-    lm.castShadow = false; lm.receiveShadow = true; lm.frustumCulled = false; scene.add(lm);
-    D.rotation.order = 'XYZ';
-    var gm = new THREE.InstancedMesh(new THREE.SphereGeometry(1, 8, 6), M(0xffffff, { roughness: 0.45 }), grapes.length);
-    grapes.forEach(function (g, i) { D.position.set(g.x, g.y, g.z); D.rotation.set(0, 0, 0); D.scale.setScalar(g.r); D.updateMatrix(); gm.setMatrixAt(i, D.matrix); gm.setColorAt(i, col.setHex(g.c)); });
-    gm.castShadow = true; gm.receiveShadow = true; gm.frustumCulled = false; scene.add(gm);
-    var sm = new THREE.InstancedMesh(new THREE.CylinderGeometry(0.008, 0.012, 0.14, 5), M(0x6b6a35, { roughness: 0.9 }), stalks.length);
-    stalks.forEach(function (g, i) { D.position.set(g.x, g.y, g.z); D.rotation.set(0, 0, 0); D.scale.setScalar(1); D.updateMatrix(); sm.setMatrixAt(i, D.matrix); });
-    sm.receiveShadow = true; sm.frustumCulled = false; scene.add(sm);
-  })();
+  /* (o parreiral de uva do gramado oeste foi removido) */
 
   /* ---------- divisoria de cerca entre a casinha de cachorro e o parreiral: mesmo modelo da cerca da piscina e da churrasqueira (estacas de pontas piramidais, duas travessas, mourões, altura 0,95 m, com colisao).
      Corre ao longo de x em z = -4,55, do arbusto da cerca oeste (x = -22,55) ate x = -19,0 (mourão alto com capinha); a ponta leste fica aberta para o gatinho passar entre o cantinho da casinha e o gramado ---------- */
@@ -4490,7 +4344,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
   }
   /* luz da varanda e dois postes do quintal, acesos à noite */
   var nightLights = [], bulbM = new THREE.MeshBasicMaterial({ color: 0x77736a });
-  var NL_POOL = 4, nlSlots = [], nlOrder = [], nlPool = [];   /* NL_POOL: quantas luzes reais de poste existem ao mesmo tempo */
+  var NL_NEAR = 10, NL_FAR = 15, NL_POOL = 2, nlSlots = [], nlOrder = [], nlPool = [];   /* NL_POOL: quantas luzes reais de poste existem ao mesmo tempo */
   var nlGlowTex = (function () {   /* brilho macio (gradiente radial) para o halo dos postes */
     var c = document.createElement('canvas'); c.width = c.height = 64; var g = c.getContext('2d'), gr = g.createRadialGradient(32, 32, 0, 32, 32, 32);
     gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.25, 'rgba(255,255,255,0.45)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
@@ -4501,10 +4355,9 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     cyl({ x: FX - 0.02, z: lz, r: 0.045, h: 0.06, y: FENCE_H + 0.56, color: 0x3a3e42, mat: { roughness: 0.55, metalness: 0.25 }, seg: 12, collide: false, cast: false });   /* anel sob a lanterna */
     cyl({ x: FX - 0.02, z: lz, r: 0.12, r2: 0.018, h: 0.09, y: FENCE_H + 0.78, color: 0x3a3e42, mat: { roughness: 0.55, metalness: 0.25 }, seg: 14, collide: false, cast: false });   /* chapeu */
   });
-  cyl({ x: 10.5, z: -1.3, r: 0.012, h: 0.05, y: 2.28, color: 0x333333, collide: false, cast: false });   /* fio da luz da varanda, presa na marquise */
-  [[10.5, 2.2, -1.3], [14.2, 1.5, -3], [15.5, 1.5, 1.8], [11, 1.7, -9.2], [-22.2, 1.6, 8.35], [11.8, 1.6, 9.5], [-22.2, 1.6, 14.25], [11.8, 1.6, 13.7],   /* os dois do lado oeste agora ficam nos cantos oeste do deque da piscina */
-    /* campo de futebol: um poste em cada canto do gramado (x = -22,0 e -14,8, ou seja, cx -/+ 3,6 com cx = -18,4; z = -14,45 ao norte, atras dos bancos, e -8,4 ao sul, junto a parede de arbusto) */
-    [-22.0, 1.7, -14.45], [-14.8, 1.7, -14.45], [-22.0, 1.7, -8.4], [-14.8, 1.7, -8.4]].forEach(function (q, i) {   /* os 2 do corredor sul (antes dos do campo): postes do lado de fora dos arcos de arbusto; o primeiro item (varanda) nao tem poste */
+  [[14.2, 1.5, -3], [11, 1.7, -9.2], [-22.2, 1.6, 14.25], [11.8, 1.6, 13.7],   /* o poste do arco leste do lado da casa (x = 11,8, z = 9,5) foi removido */   /* os dois do lado oeste agora ficam nos cantos oeste do deque da piscina */
+    /* campo de futebol: um poste em cada canto norte do gramado (x = -22,0 e -14,8, z = -14,45, atras dos bancos); os dois do sul (z = -8,4, dentro dos arbustos) foram removidos */
+    [-22.0, 1.7, -14.45], [-14.8, 1.7, -14.45]].forEach(function (q, i) {   /* os 2 do corredor sul (antes dos do campo): postes do lado de fora dos arcos de arbusto; o primeiro item (varanda) nao tem poste */
     /* cada poste e um "slot": a lampada (bulbM) e um halo aditivo (sprite, quase de graca) ficam sempre; a PointLight de verdade e emprestada de um
        pequeno pool (NL_POOL luzes) so aos postes mais proximos do gatinho. Muitas PointLights custam caro em cada pixel (o shader percorre todas). */
     var pos = new THREE.Vector3(q[0], q[1], q[2]);
@@ -4512,7 +4365,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     var halo = new THREE.Sprite(new THREE.SpriteMaterial({ map: nlGlowTex, color: 0xffbe78, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
     halo.position.copy(pos); halo.scale.set(1.7, 1.7, 1); halo.visible = false; scene.add(halo);
     nlSlots.push({ p: pos, halo: halo, d: 0, held: false, evict: false }); nlOrder.push(nlSlots.length - 1);
-    if (i) lampPost(q[0], q[2], q[1]);
+    lampPost(q[0], q[2], q[1]);
   });
   for (var npi = 0; npi < NL_POOL; npi++) {   /* pool de luzes reais: sao as unicas PointLights dos postes */
     var npl = new THREE.PointLight(0xffbe78, 0, 10, 2); scene.add(npl); nightLights.push(npl); nlPool.push({ l: npl, s: -1, k: 0 });
@@ -4520,23 +4373,27 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
   /* mantem as NL_POOL luzes reais nos postes mais proximos do gatinho. Uma luz so troca de poste quando existe um poste sem luz bem mais perto (histerese: distancia
      < ~84% da do poste que perderia a luz), para nao ficar trocando quando o gatinho anda na fronteira. A luz apaga em ~0,35 s, muda de lugar e acende de novo. */
   function updateNightLights(dt, base) {
-    var i, j, v, sl, t, f = Math.min(1, dt / 0.35), on = base > 0.01, un = [], hd = [], P = 0;
-    for (i = 0; i < nlSlots.length; i++) { sl = nlSlots[i]; sl.d = (sl.p.x - cat.x) * (sl.p.x - cat.x) + (sl.p.z - cat.z) * (sl.p.z - cat.z); }
+    var i, j, v, sl, t, fu = Math.min(1, dt / 1.6), fd = Math.min(1, dt / 0.8), on = base > 0.01, un = [], hd = [], P = 0;   /* fu: acende devagar (~1,6 s) | fd: apaga/solta em ~0,8 s */
+    for (i = 0; i < nlSlots.length; i++) {
+      sl = nlSlots[i]; sl.d = (sl.p.x - cat.x) * (sl.p.x - cat.x) + (sl.p.z - cat.z) * (sl.p.z - cat.z);
+      t = Math.max(0, Math.min(1, (NL_FAR - Math.sqrt(sl.d)) / (NL_FAR - NL_NEAR))); sl.px = t * t * (3 - 2 * t);   /* proximidade: 1 ate NL_NEAR m, 0 a partir de NL_FAR m (suave) */
+      if (sl.held && sl.px <= 0) sl.evict = true;   /* poste longe demais: solta a luz (ela apaga e vai para um poste mais perto) */
+    }
     nlOrder.sort(function (a, b) { return nlSlots[a].d - nlSlots[b].d; });   /* postes do mais perto ao mais longe */
-    for (i = 0; i < nlOrder.length; i++) { sl = nlSlots[nlOrder[i]]; if (!sl.held) un.push(sl); else if (!sl.evict) hd.push(sl); }
+    for (i = 0; i < nlOrder.length; i++) { sl = nlSlots[nlOrder[i]]; if (!sl.held) { if (sl.px > 0) un.push(sl); } else if (!sl.evict) hd.push(sl); }
     nlPool.forEach(function (pe) { if (pe.s < 0 || nlSlots[pe.s].evict) P++; });   /* luzes livres ou ja apagando: elas mesmas vao para os postes sem luz mais proximos */
     for (j = P, v = hd.length - 1; j < un.length && v >= 0; j++, v--) { if (un[j].d < hd[v].d * 0.7) hd[v].evict = true; else break; }
     nlPool.forEach(function (pe) {
       sl = pe.s >= 0 ? nlSlots[pe.s] : null;
-      if (sl && !sl.evict) pe.k = Math.min(1, pe.k + f);
+      if (sl && !sl.evict) pe.k = Math.min(1, pe.k + fu);
       else {
-        pe.k = Math.max(0, pe.k - f);
+        pe.k = Math.max(0, pe.k - fd);
         if (pe.k <= 0.001) {
           if (sl) { sl.held = false; sl.evict = false; pe.s = -1; }
-          for (j = 0; j < nlOrder.length; j++) { t = nlSlots[nlOrder[j]]; if (!t.held) { t.held = true; pe.s = nlOrder[j]; pe.l.position.copy(t.p); break; } }
+          for (j = 0; j < nlOrder.length; j++) { t = nlSlots[nlOrder[j]]; if (t.px <= 0) break; if (!t.held) { t.held = true; pe.s = nlOrder[j]; pe.l.position.copy(t.p); break; } }
         }
       }
-      pe.l.intensity = base * pe.k;
+      pe.l.intensity = base * pe.k * (pe.s >= 0 ? nlSlots[pe.s].px : 0);   /* some tambem aos poucos com a distancia */
     });
     for (i = 0; i < nlSlots.length; i++) { sl = nlSlots[i]; sl.halo.visible = on; if (on) sl.halo.material.opacity = Math.min(1, base / 1.7) * 0.5; }
   }
@@ -4748,7 +4605,27 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     if (redK > 0.001) { hemi.color.lerp(cHRed, redK * 0.8); if (e < 0) { sun.color.lerp(cMoonRed, redK); sun.intensity *= 1 + 0.4 * redK; } }
     sun.intensity *= 1 - 0.6 * rainK; hemi.intensity *= 1 - 0.3 * rainK;
     lampK = (LOFI ? 1.25 : 1) + 2.8 * Math.max(night, rainK * 0.7);   /* abajures mais fortes: a casa fica um cantinho aconchegante de noite */
-    roomLamps.forEach(function (r) { r.l.intensity = r.i * lampK; });
+    /* luzes de teto: no maximo ROOM_LIT_MAX acesas ao mesmo tempo (as mais proximas do gatinho; a que ja esta acesa leva uma vantagem de 15% na distancia para nao ficar trocando
+       na fronteira). Cada luz tem um peso (r.w) que sobe/desce em ~0,4 s, entao a troca e uma transicao suave. Alem disso a distancia ainda apaga aos poucos (cheia ate 12 m, zero a partir de 16 m).
+       Luz com peso zero ou longe sai de vez do calculo de iluminacao (visible = false); a folga de 16,3 m evita ligar/desligar na fronteira */
+    var rdt = Math.min(1, (dt || 0.016) / 0.4), rk = [];
+    roomLamps.forEach(function (r, ri) {
+      var dx = r.l.position.x - cat.x, dz = r.l.position.z - cat.z;
+      r.d = Math.sqrt(dx * dx + dz * dz); rk.push({ r: r, key: r.d * (r.sel ? 0.85 : 1) });
+    });
+    rk.sort(function (a, b) { return a.key - b.key; });
+    rk.forEach(function (o, n) { o.r.sel = n < ROOM_LIT_MAX; });
+    roomLamps.forEach(function (r) {
+      var dd = r.d;
+      var far = r.far ? dd > 16 : dd > 16.3;
+      var fk = Math.max(0, Math.min(1, (16 - dd) / 4)); fk = fk * fk * (3 - 2 * fk);
+      r.w = (r.w === undefined ? (r.sel ? 1 : 0) : r.w) + ((r.sel ? 1 : 0) - (r.w === undefined ? (r.sel ? 1 : 0) : r.w)) * rdt;
+      if (!r.sel && r.w < 0.003) r.w = 0;
+      var off = far || r.w === 0;
+      if (off !== !!r.off) { r.off = off; r.l.visible = !off; }
+      r.far = far;
+      r.l.intensity = off ? 0 : r.i * lampK * fk * r.w;
+    });
     updateNightLights(dt || 0.016, 1.7 * Math.max(night, rainK * 0.6));
     updateMist(dt, day, night);
     if (lofiEl && LOFI) { var nn = Math.round(Math.max(night, rainK * 0.5) * 50) / 50; if (nn !== lofiN) { lofiN = nn; lofiEl.style.setProperty('--n', nn); } }
@@ -4860,8 +4737,8 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
   [
     /* peixe do pula-pula: a 2,6 m, sobre o centro da lona. Pega com o gatinho entre 1,85 e 2,85 m: pulo normal do chao chega a 1,36 m (nao alcanca), pulo na lona (8,6) chega a 2,55 m (alcanca) */
     [-6, 0.85, -6.0], [5.8, 1.1, -3], [3.0, 1.27, -6.4], [-7, 0.9, 5.0],
-    [0.9, 1.15, 6.35], [1.8, 0.85, 4.8], [7.3, 0.95, 6.2], [-9, 0.55, 1.6],
-    [FOUNT ? FOUNT.x : 15.5, 2.1, FOUNT ? FOUNT.z : 5.6], [-16, 1.4, -9], [TRAMP.x, 2.6, TRAMP.z], [21.5, 0.55, -1.3]
+    [0.9, 1.15, 6.35], [-22.0, 0.8, 12.2], [7.3, 0.95, 6.2], [-9, 0.55, 1.6],
+    [FOUNT ? FOUNT.x : 15.5, 2.1, FOUNT ? FOUNT.z : 5.6], [YARD.kennel.x, 1.5, YARD.kennel.z], [TRAMP.x, 2.6, TRAMP.z], [21.5, 0.55, -1.3]
   ].forEach(function (p, i) {
     var f = makeFish();
     f.position.set(p[0], p[1], p[2]);
@@ -5280,6 +5157,14 @@ function lampBulb(g, y, r) {   /* lâmpada dentro da cúpula (fica fraquinha qua
   var bm = new THREE.MeshStandardMaterial({ color: 0xfff4d0, emissive: 0xffe3a0, emissiveIntensity: 1.1, roughness: 0.4 });
   var b = pm(Sp(r), bm, 0, y, 0); b.castShadow = false; g.add(b); g.userData.bulb = bm;
 }
+var lampGlowT = null;
+function lampGlowTex() {   /* halo redondo e suave, so visual (sem PointLight) */
+  if (lampGlowT) return lampGlowT;
+  var c = document.createElement('canvas'); c.width = c.height = 64; var cg = c.getContext('2d'), gr = cg.createRadialGradient(32, 32, 0, 32, 32, 32);
+  gr.addColorStop(0, 'rgba(255,255,255,1)'); gr.addColorStop(0.3, 'rgba(255,255,255,0.4)'); gr.addColorStop(1, 'rgba(255,255,255,0)');
+  cg.fillStyle = gr; cg.fillRect(0, 0, 64, 64); lampGlowT = new THREE.CanvasTexture(c);
+  return lampGlowT;
+}
 function lampTrim(g, r, y, tube, mat) { var t = pm(new THREE.TorusGeometry(r, tube, 6, 32), mat, 0, y, 0); t.rotation.x = HP; t.castShadow = false; g.add(t); }
 /* lápis e canetas do porta-lápis: [raio da base, ângulo da base, inclinação, direção da inclinação, comprimento, cor, caneta?]
    ficam dentro do copo e, quando ele cai no chão, saem e se espalham (spillPens) */
@@ -5610,7 +5495,7 @@ var DEFS = {
     });
     g.add(pm(Cy(.0022, .0022, .03, 6), dkm, 0, .147, 0)); g.add(pm(Sp(.007), chr, 0, .164 - .004, 0));   /* martelinho entre os sinos */
     g.userData.hands = { h: hg, m: mg }; } },
-  abajurPe: { r: .22, h: 1.85, tip: 1, light: .9, ly: 1.65, em: .5, build: function (g) {
+  abajurPe: { r: .22, h: 1.85, tip: 1, ly: 1.65, em: .5, build: function (g) {
     var dk = M(0x4a3426, { roughness: .6 }), br = M(0xc9a35a, { metalness: .55, roughness: .35 });
     g.add(pm(Cy(.25, .27, .03, 28), dk, 0, .015, 0)); g.add(pm(Cy(.2, .25, .035, 28), br, 0, .0475, 0));   /* base em degraus: madeira + latão */
     g.add(pm(Cy(.028, .028, 1.42, 12), br, 0, .78, 0));
@@ -5620,8 +5505,10 @@ var DEFS = {
     g.add(pm(new THREE.CylinderGeometry(.22, .4, .4, 32, 1, true), sh, 0, 1.65, 0)); g.userData.shade = sh;
     lampTrim(g, .22, 1.85, .009, br); lampTrim(g, .4, 1.45, .011, br);   /* arremates dourados */
     g.add(pm(Sp(.03), br, 0, 1.87, 0));   /* pontinha no topo */
-    lampBulb(g, 1.6, .07); } },
-  abajurQ: { r: .2, h: .53, bounce: .2, snd: 'lamp', light: .7, ly: .4, em: .6, lie: [0, HP, .2], build: function (g) {
+    lampBulb(g, 1.6, .07);
+    var gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: lampGlowTex(), color: 0xffc977, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));   /* brilho so visual (sem luz): some quando o abajur cai */
+    gl.position.set(0, 1.62, 0); gl.scale.set(1.5, 1.5, 1);   /* raio 0,75 < 0,85 m ate as paredes do canto: o halo nao atravessa a parede (senao fica cortado) */ gl.renderOrder = 4; g.add(gl); g.userData.glow = gl.material; } },
+  abajurQ: { r: .2, h: .53, bounce: .2, snd: 'lamp', ly: .4, em: .6, lie: [0, HP, .2], build: function (g) {
     var cer = M(0x3f6f8c, { roughness: .35 }), br = M(0xc9a35a, { metalness: .55, roughness: .35 });
     var prof = [[0, 0], [.07, 0], [.1, .02], [.125, .08], [.115, .15], [.07, .21], [.035, .24], [.03, .26]].map(function (a) { return new THREE.Vector2(a[0], a[1]); });
     g.add(pm(new THREE.LatheGeometry(prof, 24), cer, 0, 0, 0));   /* corpo de cerâmica azul, arredondado */
@@ -5629,7 +5516,9 @@ var DEFS = {
     var sh = lampShadeMat(0xfff0c8, .6, 'band', 3);
     g.add(pm(new THREE.CylinderGeometry(.14, .22, .28, 28, 1, true), sh, 0, .39, 0)); g.userData.shade = sh;
     lampTrim(g, .14, .53, .006, br); lampTrim(g, .22, .25, .007, br);
-    lampBulb(g, .33, .045); } },
+    lampBulb(g, .33, .045);
+    var gl = new THREE.Sprite(new THREE.SpriteMaterial({ map: lampGlowTex(), color: 0xffc977, transparent: true, opacity: 0, blending: THREE.AdditiveBlending, depthWrite: false }));   /* brilho so visual (sem luz): some quando o abajur cai */
+    gl.position.set(0, .36, 0); gl.scale.set(1.3, 1.3, 1); gl.renderOrder = 4; g.add(gl); g.userData.glow = gl.material; } },
   abajurMesa: { r: .12, h: .36, bounce: .2, snd: 'lamp', em: .6, lie: [0, HP, .12], build: function (g) {
     var dk = M(0x2f3640, { roughness: .5 }), br = M(0xd2ac5e, { metalness: .6, roughness: .3 });
     g.add(pm(Cy(.1, .105, .02, 24), dk, 0, .01, 0)); g.add(pm(Cy(.075, .1, .012, 24), br, 0, .026, 0));
@@ -5796,11 +5685,11 @@ DEFS.despertador.cyaw = Math.PI;   /* levado na boca: o mostrador fica virado pa
 var PITCH = { x1: -21.9, x2: -14.9, z1: -13.8, z2: -9.7, cx: -18.4, cz: -11.75, gw: 1.7, gh: 0.95, gd: 0.7 };   /* cercado de arbusto em volta (ver hedge): x de -23,35 a -13,5 e z de -15,35 a -8,15, entrada ao sul em x = cx */
 var SPAWN = [
   ['copo', -6.5, .38, -4.0], ['vaso', -5.95, .38, -3.75], ['livro', -5.4, .38, -3.6, .5, 0x6aa86a],
-  ['caneca', -5.2, .5, -5.95, 0, 0x4f7a8c], ['bola', -4.3, 0, -1.3, 0, 0xe68ba0], ['livro', -3, .45, -2.7, .3, 0xc2574a],
+  ['caneca', -5.2, .5, -5.95, 0, 0x4f7a8c], ['bola', -4.3, 0, -1.3, 0, 0xe68ba0], ['livro', -3, 0, -2.7, .3, 0xc2574a],
   ['prato', 2.4, .92, -6.4], ['copo', 4.4, .92, -6.25], ['caneca', 4.95, .92, -6.6, 0, 0xfff4e2], ['maca', 7.2, .92, -6.3], ['maca', 7.5, .92, -6.55],
   ['pudim', 5.3, .76, -3], ['caneca', 4.95, .76, -3.35], ['copo', 6.5, .76, -2.65], ['prato', 6.3, .76, -3.35],
   ['despertador', -9.1, .55, 6.15, .5], ['bola', -6.2, .55, 4.3, 0, 0x8a6bb0],
-  ['livro', 1.2, .8, 6.2, .2, 0xd9894a], ['caneca', .9, .8, 6.6, 0, 0xf0c75e], ['vaso', 1.5, .5, 5.1],
+  ['livro', 1.2, .8, 6.2, .2, 0xd9894a], ['caneca', .9, .8, 6.6, 0, 0xf0c75e],
   ['patinho', 6.3, .29, 6.2], ['perfume', 4.51, .86, 6.5],
   ['abajurPe', -9.3, 0, -6.3], ['abajurQ', -9.3, .55, 6.4], ['abajurMesa', 1.45, .8, 6.6],
   ['pote', 8.5, 0, -5.1], ['poteAgua', 8.5, 0, -4.5], ['caixa', 9.1, 0, 4.3, 0],
@@ -5814,9 +5703,9 @@ var SPAWN = [
   ['novelo', -6.5, 0, 1.6, 0, 0xe86a50], ['ratinho', -5.2, 0, 2.4, .6, 0x9aa3ad], ['bolaGuizo', .3, 0, 2.8, 0, 0xd9b24a], ['peixeBrinq', 1.2, 0, 3.2, 2.2, 0xf2994a],
   ['ratinho', -7.4, .55, 5.6, 1.2, 0xd9c8b0], ['varinha', 15, 0, -4, .4, 0xf08fb0], ['novelo', 17, 0, .5, 0, 0x6a8caf], ['peixeBrinq', 13.8, 0, 1.9, 1, 0x6aa8d8],
   ['bolaGuizo', -13, 0, -2, 0, 0xc0c6cc], ['ratinho', -14.5, 0, 6, 2.5, 0x9aa3ad], ['varinha', -12.5, 0, -6, 1.2, 0xc79bf2],
-  ['vasoPlanta', YARD.bench.x - 0.6, .45, YARD.bench.z, 0, 0xffd23f], ['vasoPlanta', YARD.kennel.x - 0.4, 1.07, YARD.kennel.z - 0.3, 0, 0xf08fb0],
-  ['vasoPlanta', YARD.tabs[0][0], .7, YARD.tabs[0][1], 0, 0xc79bf2], ['vasoPlanta', YARD.tabs[1][0], .7, YARD.tabs[1][1], 0, 0xf08fb0], ['vasoPlanta', YARD.tabs[2][0], .7, YARD.tabs[2][1], 0, 0xffd23f],
-  ['vasoPlanta', YARD.tabs[3][0], .7, YARD.tabs[3][1], 0, 0xf08fb0], ['vasoPlanta', YARD.tabs[4][0], .7, YARD.tabs[4][1], 0, 0xc79bf2], ['vasoPlanta', YARD.tabs[5][0], .7, YARD.tabs[5][1], 0, 0xf08fb0],
+  ['vasoPlanta', YARD.bench.x - 0.6, .45, YARD.bench.z, 0, 0xffd23f],
+  ['vasoPlanta', YARD.tabs[0][0], .7, YARD.tabs[0][1], 0, 0xf08fb0], ['vasoPlanta', YARD.tabs[1][0], .7, YARD.tabs[1][1], 0, 0xffd23f],
+  ['vasoPlanta', YARD.tabs[2][0], .7, YARD.tabs[2][1], 0, 0xf08fb0], ['vasoPlanta', YARD.tabs[3][0], .7, YARD.tabs[3][1], 0, 0xc79bf2], ['vasoPlanta', YARD.tabs[4][0], .7, YARD.tabs[4][1], 0, 0xf08fb0],
   ['bolaParque', 19.2, 0, -9.8, 0, 0x4aa3ff],
   /* pratinhos de ração e de água do lado de fora, ao lado da porta da casinha de cachorro (casinha em YARD.kennel; porta virada para +x) */
   ['pote', YARD.kennel.x + 1.25, 0, YARD.kennel.z + 0.35], ['poteAgua', YARD.kennel.x + 1.25, 0, YARD.kennel.z + 1.0],
@@ -5835,16 +5724,14 @@ var SPAWN = [
   ['garrafa', 20.9, .76, 14.95], ['garrafaVinho', 20.45, .76, 14.55], ['maca', 20.8, .76, 14.45], ['maca', 20.55, .76, 15.0],
   ['vaso', 20.67, .76, 13.87], ['abajurMesa', 20.67, .76, 15.55],                                   /* vasinho de flores e abajur nas pontas da mesa */
   ['garrafa', 23.75, .91, 14.98], ['garrafaVinho', 23.62, .91, 14.97], ['copo', 23.38, .91, 15.0],   /* bancada: bebidas ao lado da fornalha */
-  ['prato', 23.32, .94, 15.42], ['maca', 23.32, .96, 15.42],                                         /* prato com maca sobre a tabua de corte */
+  ['maca', 23.65, .91, 15.55],   /* maca na bancada, ao lado da tabua de corte */
   ['almofada', 19.72, .47, 14.2, .3, 0xc2574a], ['almofada', 21.62, .47, 15.2, -.4, 0xf0b92e],      /* almofadas nos bancos (vermelho e amarelo, como a toalha e o ombrelone) */
-  ['vasoPlanta', 18.45, 0, 11.95, 0, 0xf08fb0], ['vasoPlanta', 18.45, 0, 14.1, 0, 0xffd23f], ['vasoPlanta', 23.4, 0, 11.9, 0, 0xc79bf2],   /* vasos junto ao portinho e no canto norte */
+  ['vasoPlanta', 23.4, 0, 11.9, 0, 0xc79bf2],   /* vaso no canto norte (os dois junto ao portinho foram removidos) */
   ['balde', 22.55, 0, 15.45],                                                                         /* balde ao lado da bancada */
   /* mesas redondas do gramado oeste (tampo a 0,75): a da esquerda do print serve cha (bule, dois pratos com xicaras e um pudim), a outra tem lanche (bule verde, vasinho de flores, copos, garrafa de suco e um prato com maca) */
-  ['bule', -16.0, .75, -2.7, .7], ['prato', -16.45, .75, -2.7], ['prato', -15.55, .75, -2.7], ['caneca', -16.45, .75, -3.0, 0, 0xfff4e2], ['caneca', -15.55, .75, -2.4, 0, 0x5f8fc2], ['pudim', -16.0, .75, -2.2],
-  ['bule', -15.85, .75, 2.9, -.8, 0x9fd3c0], ['vaso', -16.3, .75, 3.25], ['prato', -16.0, .75, 2.55], ['maca', -16.0, .77, 2.55], ['copo', -15.55, .75, 3.15], ['copo', -16.4, .75, 2.8], ['garrafa', -15.55, .75, 3.45],
+  ['bule', -19.25, .75, .9, -.8, 0x9fd3c0], ['vaso', -19.7, .75, 1.25], ['prato', -19.4, .75, .55], ['maca', -19.4, .77, .55], ['copo', -18.95, .75, 1.15], ['copo', -19.8, .75, .8], ['garrafa', -18.95, .75, 1.45],
   /* gramado oeste: um vaso de planta (quebravel) de cada lado, junto as sebes, e uma almofada na cadeira do lado oeste de cada mesa (azul e rosa, como as toalhas; assento a 0,45) */
-  ['vasoPlanta', -16.0, 0, -6.0, 0, 0xf08fb0], ['vasoPlanta', -16.0, 0, 5.85, 0, 0xc79bf2],
-  ['almofada', -17.12, .47, -2.7, .3, 0x5f8fc2], ['almofada', -17.12, .47, 3.0, -.3, 0xe58a8a],
+  ['almofada', -20.52, .47, 1.0, -.3, 0xe58a8a],
   ['bolaFutebol', PITCH.cx, 0, PITCH.cz, 0, 0xffffff]   /* bola do campo (sempre por último: o índice é usado na sincronização online) */
 ];
 SPAWN.forEach(function (s) {
@@ -5857,6 +5744,7 @@ SPAWN.forEach(function (s) {
   if (d.float === 2) p.pw = 1;   /* ja nasce na agua: sem splash no inicio */
   p.shade = g.userData.shade || null;
   p.bulb = g.userData.bulb || null;
+  p.glow = g.userData.glow || null;
   p.hands = g.userData.hands || null;
   if (d.light) { p.light = new THREE.PointLight(0xffb86b, d.light, 8, 2); p.li = d.light; scene.add(p.light); }
   if (d.tip) { var tc = d.tc || .2; p.col = { x1: s[1] - tc, x2: s[1] + tc, z1: s[3] - tc, z2: s[3] + tc, h: d.h }; colliders.push(p.col); }
@@ -6738,6 +6626,7 @@ function updateLamps(dt) {
     }
     if (p.shade) p.shade.emissiveIntensity += ((p.counted ? 0.1 : p.d.em) - p.shade.emissiveIntensity) * k;
     if (p.hands) { var hr = dayPhase() * 24; p.hands.h.rotation.z = -(hr % 12) / 12 * Math.PI * 2; p.hands.m.rotation.z = -(hr % 1) * Math.PI * 2; }   /* ponteiros seguem a hora do jogo */
+    if (p.glow) p.glow.opacity += ((p.counted ? 0 : Math.min(0.75, 0.28 * lampK)) - p.glow.opacity) * k;   /* brilho visual: apaga quando o abajur cai */
     if (p.bulb) p.bulb.emissiveIntensity += ((p.counted ? 0.15 : 1.1) - p.bulb.emissiveIntensity) * k;
   }
 }
