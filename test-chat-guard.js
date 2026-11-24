@@ -78,6 +78,18 @@ t('mensagem repetida é bloqueada por 20 s', () => {
 });
 
 // ---- ponta a ponta com o servidor de verdade ----
+// ---- texto livre do perfil (guard.text) ----
+t('perfil: descrição normal passa e corta em 50', () => {
+  const g = createChatGuard(); assert.strictEqual(g.text('Gosto de peixe e de dormir ao sol!', 50), 'Gosto de peixe e de dormir ao sol!');
+  assert.strictEqual(Array.from(g.text('abcdefghij '.repeat(30), 50)).length <= 50, true);
+});
+t('perfil: palavrão e contato viram *** (sem bloquear)', () => {
+  const g = createChatGuard(); assert.strictEqual(g.text('vai pra p0rr4 agora', 100), 'vai pra *** agora');
+  assert(!/discord|zap/i.test(g.text('me chama no discord ou zap', 100)));
+  assert(!/99999/.test(g.text('liga 11 99999-8888', 100)));
+});
+t('perfil: tipo errado ou vazio devolve vazio', () => { const g = createChatGuard(); assert.strictEqual(g.text(null, 100), ''); assert.strictEqual(g.text({ x: 1 }, 100), ''); assert.strictEqual(g.text('   ', 100), ''); });
+
 (async () => {
   const { server } = require('./server.js');
   await new Promise(r => server.listen(0, r)); const port = server.address().port;
@@ -128,6 +140,22 @@ t('mensagem repetida é bloqueada por 20 s', () => {
   C.close();
   await sleep(2000); say(A, 'Fake', 'oi de novo'); await sleep(80);
   t('chat usa sempre o nome da presença (não dá para falar como outro nome)', () => assert.strictEqual(chatOf(B).pop().n, 'Kitten'));
+  // ---- perfil (menu Profile) ----
+  const D = await open('perfil'), E = await open('perfil');
+  const profOf = w => w.got.filter(m => m.t === 'emit' && m.topic === 'profile');
+  const sendProf = (w, d) => w.send(JSON.stringify({ t: 'emit', topic: 'profile', data: d }));
+  sendProf(D, { p: { ph: 'data:image/jpeg;base64,/9j/4AAQ', t: 4, d: 'Oi! vai pra p0rr4', e: '\u{1F63B}', bg: '#AA5500' } }); await sleep(100);
+  t('perfil: chega limpo ao outro jogador (cor em minúsculas, palavrão mascarado)', () => {
+    const m = profOf(E).pop(); assert(m && m.peer === D.got.find(x => x.t === 'hello').peer);
+    assert.deepStrictEqual(m.data.p, { ph: 'data:image/jpeg;base64,/9j/4AAQ', t: 4, d: 'Oi! vai pra ***', e: '\u{1F63B}', bg: '#aa5500' });
+  });
+  sendProf(D, { p: { ph: 'javascript:alert(1)', t: 99, d: 5, e: '<b>', bg: 'red' } }); await sleep(100);
+  t('perfil: dados inválidos viram o padrão', () => assert.deepStrictEqual(profOf(E).pop().data.p, { ph: '', t: 0, d: '', e: '\u{1F431}', bg: '#d9ccf2' }));
+  sendProf(D, { p: { ph: 'data:image/jpeg;base64,' + 'A'.repeat(9300), t: 1, d: '', e: '\u{1F431}', bg: '#112233' } }); await sleep(100);
+  t('perfil: foto grande demais é descartada', () => assert.strictEqual(profOf(E).pop().data.p.ph, ''));
+  const F = await open('perfil'); sendProf(F, { req: 1 }); await sleep(100);
+  t('perfil: quem entra depois pede e recebe o perfil de cada jogador (o pedido não é repassado)', () => { assert.strictEqual(profOf(F).length, 1); assert.strictEqual(profOf(F)[0].data.p.bg, '#112233'); assert.strictEqual(profOf(E).filter(m => m.data.req).length, 0); });
+  D.close(); E.close(); F.close();
   A.close(); B.close(); server.close();
   console.log('\n' + pass + ' ok, ' + fail + ' falhas'); process.exit(fail ? 1 : 0);
 })();

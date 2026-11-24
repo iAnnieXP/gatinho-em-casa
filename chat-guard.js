@@ -6,6 +6,7 @@
 //     r.ok   -> pode repassar r.data ({ n, t } já limpos); r.note (opcional) é um aviso para quem enviou
 //     !r.ok  -> descartar; r.note (opcional) é o motivo para mostrar a quem enviou
 //   guard.name(str)                            // limpa um nome (usado também no nome da presença)
+//   guard.text(str, max)                       // limpa um texto livre (descrição do perfil): mesmos filtros, palavrões/contatos viram ***
 //
 // Pipeline de check(): limite de velocidade -> formato -> limpeza (controle/invisível/16/50)
 //   -> MAIÚSCULAS e letras repetidas -> links/e-mails/telefones -> palavrões -> anti-repetição.
@@ -256,7 +257,19 @@ function createChatGuard(overrides) {
     return { ok: true, data: { n: name(data.n), t }, note: masked ? NOTES.masked : undefined };
   }
 
-  return { check, name };
+  // Texto livre do perfil (descrição): mesma limpeza e filtros do chat, mas sem limite de velocidade nem anti-repetição.
+  // Palavrões, links, e-mails e telefones viram *** (nunca bloqueia: o perfil simplesmente fica sem a parte ruim).
+  function text(raw, max) {
+    if (typeof raw !== 'string') return '';
+    let t = clean(raw, max, cfg);
+    if (!t) return '';
+    t = shoutFix(t, cfg);
+    const r = inspect(t, cfg), spans = r.contacts.concat(r.words);
+    if (spans.length) { t = cut(maskSpans(t, spans, cfg.mask), max); if (!t.replace(/[*\s]/g, '')) return ''; }
+    return t;
+  }
+
+  return { check, name, text };
 }
 
 module.exports = { createChatGuard, CONFIG };

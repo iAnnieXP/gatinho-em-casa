@@ -81,6 +81,20 @@ function runCommand(members, c, a, who) {   // devolve { msg, clock, env } ou nu
   return null;
 }
 
+// Perfil do jogador (menu Profile): foto pequena (JPEG em data URL), título (número da lista do cliente), descrição, emoji e cor de fundo.
+// O servidor valida tudo e passa a descrição pelo mesmo filtro do chat; o que sai daqui já é seguro para os outros clientes.
+const PROF_MAX_PHOTO = 9200, PROF_MAX_DESC = 50, PROF_DEFAULT = { ph: '', t: 0, d: '', e: '\u{1F431}', bg: '#d9ccf2' };
+function cleanProfile(p, guard) {
+  if (!p || typeof p !== 'object') return null;
+  return {
+    ph: typeof p.ph === 'string' && p.ph.length <= PROF_MAX_PHOTO && /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(p.ph) ? p.ph : PROF_DEFAULT.ph,
+    t: Number.isInteger(p.t) && p.t >= 0 && p.t < 32 ? p.t : PROF_DEFAULT.t,
+    d: guard.text(p.d, PROF_MAX_DESC),
+    e: typeof p.e === 'string' && p.e.length <= 12 && /^[\p{Extended_Pictographic}\u200d\ufe0f]+$/u.test(p.e) ? p.e : PROF_DEFAULT.e,
+    bg: typeof p.bg === 'string' && /^#[0-9a-fA-F]{6}$/.test(p.bg) ? p.bg.toLowerCase() : PROF_DEFAULT.bg,
+  };
+}
+
 function cleanPresence(o) {
   const out = {}; if (!o || typeof o !== 'object') return out;
   Object.keys(o).slice(0, 10).forEach(k => {
@@ -112,7 +126,7 @@ server.on('upgrade', (req, socket) => {
   others({ t: 'pres', peer: id, patch: {} });
 
   const chat = createChatGuard();   // estado do chat desta conexão (limite de velocidade, últimas mensagens)
-  let tokens = 80, last = Date.now(), lastCmd = 0;
+  let tokens = 80, last = Date.now(), lastCmd = 0, profTok = 4, profLast = Date.now();   // profTok: balde do perfil (rajada de 4, depois 1 a cada 1,5 s)
   function onMsg(txt) {
     const now = Date.now(); tokens = Math.min(80, tokens + (now - last) * 0.06); last = now;
     if (tokens < 1) return; tokens--;
@@ -140,6 +154,13 @@ server.on('upgrade', (req, socket) => {
         others({ t: 'emit', peer: id, topic: 'chat', data: r.data });
       }
     }
+    else if (m.t === 'emit' && m.topic === 'profile') {   // perfil: { p: perfil } guarda e repassa (já limpo); { req: 1 } devolve os perfis de quem já está na sala
+      profTok = Math.min(4, profTok + (now - profLast) / 1500); profLast = now;
+      if (profTok < 1) return; profTok--;
+      const d = m.data;
+      if (d && d.req) members.forEach((o, k) => { if (k !== id && o.profile) send(socket, { t: 'emit', peer: k, topic: 'profile', data: { p: o.profile } }); });
+      else if (d && d.p) { const c = cleanProfile(d.p, chat); if (c) { me.profile = c; others({ t: 'emit', peer: id, topic: 'profile', data: { p: c } }); } }
+    }
     else if (m.t === 'emit' && /^[a-z][a-z0-9_.-]{0,47}$/.test(m.topic)) others({ t: 'emit', peer: id, topic: m.topic, data: m.data });
   }
   let buf = Buffer.alloc(0);
@@ -165,4 +186,4 @@ server.on('upgrade', (req, socket) => {
 });
 
 if (require.main === module) server.listen(PORT, () => console.log("Luna's Life rodando em http://localhost:" + PORT));
-module.exports = { server, runCommand };
+module.exports = { server, runCommand, cleanProfile };

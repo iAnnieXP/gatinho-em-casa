@@ -312,3 +312,17 @@ TEXTURAS DA CASA E DOS MOVEIS (versao 46, estilo minimalista: texturas suaves e 
    - Acordar o servidor ao abrir (.exe): assim que o programa abre, ele manda um aviso silencioso ao servidor do config.json
      (requisicao HEAD, sem baixar o jogo e sem mostrar nada). Assim o Render gratuito comeca a acordar antes de voce
      chegar na tela Multiplayer. Muda o main.js e o updater.js: precisa gerar o .exe de novo.
+
+   - Perfil (v1.1.5): no menu de pausa (Esc) ha o botao "Profile", ANTES do "Friends". La voce escolhe:
+       * Foto: escolha qualquer imagem do computador; o jogo recorta o centro em quadrado e reduz para uma miniatura (96x96).
+       * Titulo: setas < > com titulos de gatinho (Curious Kitten, Mouse Hunter, Fish Thief, Nap Champion, Zoomies Master...).
+         Para acrescentar titulos, edite a lista PF_TITLES no public/index.html (so no FINAL da lista, para nao trocar o titulo de quem ja escolheu).
+       * Descricao: texto livre de ate 50 caracteres. O servidor passa pelo mesmo filtro do chat (palavrao, link, e-mail, telefone e
+         redes sociais viram ***).
+       * Emoji que te representa (24 opcoes) e cor de fundo do perfil (11 cores prontas + seletor de qualquer cor).
+     O perfil fica salvo neste aparelho e e salvo ao sair da tela (Save, Esc ou fechar o menu). Quem nao tem foto aparece com o emoji grande.
+     Ver o perfil de outro jogador: botao direito no nome dele (no gatinho ou no chat) e a opcao "Profile" (fica logo acima de
+     "Invite to tag"), ou o botao de pessoa ao lado de cada amigo no menu Friends. Amigos que ja saíram da sala continuam com o ultimo
+     perfil visto nesta sessao. No controle, a opcao tambem aparece no menu do jogador (direcional esquerdo).
+     IMPORTANTE: suba tambem o server.js e o chat-guard.js atualizados (o servidor valida o perfil e entrega os perfis a quem entra depois).
+     Com servidor antigo os perfis ainda aparecem, mas sem filtro de palavroes na descricao.
