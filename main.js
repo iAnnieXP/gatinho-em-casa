@@ -103,9 +103,7 @@ function create() {
   win.webContents.on('before-input-event', (e, input) => {
     if (input.type === 'keyDown' && input.key === 'F11') { e.preventDefault(); win.setFullScreen(!win.isFullScreen()); }
   });
-  /* modo janela: proporção 16:10 fixa e tamanho mínimo (a barra de título/menu entra como espaço extra, fora da proporção) */
-  const sz = win.getSize(), cs = win.getContentSize();
-  win.setAspectRatio(MIN_W / MIN_H, { width: sz[0] - cs[0], height: sz[1] - cs[1] });
+  /* tamanho mínimo da janela (sem trava de proporção: ela deixava uma faixa preta ao maximizar/redimensionar; a interface já se adapta ao tamanho) */
   win.setMinimumSize(MIN_W, MIN_H);
   /* se a versão baixada não abrir, volta para a que veio no .exe */
   win.webContents.on('did-fail-load', (e, code, desc, url, isMain) => {
