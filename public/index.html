@@ -441,6 +441,72 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
 #pause .frbtn:hover { filter: brightness(1.2); }
 #pause .frbtn.sel { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; filter: brightness(1.2); border-radius: 0.625rem; }
 #pause .frempty { margin: 1rem 0 0; color: var(--muted); font-size: 0.85rem; line-height: 1.4; }
+/* perfil do jogador: cartão (foto, emoji, nome, título e descrição) e a tela de edição */
+#pause .dialog.prof { max-width: 26rem; }
+#pause .pfcard { margin-top: 0.875rem; padding: 1.25rem 1rem 1.125rem; border-radius: 1.25rem; border: 1px solid rgba(255, 255, 255, 0.22); display: grid; justify-items: center; gap: 0.3rem; background-color: #d9ccf2; background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.16), rgba(0, 0, 0, 0.16)); box-shadow: 0 0.5rem 1.25rem rgba(8, 4, 20, 0.35); }
+#pause .pfav { position: relative; width: 5.5rem; height: 5.5rem; margin-bottom: 0.35rem; border-radius: 50%; display: grid; place-items: center; font-size: 2.9rem; line-height: 1; background: rgba(0, 0, 0, 0.2); border: 0.1875rem solid rgba(255, 255, 255, 0.6); box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.3); }
+#pause .pfavw { position: relative; margin-bottom: 0.35rem; }
+#pause .pfavw .pfav { margin-bottom: 0; }
+#pause button.pfav { padding: 0; margin: 0; font: inherit; font-size: 2.9rem; line-height: 1; color: inherit; cursor: pointer; transition: transform 0.15s, filter 0.15s; }
+#pause button.pfav:hover { filter: brightness(1.2); transform: scale(1.03); }
+#pause button.pfav.empty { border-style: dashed; }
+#pause .pfcam svg { width: 1.05rem; height: 1.05rem; display: block; }
+#pause .pfavx { position: absolute; top: -0.3rem; right: -0.3rem; z-index: 2; width: 2rem; height: 2rem; padding: 0; border-radius: 50%; display: grid; place-items: center; font: inherit; font-size: 1.3rem; font-weight: 700; line-height: 1; color: #fff; background: rgba(26, 29, 40, 0.94); border: 2px solid rgba(255, 255, 255, 0.75); cursor: pointer; transition: transform 0.15s, background 0.15s; }
+#pause .pfavx:hover { background: #b8455f; transform: scale(1.1); }
+#pause .pfav img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
+#pause .pfemo { position: absolute; right: -0.4rem; bottom: -0.3rem; width: 2rem; height: 2rem; border-radius: 50%; display: grid; place-items: center; font-size: 1.1rem; line-height: 1; background: rgba(26, 29, 40, 0.94); border: 2px solid rgba(255, 255, 255, 0.75); }
+#pause input.pfnamein { display: block; width: 100%; box-sizing: border-box; padding: 0.05rem 0.5rem; border-radius: 0.75rem; border: 1px dashed transparent; background: transparent; color: inherit; font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; line-height: 1.25; text-align: center; text-overflow: ellipsis; outline: none; cursor: text; transition: background 0.15s, border-color 0.15s; }
+#pause input.pfnamein::placeholder { color: inherit; opacity: 0.5; }
+#pause input.pfnamein:hover { border-color: rgba(128, 128, 128, 0.5); }
+#pause input.pfnamein:focus { border-color: rgba(128, 128, 128, 0.7); background: rgba(0, 0, 0, 0.12); }
+#pause .pfname { max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; line-height: 1.15; }
+#pause .pftitle { font-size: 0.74rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; padding: 0.2rem 0.7rem; border-radius: 999px; background: var(--tone, rgba(0, 0, 0, 0.22)); color: var(--toneink, inherit); }
+#pause .pfdesc { max-width: 100%; margin-top: 0.4rem; font-size: 0.92rem; line-height: 1.4; overflow-wrap: anywhere; white-space: pre-wrap; text-align: center; }
+#pause .pftrow { display: flex; align-items: center; justify-content: center; gap: 0.5rem; max-width: 100%; }
+#pause .pftarr { flex: none; width: 1.9rem; height: 1.9rem; padding: 0 0 0.12rem; border-radius: 50%; display: grid; place-items: center; font: inherit; font-size: 1.3rem; font-weight: 800; line-height: 1; color: var(--toneink, inherit); background: var(--tone, rgba(0, 0, 0, 0.18)); border: 1px solid rgba(255, 255, 255, 0.3); cursor: pointer; transition: transform 0.15s, filter 0.15s; }
+#pause .pftarr:hover { filter: brightness(0.92); transform: scale(1.12); }
+#pause textarea.pfdescin { display: block; width: 100%; box-sizing: border-box; min-height: 2.3rem; margin-top: 0.4rem; padding: 0.35rem 0.6rem; border-radius: 0.75rem; border: 1px dashed transparent; background: transparent; color: inherit; font: inherit; font-size: 0.92rem; line-height: 1.4; text-align: center; resize: none; overflow: hidden; outline: none; cursor: text; transition: background 0.15s, border-color 0.15s; }
+#pause textarea.pfdescin::placeholder { color: inherit; opacity: 0.55; font-style: italic; }
+#pause textarea.pfdescin:hover { border-color: rgba(128, 128, 128, 0.5); }
+#pause textarea.pfdescin:focus { border-color: rgba(128, 128, 128, 0.7); background: rgba(0, 0, 0, 0.12); }
+#pause .pfdcount { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.04em; opacity: 0.55; }
+#pause .pfacts { grid-template-columns: 1fr 1fr; }
+#pause .pfdesc.ph { opacity: 0.55; font-style: italic; }
+#pause .pflabel { margin: 0.9rem 0 0.35rem; text-align: left; font-size: 0.7rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+#pause .pfrow { display: flex; align-items: center; gap: 0.5rem; }
+#pause .pfbtn { flex: 1; padding: 0.6rem 0.75rem; border-radius: 0.75rem; background: rgba(255, 238, 214, 0.06); color: var(--ink); border: 1px solid var(--line); cursor: pointer; font: inherit; font-weight: 700; font-size: 0.88rem; transition: transform 0.15s, filter 0.15s; }
+#pause .pfbtn[hidden] { display: none; }
+#pause .pfbtn:hover { filter: brightness(1.25); }
+#pause .pfbtn.pfstep { flex: none; width: 2.75rem; font-size: 1.4rem; line-height: 1; padding: 0.35rem 0; }
+#pause .pftitlev { flex: 1; text-align: center; font-weight: 800; color: #ffe08a; }
+#pause .pfin { width: 100%; box-sizing: border-box; padding: 0.65rem 0.8rem; border-radius: 0.75rem; border: 1px solid var(--line); background: rgba(255, 238, 214, 0.06); color: var(--ink); font: inherit; font-size: 0.92rem; outline: none; }
+#pause .pfin:focus { border-color: #ffd060; }
+#pause .pfcount { margin-top: 0.25rem; text-align: right; font-size: 0.7rem; font-weight: 700; color: var(--muted); }
+#pause .pfgrid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 0.3rem; }
+#pause .pfe { aspect-ratio: 1; display: grid; place-items: center; padding: 0; font-size: 1.15rem; line-height: 1; border-radius: 0.6rem; background: rgba(255, 238, 214, 0.06); border: 1px solid var(--line); color: var(--ink); cursor: pointer; }
+#pause .pfe:hover { filter: brightness(1.3); }
+#pause .pfe.on { background: rgba(255, 208, 96, 0.22); border-color: #ffd060; }
+#pause .pfswrow { display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between; gap: 0.35rem; }
+#pause .pfsw { flex: 0 1 1.85rem; min-width: 1.2rem; aspect-ratio: 1; height: auto; padding: 0; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.35); cursor: pointer; }
+#pause .pfsw:hover { transform: scale(1.1); }
+#pause .pfsw.on { border-color: #fff; box-shadow: 0 0 0 0.15rem #ffd060; }
+#pause .pfcol { flex: 0 1 1.85rem; min-width: 1.2rem; aspect-ratio: 1; padding: 0; border-radius: 50%; border: 2px solid rgba(255, 255, 255, 0.35); cursor: pointer; background: radial-gradient(circle, var(--c, rgba(255, 255, 255, 0.9)) 0 33%, transparent 36%), conic-gradient(#ffc9d6, #fff1b8, #cdeccb, #bfeee6, #c4e0fa, #e3cdf7, #ffc9d6); }
+#pause .pfcol:hover { transform: scale(1.1); }
+#pause .pfcol.on { border-color: #fff; box-shadow: 0 0 0 0.15rem #ffd060; }
+#pause .pfpicker { margin-top: 0.7rem; padding: 0.85rem 0.9rem 0.95rem; border-radius: 1rem; border: 1px solid var(--line); background: rgba(255, 238, 214, 0.06); display: grid; gap: 0.7rem; box-shadow: inset 0 0.1rem 0.5rem rgba(8, 4, 20, 0.25); }
+#pause .pfpicker[hidden] { display: none; }
+#pause .pfpkhead { display: flex; align-items: center; gap: 0.7rem; }
+#pause .pfpv { flex: none; width: 2.5rem; height: 2.5rem; border-radius: 50%; border: 0.1875rem solid rgba(255, 255, 255, 0.7); box-shadow: 0 0.2rem 0.6rem rgba(0, 0, 0, 0.3); }
+#pause .pfhex { flex: 1; min-width: 0; text-align: center; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; }
+#pause .pfpkrow { display: grid; gap: 0.3rem; margin: 0; }
+#pause .pfpkrow span { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); text-align: left; }
+#pause .pfrng { -webkit-appearance: none; appearance: none; display: block; width: 100%; height: 1rem; margin: 0.25rem 0; padding: 0; border-radius: 999px; border: 2px solid rgba(255, 255, 255, 0.35); background: var(--trk, #888); outline: none; cursor: pointer; box-sizing: border-box; }
+#pause .pfrng::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 1.6rem; height: 1.6rem; border-radius: 50%; border: 0.19rem solid #fff; background: var(--thumb, #fff); box-shadow: 0 0.15rem 0.5rem rgba(0, 0, 0, 0.45); cursor: grab; }
+#pause .pfrng::-moz-range-thumb { width: 1.2rem; height: 1.2rem; border-radius: 50%; border: 0.19rem solid #fff; background: var(--thumb, #fff); box-shadow: 0 0.15rem 0.5rem rgba(0, 0, 0, 0.45); cursor: grab; }
+#pause .pfrng:active::-webkit-slider-thumb { cursor: grabbing; transform: scale(1.08); }
+#pause .pfmsg { margin: 0.6rem 0 0; font-size: 0.8rem; font-weight: 700; color: #ffb3a1; }
+#pause #pvNote { color: var(--muted); }
+#pause .pfbtn.sel, #pause .pfnamein.sel, #pause .pftarr.sel, #pause .pfdescin.sel, #pause .pfav.sel, #pause .pfavx.sel, #pause .pfe.sel, #pause .pfsw.sel, #pause .pfcol.sel, #pause .pfrng.sel, #pause .pfin.sel { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; filter: brightness(1.2); }
 #pause .pic:hover, #intro .pic:hover { transform: translateY(-0.125rem); filter: brightness(1.15); }
 #pause .pic.sel, #intro .pic.sel { outline: 0.1875rem solid #fff; outline-offset: 0.1875rem; filter: brightness(1.15); }
 #pause input[type=range]:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; border-radius: 0.5rem; }
@@ -837,8 +903,8 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
           <button id="pTitle" class="go alt" type="button">Title Screen</button>
         </div>
         <div class="pgrid">
+          <button id="pProfile" class="psq" type="button" aria-label="Profile" title="Profile"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg><span>Profile</span></button>
           <button id="pFriends" class="psq" type="button" aria-label="Friends" title="Friends"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Friends</span></button>
-          <div class="pslot" aria-hidden="true"></div>
           <div class="pslot" aria-hidden="true"></div>
         </div>
         <div class="pfoot">
@@ -852,6 +918,24 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
         <div id="pFrList" class="frlist"></div>
         <p id="pFrEmpty" class="frempty" hidden>No friends yet. Right-click a player's name (or press P near a cat) and choose Add friend.</p>
         <div class="pmenu"><button id="pFrBack" class="go" type="button">Back</button></div>
+      </div>
+      <div id="pauseProfile" hidden>
+        <h2>Profile</h2>
+        <div id="pfCard" class="pfcard"></div>
+        <input id="pfFile" type="file" accept="image/*" hidden>
+        <div class="pflabel">Emoji</div>
+        <div id="pfEmojis" class="pfgrid"></div>
+        <div class="pflabel">Background color</div>
+        <div id="pfColors" class="pfswrow"></div>
+        <div id="pfPicker" class="pfpicker" hidden></div>
+        <p id="pfMsg" class="pfmsg" hidden></p>
+        <div class="pmenu pfacts"><button id="pfCancel" class="go alt" type="button">Cancel</button><button id="pfSave" class="go" type="button">Save</button></div>
+      </div>
+      <div id="pauseProfView" hidden>
+        <h2>Profile</h2>
+        <div id="pvCard" class="pfcard"></div>
+        <p id="pvNote" class="pfmsg" hidden></p>
+        <div class="pmenu"><button id="pvBack" class="go" type="button">Back</button></div>
       </div>
       <div id="pauseHelp" hidden>
         <h2>Controls</h2>
@@ -7282,7 +7366,7 @@ function animateModel(t, dt, moving) {
 
   /* ---------- menu de pausa (Esc / Start do controle): Resume, Controls (teclas), Settings (volume) e Quit Game ---------- */
   var pauseOpen = false, pauseClosedAt = 0, padNavT = 0, padAxisY = 0;
-  function pauseBox() { return !$('pauseFriends').hidden ? $('pauseFriends') : !$('pauseSet').hidden ? $('pauseSet') : !$('pauseHelp').hidden ? $('pauseHelp') : $('pauseMain'); }
+  function pauseBox() { return !$('pauseProfile').hidden ? $('pauseProfile') : !$('pauseProfView').hidden ? $('pauseProfView') : !$('pauseFriends').hidden ? $('pauseFriends') : !$('pauseSet').hidden ? $('pauseSet') : !$('pauseHelp').hidden ? $('pauseHelp') : $('pauseMain'); }
   function pauseItems() { return spItems(pauseBox()); }
   var pauseIdx = 0;
   function pauseMark(i) {   /* marca o item selecionado com uma classe própria: o contorno do navegador só aparece em certos casos e sumia com controle */
@@ -7290,7 +7374,7 @@ function animateModel(t, dt, moving) {
     Array.prototype.forEach.call($('pause').querySelectorAll('.sel'), function (e) { e.classList.remove('sel'); });
     it[pauseIdx].classList.add('sel'); return it[pauseIdx];
   }
-  function pauseSel(i) { var e = pauseMark(i); e.focus(); spReveal(e); if (e.closest && e.closest('.frlist') && e.scrollIntoView) e.scrollIntoView({ block: 'nearest' }); }
+  function pauseSel(i) { var e = pauseMark(i); e.focus(); spReveal(e); if (e.closest && (e.closest('.frlist') || e.closest('#pauseProfile')) && e.scrollIntoView) e.scrollIntoView({ block: 'nearest' }); }
   function pauseMove(d) { pauseSel(pauseIdx + d); }
   function pauseIcons(d) {   /* nos ícones de baixo (Settings à esquerda, Quit à direita), esquerda/direita troca de um para o outro */
     var it = pauseItems(), cur = it[pauseIdx];
@@ -7300,8 +7384,11 @@ function animateModel(t, dt, moving) {
   $('pause').addEventListener('focusin', function (e) { var i = pauseItems().indexOf(e.target); if (i >= 0) pauseMark(i); });
   function pauseShow(view) {   /* view: false = menu principal, true = Settings, 'help' = Controls */
     $('pauseMain').hidden = view !== false; $('pauseSet').hidden = view !== true; $('pauseHelp').hidden = view !== 'help'; $('pauseFriends').hidden = view !== 'friends';
+    $('pauseProfile').hidden = view !== 'profile'; $('pauseProfView').hidden = view !== 'pview';
     if (view === 'friends') renderFriends();
-    $('pause').querySelector('.dialog').classList.toggle('wide', view === 'help'); $('pause').querySelector('.dialog').classList.toggle('sp-on', view === true);
+    if (view === 'profile') pfEdit();
+    if (view === 'pview') renderPView();
+    $('pause').querySelector('.dialog').classList.toggle('wide', view === 'help'); $('pause').querySelector('.dialog').classList.toggle('prof', view === 'profile' || view === 'pview'); $('pause').querySelector('.dialog').classList.toggle('sp-on', view === true);
     spRefresh(); pauseSel(0);
   }
   function openPause() {
@@ -7312,10 +7399,11 @@ function animateModel(t, dt, moving) {
   }
   function closePause() {
     if (!pauseOpen) return;
+    if (!$('pauseProfile').hidden) pfCommit();   /* fechou o menu com o perfil aberto: o que foi editado fica salvo */
     pauseOpen = false; pauseClosedAt = performance.now(); keys = {};
     $('pause').hidden = true; if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
   }
-  function pauseBack() { if (!$('pauseFriends').hidden) { pauseShow(false); pauseSel(pauseItems().indexOf($('pFriends'))); } else if (!$('pauseSet').hidden || !$('pauseHelp').hidden) pauseShow(false); else closePause(); }
+  function pauseBack() { if (!$('pauseProfile').hidden) { pfLeave(); return; } if (!$('pauseProfView').hidden) { pvBack(); return; } if (!$('pauseFriends').hidden) { pauseShow(false); pauseSel(pauseItems().indexOf($('pFriends'))); } else if (!$('pauseSet').hidden || !$('pauseHelp').hidden) pauseShow(false); else closePause(); }
   function setVolume(v) {
     v = Math.max(0, Math.min(1, v)); if (window.UISfx) UISfx.setVolume(v);
     if (actxMaster && actx) actxMaster.gain.setTargetAtTime(v * v, actx.currentTime, 0.02);
@@ -7375,7 +7463,7 @@ function animateModel(t, dt, moving) {
   }
   /* itens navegáveis por controle/teclado: botões e sliders visíveis; em grupos de opções só o botão ativo (esquerda/direita troca a opção) */
   function spItems(box) {
-    return Array.prototype.slice.call(box.querySelectorAll('button, input')).filter(function (e) {
+    return Array.prototype.slice.call(box.querySelectorAll('button, input, textarea')).filter(function (e) {
       if (e.offsetParent === null || e.classList.contains('sp-tab')) return false;
       var g = e.parentNode && e.parentNode.classList; if (g && (g.contains('sp-opts') || g.contains('seg')) && !e.classList.contains('on')) return false;
       return true;
@@ -7513,6 +7601,7 @@ function animateModel(t, dt, moving) {
       row.className = 'frrow' + (f.on ? ' on' : ''); dot.className = 'frdot'; info.className = 'frinfo'; nm.className = 'frname'; st.className = 'frst';
       nm.textContent = f.name; st.textContent = f.busy ? 'Playing tag' : f.on ? 'Online' : 'Offline';
       info.appendChild(nm); info.appendChild(st); row.appendChild(dot); row.appendChild(info);
+      row.appendChild(frBtn('user', 'View ' + f.name + "'s profile", function () { pvOpen(f.on ? f.id : null, f.name, 'friends'); }));
       if (f.on && !f.busy) row.appendChild(frBtn('paw', 'Invite ' + f.name + ' to tag', function () { var id = f.id; closePause(); tagInvite(id); }));
       row.appendChild(frBtn('del', 'Remove ' + f.name + ' from friends', function () {
         friendCommand('removefriend', f.name, function (m) { chatAdd('Notice', m, false); });
@@ -7528,6 +7617,220 @@ function animateModel(t, dt, moving) {
   $('pFriends').addEventListener('click', function () { pauseShow('friends'); });
   $('pFrBack').addEventListener('click', function () { pauseBack(); });
   $('pSettings').addEventListener('click', function () { pauseShow(true); });
+  $('pProfile').addEventListener('click', function () { pauseShow('profile'); });
+
+  /* ---------- perfil do jogador (menu de pausa > Profile) ----------
+     Foto (miniatura 96x96 em JPEG), título (lista de títulos de gato), descrição (até 50 caracteres), emoji e cor de fundo.
+     Fica salvo neste aparelho (luna_profile) e é enviado à sala pelo tópico 'profile'. O servidor valida tudo e filtra a descrição;
+     mesmo assim o cliente revalida o que recebe (pfClean) e só usa textContent / data URL de JPEG. Ver o perfil de outro jogador:
+     botão direito no nome (opção Profile) ou o botão de perfil na lista Friends. */
+  var PF_TITLES = ['Curious Kitten', 'Sleepy Kitten', 'Mouse Hunter', 'Fish Thief', 'Nap Champion', 'Zoomies Master', 'Sofa Conqueror', 'Midnight Prowler', 'Fluffy Menace', 'Purrfect Friend', 'Yard Explorer', 'Box Enthusiast'];
+  var PF_EMOJIS = ['\uD83D\uDC31', '\uD83D\uDE3A', '\uD83D\uDE38', '\uD83D\uDE3B', '\uD83D\uDE3C', '\uD83D\uDE40', '\uD83D\uDC08', '\uD83D\uDC08\u200D\u2B1B', '\uD83D\uDC1F', '\uD83D\uDC2D', '\uD83D\uDC26', '\uD83E\uDD8B', '\uD83C\uDF38', '\uD83C\uDF19', '\u2B50', '\uD83D\uDD25', '\uD83D\uDC9C', '\uD83D\uDC96', '\uD83C\uDF40', '\uD83C\uDF80', '\uD83D\uDC51', '\uD83E\uDDF6', '\uD83E\uDD5B', '\uD83D\uDC3E'];
+  var PF_COLORS = ['#d9ccf2', '#ffc9d6', '#ffd8b8', '#fff1b8', '#cdeccb', '#bfeee6', '#c4e0fa', '#e3cdf7', '#f9d2ea'];
+  var PF_DEF = { ph: '', t: 0, d: '', e: PF_EMOJIS[0], bg: PF_COLORS[0] }, PF_MAXD = 50, PF_MAXPH = 9200, PF_PHOTO_TARGET = 9000;
+  function pfClone(o) { return JSON.parse(JSON.stringify(o)); }
+  function pfClean(p) {   /* valida um perfil (o seu salvo ou o de outro jogador): nunca confia no que vem de fora */
+    if (!p || typeof p !== 'object') return null;
+    var o = pfClone(PF_DEF);
+    if (typeof p.ph === 'string' && p.ph.length <= PF_MAXPH && /^data:image\/jpeg;base64,[A-Za-z0-9+\/=]+$/.test(p.ph)) o.ph = p.ph;
+    if (typeof p.t === 'number' && p.t % 1 === 0 && p.t >= 0 && p.t < PF_TITLES.length) o.t = p.t;
+    if (typeof p.d === 'string') o.d = Array.from(p.d.replace(/[\r\n\t]+/g, ' ')).slice(0, PF_MAXD).join('');
+    try { if (typeof p.e === 'string' && p.e.length <= 12 && /^[\p{Extended_Pictographic}\u200d\ufe0f]+$/u.test(p.e)) o.e = p.e; } catch (er) { if (PF_EMOJIS.indexOf(p.e) >= 0) o.e = p.e; }
+    if (typeof p.bg === 'string' && /^#[0-9a-fA-F]{6}$/.test(p.bg)) o.bg = p.bg.toLowerCase();
+    return o;
+  }
+  var myProf = (function () { try { return pfClean(JSON.parse(localStorage.getItem('luna_profile'))) || pfClone(PF_DEF); } catch (e) { return pfClone(PF_DEF); } })();
+  var peerProf = {}, profByName = {}, pfDraft = null, pvState = null;
+  function pfIsDefault(p) { return JSON.stringify(p) === JSON.stringify(PF_DEF); }
+  function pfInk(hex) { var n = parseInt(hex.slice(1), 16); return (0.299 * (n >> 16 & 255) + 0.587 * (n >> 8 & 255) + 0.114 * (n & 255)) > 150 ? '#1d1a26' : '#fff4e2'; }   /* texto escuro em fundo claro e vice-versa */
+  function pfTone(hex) {   /* mesmo matiz do fundo, só que mais escuro: usado no título e nas setinhas */
+    var c = pfHex2Hsl(hex), l = c.l >= 55 ? c.l - 14 : Math.max(6, c.l - 12), sa = Math.min(c.s, 70);   /* um pouco mais escuro, sem ficar berrante */
+    return pfHsl2Hex(c.h, sa, l);
+  }
+  var pfNickVal = '', pfNickEdited = false;   /* nome em edição (só vale ao salvar) */
+  function pfName() { return (mp && mp.nick) || cleanNick($('nick') && $('nick').value) || 'Kitten'; }
+  function pfEl(cls, txt) { var e = document.createElement('div'); e.className = cls; if (txt !== undefined) e.textContent = txt; return e; }
+  function pfCard(host, p, name, hint, editable) {   /* desenha o cartão do perfil (o mesmo na edição e na visualização) */
+    host.textContent = ''; host.style.backgroundColor = p.bg; host.style.color = pfInk(p.bg);
+    var tone = pfTone(p.bg); host.style.setProperty('--tone', tone); host.style.setProperty('--toneink', pfInk(tone));
+    var av = pfEl('pfav');
+    if (p.ph) { var im = document.createElement('img'); im.alt = ''; im.src = p.ph; av.appendChild(im); av.appendChild(pfEl('pfemo', p.e)); } else av.textContent = p.e;
+    if (editable) {   /* na edição o próprio avatar é o botão de escolher foto; o × remove */
+      var ab = document.createElement('button'); ab.type = 'button'; ab.id = 'pfAvBtn'; ab.className = 'pfav' + (p.ph ? '' : ' empty');
+      ab.title = p.ph ? 'Change photo' : 'Choose photo'; ab.setAttribute('aria-label', ab.title);
+      while (av.firstChild) ab.appendChild(av.firstChild);
+      if (!p.ph) { ab.textContent = p.e; var cam = pfEl('pfemo pfcam'); cam.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>'; ab.appendChild(cam); }
+      ab.addEventListener('click', pfPickPhoto);
+      var w = pfEl('pfavw'); w.appendChild(ab);
+      if (p.ph) { var xb = document.createElement('button'); xb.type = 'button'; xb.id = 'pfAvX'; xb.className = 'pfavx'; xb.textContent = '\u00d7'; xb.title = 'Remove photo'; xb.setAttribute('aria-label', 'Remove photo'); xb.addEventListener('click', pfDelPhoto); w.appendChild(xb); }
+      av = w;
+    }
+    host.appendChild(av);
+    if (editable) {   /* o nome também se edita clicando nele */
+      var ni = document.createElement('input'); ni.type = 'text'; ni.id = 'pfNameIn'; ni.className = 'pfnamein'; ni.maxLength = 10; ni.value = name; ni.placeholder = 'Your name'; ni.autocomplete = 'off'; ni.spellcheck = false; ni.setAttribute('aria-label', 'Your name (max. 10 letters or numbers)');
+      ni.addEventListener('input', function () {
+        var c = cleanNick(ni.value);
+        if (c !== ni.value) { var pos = ni.selectionStart - (ni.value.length - c.length); ni.value = c; try { ni.setSelectionRange(Math.max(0, pos), Math.max(0, pos)); } catch (er) {} }
+        pfNickVal = c; pfNickEdited = true;
+      });
+      host.appendChild(ni);
+    } else host.appendChild(pfEl('pfname', name));
+    if (editable) {   /* título com setinhas e descrição editável direto no cartão */
+      var tr = pfEl('pftrow'), mk = function (id, ch, lab, d) { var b = document.createElement('button'); b.type = 'button'; b.id = id; b.className = 'pftarr'; b.textContent = ch; b.title = lab; b.setAttribute('aria-label', lab); b.addEventListener('click', function () { pfTitleStep(d); }); return b; };
+      tr.appendChild(mk('pfTPrev', '\u2039', 'Previous title', -1)); tr.appendChild(pfEl('pftitle', PF_TITLES[p.t])); tr.appendChild(mk('pfTNext', '\u203a', 'Next title', 1)); host.appendChild(tr);
+      var ta = document.createElement('textarea'), ct = pfEl('pfdcount', Array.from(p.d).length + '/' + PF_MAXD);
+      ta.id = 'pfDescIn'; ta.className = 'pfdesc pfdescin'; ta.rows = 1; ta.value = p.d; ta.placeholder = 'Click here to write about you'; ta.spellcheck = false; ta.autocomplete = 'off'; ta.setAttribute('aria-label', 'About me (max. ' + PF_MAXD + ' characters)');
+      var fit = function () { ta.style.height = 'auto'; if (ta.scrollHeight > 0) ta.style.height = ta.scrollHeight + 'px'; };
+      ta.addEventListener('input', function () {
+        if (!pfDraft) return;
+        var a = Array.from(ta.value.replace(/[\r\n\t]+/g, ' ')); if (a.length > PF_MAXD) a = a.slice(0, PF_MAXD);
+        if (a.join('') !== ta.value) ta.value = a.join('');
+        pfDraft.d = ta.value; ct.textContent = a.length + '/' + PF_MAXD; fit();
+      });
+      host.appendChild(ta); host.appendChild(ct); fit();
+      return;
+    }
+    host.appendChild(pfEl('pftitle', PF_TITLES[p.t]));
+    var ds = pfEl('pfdesc' + (!p.d && hint ? ' ph' : ''), p.d || (hint ? 'Your description appears here' : '')); ds.hidden = !p.d && !hint; host.appendChild(ds);
+  }
+  function pfMsg(t) { var m = $('pfMsg'); m.textContent = t || ''; m.hidden = !t; }
+  /* --- edição --- */
+  function pfEdit() { pfDraft = pfClone(myProf); pfNickVal = pfName(); pfNickEdited = false; pfMsg(''); $('pfPicker').hidden = true; $('pfCol').setAttribute('aria-expanded', 'false'); pfRender(); }
+  function pfRender() {
+    if (!pfDraft) return;
+    var selId = ($('pfCard').querySelector('.sel') || {}).id;   /* o cartão é redesenhado: mantém a seleção do teclado/controle */
+    pfCard($('pfCard'), pfDraft, pfNickVal, true, true);
+    if (selId) { var ne = $(selId) || (selId === 'pfAvX' ? $('pfAvBtn') : null); if (ne) pauseSel(pauseItems().indexOf(ne)); }
+    Array.prototype.forEach.call($('pfEmojis').children, function (b) { b.classList.toggle('on', b.getAttribute('data-e') === pfDraft.e); });
+    var preset = false;
+    Array.prototype.forEach.call($('pfColors').querySelectorAll('.pfsw'), function (b) { var on = b.getAttribute('data-c') === pfDraft.bg; if (on) preset = true; b.classList.toggle('on', on); });
+    var cb = $('pfCol'); cb.classList.toggle('on', !preset); cb.style.setProperty('--c', preset ? 'rgba(255, 255, 255, 0.9)' : pfDraft.bg);
+    pfPkSync();
+  }
+  function pfCommit() {   /* ao sair da tela: guarda, salva no aparelho e avisa a sala (só se mudou) */
+    if (!pfDraft) return;
+    var c = pfClean(pfDraft), ch = c && JSON.stringify(c) !== JSON.stringify(myProf); pfDraft = null;
+    var nk = pfNickEdited ? cleanNick(pfNickVal) : ''; pfNickEdited = false;
+    if (nk && nk !== pfName()) {   /* novo nome: vale já para o próximo jogo (campo da tela inicial) e, online, vai para a sala pela presença */
+      try { localStorage.setItem('luna_nick', nk); } catch (e) {}
+      if ($('nick')) $('nick').value = nk;
+      if (mp && mp.nick) mp.nick = nk;
+    }
+    if (!ch) return;
+    myProf = c; try { localStorage.setItem('luna_profile', JSON.stringify(myProf)); } catch (e) {}
+    pfSend();
+  }
+  function pfLeave() { pfCommit(); pauseShow(false); pauseSel(pauseItems().indexOf($('pProfile'))); }
+  (function () {   /* monta os botões de emoji e de cor uma vez só */
+    PF_EMOJIS.forEach(function (em) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'pfe'; b.textContent = em; b.setAttribute('data-e', em); b.setAttribute('aria-label', 'Emoji ' + em);
+      b.addEventListener('click', function () { if (pfDraft) { pfDraft.e = em; pfRender(); } }); $('pfEmojis').appendChild(b);
+    });
+    PF_COLORS.forEach(function (c) {
+      var b = document.createElement('button'); b.type = 'button'; b.className = 'pfsw'; b.style.background = c; b.setAttribute('data-c', c); b.setAttribute('aria-label', 'Background color ' + c);
+      b.addEventListener('click', function () { if (pfDraft) { pfDraft.bg = c; pfRender(); } }); $('pfColors').appendChild(b);
+    });
+    var ci = document.createElement('button'); ci.type = 'button'; ci.id = 'pfCol'; ci.className = 'pfcol'; ci.title = 'Custom color'; ci.setAttribute('aria-label', 'Custom color'); ci.setAttribute('aria-expanded', 'false');
+    ci.addEventListener('click', function () { var bx = $('pfPicker'); bx.hidden = !bx.hidden; ci.setAttribute('aria-expanded', String(!bx.hidden)); if (!bx.hidden) { pfPkSync(); if (bx.scrollIntoView) bx.scrollIntoView({ block: 'nearest' }); } }); $('pfColors').appendChild(ci);
+  })();
+  /* --- seletor de cor próprio (matiz / saturação / luminosidade): no lugar do seletor nativo do navegador --- */
+  function pfHsl2Hex(h, s, l) { s /= 100; l /= 100; var a = s * Math.min(l, 1 - l), f = function (n) { var k = (n + h / 30) % 12, c = l - a * Math.max(-1, Math.min(k - 3, 9 - k, 1)); return Math.round(255 * c).toString(16).padStart(2, '0'); }; return '#' + f(0) + f(8) + f(4); }
+  function pfHex2Hsl(hex) {
+    var n = parseInt(hex.slice(1), 16), r = (n >> 16 & 255) / 255, g = (n >> 8 & 255) / 255, b = (n & 255) / 255, mx = Math.max(r, g, b), mn = Math.min(r, g, b), l = (mx + mn) / 2, d = mx - mn, h = 0, sa = 0;
+    if (d) { sa = d / (1 - Math.abs(2 * l - 1)); h = mx === r ? ((g - b) / d + 6) % 6 : mx === g ? (b - r) / d + 2 : (r - g) / d + 4; h *= 60; }
+    return { h: Math.round(h) % 360, s: Math.round(sa * 100), l: Math.round(l * 100) };
+  }
+  var pfPk = { h: 270, s: 60, l: 90 }, pfPkSkip = '';   /* pfPkSkip: quem está mexendo agora ('sl' = slider, 'hex' = campo), para não reescrever o que a pessoa está arrastando/digitando */
+  (function () {
+    var bx = $('pfPicker');
+    bx.innerHTML = '<div class="pfpkhead"><div id="pfPv" class="pfpv"></div><input id="pfHex" class="pfin pfhex" type="text" maxlength="7" autocomplete="off" spellcheck="false" aria-label="Color code" placeholder="#d9ccf2"></div>'
+      + '<label class="pfpkrow"><span>Hue</span><input id="pfH" class="pfrng" type="range" min="0" max="359" step="1" aria-label="Hue"></label>'
+      + '<label class="pfpkrow"><span>Saturation</span><input id="pfS" class="pfrng" type="range" min="0" max="100" step="1" aria-label="Saturation"></label>'
+      + '<label class="pfpkrow"><span>Lightness</span><input id="pfL" class="pfrng" type="range" min="15" max="96" step="1" aria-label="Lightness"></label>';
+    ['pfH', 'pfS', 'pfL'].forEach(function (id) {
+      $(id).addEventListener('input', function () {
+        if (!pfDraft) return;
+        pfPk.h = +$('pfH').value; pfPk.s = +$('pfS').value; pfPk.l = +$('pfL').value;
+        pfDraft.bg = pfHsl2Hex(pfPk.h, pfPk.s, pfPk.l); pfPkSkip = 'sl'; pfRender(); pfPkSkip = '';
+      });
+    });
+    $('pfHex').addEventListener('input', function () {
+      var v = this.value.trim(); if (!v || !pfDraft) return; if (v.charAt(0) !== '#') v = '#' + v;
+      if (/^#[0-9a-fA-F]{6}$/.test(v)) { pfDraft.bg = v.toLowerCase(); pfPk = pfHex2Hsl(pfDraft.bg); pfPkSkip = 'hex'; pfRender(); pfPkSkip = ''; }
+    });
+    $('pfHex').addEventListener('blur', function () { if (pfDraft) this.value = pfDraft.bg; });
+  })();
+  function pfPkSync() {
+    if (!pfDraft || $('pfPicker').hidden) return;
+    if (pfHsl2Hex(pfPk.h, pfPk.s, pfPk.l) !== pfDraft.bg) pfPk = pfHex2Hsl(pfDraft.bg);
+    var h = pfPk.h, sa = pfPk.s, l = pfPk.l, hex = pfDraft.bg, hs = [], i;
+    if (pfPkSkip !== 'sl') { $('pfH').value = h; $('pfS').value = sa; $('pfL').value = l; }
+    if (pfPkSkip !== 'hex') $('pfHex').value = hex;
+    for (i = 0; i <= 6; i++) hs.push('hsl(' + (i * 60) + ', ' + Math.max(sa, 45) + '%, ' + l + '%)');
+    $('pfH').style.setProperty('--trk', 'linear-gradient(90deg, ' + hs.join(', ') + ')');
+    $('pfS').style.setProperty('--trk', 'linear-gradient(90deg, hsl(' + h + ', 0%, ' + l + '%), hsl(' + h + ', 100%, ' + l + '%))');
+    $('pfL').style.setProperty('--trk', 'linear-gradient(90deg, hsl(' + h + ', ' + sa + '%, 15%), hsl(' + h + ', ' + sa + '%, 55%), hsl(' + h + ', ' + sa + '%, 96%))');
+    ['pfH', 'pfS', 'pfL'].forEach(function (id) { $(id).style.setProperty('--thumb', hex); });
+    $('pfPv').style.background = hex;
+  }
+  function pfTitleStep(d) { if (pfDraft) { pfDraft.t = (pfDraft.t + d + PF_TITLES.length) % PF_TITLES.length; pfRender(); } }
+  function pfPickPhoto() { $('pfFile').click(); }
+  function pfDelPhoto() { if (pfDraft) { pfDraft.ph = ''; pfMsg(''); pfRender(); pauseSel(pauseItems().indexOf($('pfAvBtn'))); } }
+  $('pfSave').addEventListener('click', function () { pauseBack(); });
+  $('pfCancel').addEventListener('click', function () { pfDraft = null; pauseBack(); });   /* descarta o rascunho: ao sair, nada é salvo */
+  $('pfFile').addEventListener('change', function () {   /* foto: recorta o centro em quadrado, reduz para 96x96 e comprime até caber (vai para os outros jogadores) */
+    var f = this.files && this.files[0]; this.value = ''; if (!f || !pfDraft) return;
+    if (!/^image\//.test(f.type)) { pfMsg('Please choose an image file.'); return; }
+    var fr = new FileReader();
+    fr.onerror = function () { pfMsg('Could not read that file.'); };
+    fr.onload = function () {
+      var im = new Image();
+      im.onerror = function () { pfMsg('Could not open that image. Try another one.'); };
+      im.onload = function () {
+        if (!pfDraft) return;
+        var S = 96, cv = document.createElement('canvas'), g, q = [0.8, 0.65, 0.5, 0.35, 0.25], out = '', i, sz = Math.min(im.width, im.height);
+        cv.width = cv.height = S; g = cv.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, S, S);
+        g.drawImage(im, (im.width - sz) / 2, (im.height - sz) / 2, sz, sz, 0, 0, S, S);
+        for (i = 0; i < q.length; i++) { out = cv.toDataURL('image/jpeg', q[i]); if (out.length <= PF_PHOTO_TARGET) break; }
+        if (!/^data:image\/jpeg;base64,/.test(out) || out.length > PF_PHOTO_TARGET) { pfMsg('That photo is too detailed. Try another one.'); return; }
+        pfDraft.ph = out; pfMsg(''); pfRender();
+      };
+      im.src = fr.result;
+    };
+    fr.readAsDataURL(f);
+  });
+  /* --- rede --- */
+  function pfSend() { if (mp.room) mp.room.emit('profile', { p: myProf }).catch(function () {}); }
+  function pfSendIfSet() { if (!pfIsDefault(myProf)) pfSend(); }   /* quem nunca personalizou o perfil não precisa mandar nada */
+  function pfIn(m) {
+    var d = m && m.data; if (!d || typeof d !== 'object' || m.isMe) return;
+    if (d.req) { pfSendIfSet(); return; }   /* servidor antigo repassa o pedido: cada jogador responde com o seu */
+    var c = pfClean(d.p); if (!c) return;
+    peerProf[m.peer] = c; var nm = remoteName(m.peer); if (nm) profByName[nm.toLowerCase()] = c;
+    if (!$('pauseProfView').hidden && pvState && pvState.id === m.peer) renderPView();
+  }
+  function pfStash(id) {   /* o jogador saiu: guarda o perfil pelo nome (para ver amigos que ficaram offline) e solta o resto */
+    var c = peerProf[id], nm = remoteName(id); if (c && nm) profByName[nm.toLowerCase()] = c; delete peerProf[id];
+  }
+  function pfFor(id, name) {
+    if (id && peerProf[id]) { if (name) profByName[name.toLowerCase()] = peerProf[id]; return peerProf[id]; }
+    return profByName[String(name || '').toLowerCase()] || null;
+  }
+  /* --- ver o perfil de outro jogador --- */
+  function pvOpen(id, name, from) {
+    pvState = { id: id || null, name: name || '', from: from };
+    if (!pauseOpen) openPause();
+    pauseShow('pview');
+  }
+  function renderPView() {
+    if (!pvState) return;
+    var p = pfFor(pvState.id, pvState.name);
+    pfCard($('pvCard'), p || PF_DEF, pvState.name || 'Kitten', false);
+    $('pvNote').hidden = !!p; $('pvNote').textContent = "This player hasn't set up a profile yet.";
+  }
+  function pvBack() { if (pvState && pvState.from === 'friends') pauseShow('friends'); else closePause(); }
+  $('pvBack').addEventListener('click', function () { pauseBack(); });
+
   $('pControls').addEventListener('click', function () { pauseShow('help'); });
   $('pHelpBack').addEventListener('click', function () { pauseShow(false); });
   $('pQuit').addEventListener('click', quitGame);
@@ -7538,6 +7841,8 @@ function animateModel(t, dt, moving) {
     if (e.code === 'Escape') { e.preventDefault(); if (!e.repeat) pauseBack(); }
     else if (e.code === 'ArrowUp' || e.code === 'ArrowDown') { e.preventDefault(); if (!$('pauseHelp').hidden) $('pauseHelpList').scrollBy(0, e.code === 'ArrowDown' ? 60 : -60); else pauseMove(e.code === 'ArrowDown' ? 1 : -1); }
     else if (!$('pauseMain').hidden && (e.code === 'ArrowLeft' || e.code === 'ArrowRight')) { e.preventDefault(); pauseIcons(e.code === 'ArrowRight' ? 1 : -1); }
+    else if (!$('pauseProfile').hidden && e.code === 'Enter' && e.target && (e.target.id === 'pfDescIn' || e.target.id === 'pfNameIn' || e.target.id === 'pfHex')) { e.preventDefault(); pauseMove(1); }   /* Enter na descrição: segue para o próximo item */
+    else if (!$('pauseProfile').hidden && (e.code === 'ArrowLeft' || e.code === 'ArrowRight') && !(e.target && (e.target.id === 'pfDescIn' || e.target.id === 'pfNameIn' || e.target.id === 'pfHex' || (e.target.classList && e.target.classList.contains('pfrng'))))) { e.preventDefault(); pauseMove(e.code === 'ArrowRight' ? 1 : -1); }   /* emojis e cores ficam em linha: esquerda/direita andam entre eles */
     else if (!$('pauseSet').hidden) {
       if (e.code === 'KeyQ' || e.code === 'PageUp') { e.preventDefault(); spTabStep(-1); pauseSel(0); }
       else if (e.code === 'KeyE' || e.code === 'PageDown') { e.preventDefault(); spTabStep(1); pauseSel(0); }
@@ -7551,6 +7856,7 @@ function animateModel(t, dt, moving) {
     var ay = pad.axes[1] || 0, ayDir = ay > 0.6 ? 1 : ay < -0.6 ? -1 : 0, mv = pDown ? 1 : pUp ? -1 : (ayDir && ayDir !== padAxisY ? ayDir : 0);
     padAxisY = ayDir; if (mv) { if (!$('pauseHelp').hidden) $('pauseHelpList').scrollBy(0, mv * 60); else pauseMove(mv); }
     if (!$('pauseMain').hidden) { var ix = ((pad.buttons[15] && pad.buttons[15].pressed) ? 1 : 0) - ((pad.buttons[14] && pad.buttons[14].pressed) ? 1 : 0) || ((pad.axes[0] || 0) > 0.6 ? 1 : (pad.axes[0] || 0) < -0.6 ? -1 : 0); if (ix && performance.now() - padNavT > 220) { padNavT = performance.now(); pauseIcons(ix); } }
+    if (!$('pauseProfile').hidden) { var qx = ((pad.buttons[15] && pad.buttons[15].pressed) ? 1 : 0) - ((pad.buttons[14] && pad.buttons[14].pressed) ? 1 : 0) || ((pad.axes[0] || 0) > 0.6 ? 1 : (pad.axes[0] || 0) < -0.6 ? -1 : 0); var pe = pauseItems()[pauseIdx]; if (qx && pe && pe.classList.contains('pfrng')) { if (performance.now() - padNavT > 60) { padNavT = performance.now(); pe.value = Math.max(+pe.min, Math.min(+pe.max, +pe.value + qx * 3)); pe.dispatchEvent(new Event('input', { bubbles: true })); } } else if (qx && performance.now() - padNavT > 220) { padNavT = performance.now(); pauseMove(qx); } }
     if ((pL || pR) && !$('pauseSet').hidden) { spTabStep(pR ? 1 : -1); pauseSel(0); return; }
     var el = pauseItems()[pauseIdx];
     if (pA && el && el.tagName === 'BUTTON') { if (el.matches('[data-k],[data-fs]')) { var na = spAct(el, 1, true); if (na !== el) pauseSel(pauseItems().indexOf(na)); } else el.click(); }
@@ -8195,7 +8501,7 @@ function animateModel(t, dt, moving) {
       var swn = pr.sw | 0; if (r.swn !== undefined && swn !== r.swn) r.swT = 0.32; r.swn = swn;   /* contador mudou = o outro gato deu uma patada (a primeira leitura so marca a base) */
       if (typeof pr.n === 'string' && pr.n && r.nm !== pr.n) { r.nm = pr.n; r.root.remove(r.root.userData.lab); r.root.userData.lab = mpLabel(pr.n); r.root.add(r.root.userData.lab); }
     });
-    Object.keys(mp.remotes).forEach(function (id) { if (!seen[id]) { leftN++; leftNames.push(mp.remotes[id].nm || mp.remotes[id].dn || 'A kitten'); props.forEach(function (p) { if (p.rcBy === id) { p.rc = 0; p.rcBy = null; } }); scene.remove(mp.remotes[id].root); mpDispose(mp.remotes[id].root); delete mp.remotes[id]; } });
+    Object.keys(mp.remotes).forEach(function (id) { if (!seen[id]) { leftN++; leftNames.push(mp.remotes[id].nm || mp.remotes[id].dn || 'A kitten'); props.forEach(function (p) { if (p.rcBy === id) { p.rc = 0; p.rcBy = null; } }); pfStash(id); scene.remove(mp.remotes[id].root); mpDispose(mp.remotes[id].root); delete mp.remotes[id]; } });
     var chip = $('mpchip'); chip.hidden = false; chip.textContent = mp.code + ' · ' + n + ' online';
     /* sons: so depois da primeira lista (quem ja estava na sala aparece de uma vez ao entrar) e 1,5 s depois da conexao */
     if (mp.synced && performance.now() - mp.newT > 1500) {
@@ -8713,10 +9019,11 @@ function animateModel(t, dt, moving) {
     }
   }
   /* botão direito sobre o nome de um jogador (a plaquinha acima do gato ou o nome no chat): menu com Mute / Unmute, só para você */
-  var pmenu = document.createElement('div'), pmenuLeave = document.createElement('button'), pmenuHint = document.createElement('div'), pmenuTitle = document.createElement('div'), pmenuPad = false, pmenuSel = 0, pmenuTag = document.createElement('button'), pmenuTagId = null, pmenuFriend = document.createElement('button'), pmenuBtn = document.createElement('button'), pmenuName = '', pmenuV = new THREE.Vector3(), pmenuS = new THREE.Vector3();
-  pmenu.id = 'pmenu'; pmenu.hidden = true; pmenuBtn.type = 'button'; pmenuFriend.type = 'button'; pmenuTag.type = 'button'; pmenuLeave.type = 'button'; pmenuHint.className = 'phint'; pmenuHint.textContent = '▲▼ choose · A confirm · B close'; pmenuTitle.className = 'ptitle'; pmenu.appendChild(pmenuTitle); pmenu.appendChild(pmenuLeave); pmenu.appendChild(pmenuTag); pmenu.appendChild(pmenuFriend); pmenu.appendChild(pmenuBtn); pmenu.appendChild(pmenuHint); document.body.appendChild(pmenu);
+  var pmenuProfId = null, pmenu = document.createElement('div'), pmenuLeave = document.createElement('button'), pmenuHint = document.createElement('div'), pmenuTitle = document.createElement('div'), pmenuPad = false, pmenuSel = 0, pmenuTag = document.createElement('button'), pmenuTagId = null, pmenuFriend = document.createElement('button'), pmenuBtn = document.createElement('button'), pmenuName = '', pmenuV = new THREE.Vector3(), pmenuS = new THREE.Vector3();
+  var pmenuProf = document.createElement('button'); pmenuProf.type = 'button'; pmenu.id = 'pmenu'; pmenu.hidden = true; pmenuBtn.type = 'button'; pmenuFriend.type = 'button'; pmenuTag.type = 'button'; pmenuLeave.type = 'button'; pmenuHint.className = 'phint'; pmenuHint.textContent = '▲▼ choose · A confirm · B close'; pmenuTitle.className = 'ptitle'; pmenu.appendChild(pmenuTitle); pmenu.appendChild(pmenuLeave); pmenu.appendChild(pmenuProf); pmenu.appendChild(pmenuTag); pmenu.appendChild(pmenuFriend); pmenu.appendChild(pmenuBtn); pmenu.appendChild(pmenuHint); document.body.appendChild(pmenu);
   function pmenuClose() { pmenu.hidden = true; pmenuPad = false; }
   var PI_ST = 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"', PI_SPK = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>', PI = {
+    user: '<svg viewBox="0 0 24 24" ' + PI_ST + '><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
     paw: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="11" r="2.2"/><circle cx="9.5" cy="6.2" r="2.2"/><circle cx="14.5" cy="6.2" r="2.2"/><circle cx="18.5" cy="11" r="2.2"/><path d="M12 12c-3.2 0-6 3-6 6 0 2.1 2 3 4 2.5 1-.3 1.4-.5 2-.5s1 .2 2 .5c2 .5 4-.4 4-2.5 0-3-2.8-6-6-6z"/></svg>',
     add: '<svg viewBox="0 0 24 24" ' + PI_ST + '><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>',
     del: '<svg viewBox="0 0 24 24" ' + PI_ST + '><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/></svg>',
@@ -8725,8 +9032,8 @@ function animateModel(t, dt, moving) {
     leave: '<svg viewBox="0 0 24 24" ' + PI_ST + '><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
   };
   function pmenuSet(btn, icon, text) { btn.innerHTML = PI[icon]; var sp = document.createElement('span'); sp.textContent = text; btn.appendChild(sp); }   /* ícone + texto em cada opção */
-  function pmenuItems() { return [pmenuLeave, pmenuTag, pmenuFriend, pmenuBtn].filter(function (b) { return !b.hidden && !b.disabled; }); }
-  function pmenuMark() { var its = pmenuItems(); [pmenuLeave, pmenuTag, pmenuFriend, pmenuBtn].forEach(function (b) { b.classList.remove('sel'); }); if (pmenuPad && its.length) its[Math.max(0, Math.min(pmenuSel, its.length - 1))].classList.add('sel'); }
+  function pmenuItems() { return [pmenuLeave, pmenuProf, pmenuTag, pmenuFriend, pmenuBtn].filter(function (b) { return !b.hidden && !b.disabled; }); }
+  function pmenuMark() { var its = pmenuItems(); [pmenuLeave, pmenuProf, pmenuTag, pmenuFriend, pmenuBtn].forEach(function (b) { b.classList.remove('sel'); }); if (pmenuPad && its.length) its[Math.max(0, Math.min(pmenuSel, its.length - 1))].classList.add('sel'); }
   function pmenuPadNav(up, down, ok, back) {   /* controle: escolhe com o direcional, A confirma, B fecha */
     var its = pmenuItems();
     if (back) { pmenuClose(); pauseClosedAt = performance.now(); return; }
@@ -8764,16 +9071,19 @@ function animateModel(t, dt, moving) {
     pmenuFriend.hidden = pmenuBtn.hidden = !name; pmenuTitle.hidden = !name; pmenuTitle.textContent = name;   /* o nome vai no topo do menu, não nas opções */
     pmenuTagId = mp.room ? (id || idByName(name)) : null;   /* convidar só online e só quem está na sala (nome vindo do chat pode já ter saído) */
     pmenuTag.hidden = !pmenuTagId || !name;
+    pmenuProf.hidden = !name; pmenuSet(pmenuProf, 'user', 'Profile'); pmenuProfId = pmenuTagId || idByName(name);   /* ver o perfil: fica logo acima de Invite to tag */
     if (pmenuTagId && name) { var busy = !!mp.remotes[pmenuTagId].tg; pmenuTag.disabled = busy; pmenuSet(pmenuTag, 'paw', busy ? 'Already playing tag' : 'Invite to tag'); }
     var fr = !!friendNames[name.toLowerCase()];
     pmenuSet(pmenuFriend, fr ? 'del' : 'add', fr ? 'Remove friend' : 'Add friend'); pmenuFriend.setAttribute('data-rm', fr ? '1' : '');
     pmenuSet(pmenuBtn, on ? 'unmute' : 'mute', on ? 'Unmute' : 'Mute'); pmenuBtn.setAttribute('data-un', on ? '1' : '');
+    if (pmenuPad && !tagG.st) { var ti = pmenuItems().indexOf(pmenuTag); if (ti > 0) pmenuSel = ti; }   /* pelo controle, a seleção continua começando em Invite to tag */
     pmenu.hidden = false; pmenuMark();
     var mw = pmenu.offsetWidth, mh = pmenu.offsetHeight;
     if (off) { x = (x + off + mw > innerWidth - 4) ? x - off - mw : x + off; y = y - mh / 2; }   /* ancorado no gato: ao lado dele, sem cobri-lo */
     pmenu.style.left = Math.max(4, Math.min(x, innerWidth - mw - 4)) + 'px'; pmenu.style.top = Math.max(4, Math.min(y, innerHeight - mh - 4)) + 'px';
   }
   pmenuLeave.addEventListener('click', function () { pmenuClose(); tagLeave(); });
+  pmenuProf.addEventListener('click', function () { var id = pmenuProfId, nm = pmenuName; pmenuClose(); pauseClosedAt = performance.now(); pvOpen(id, nm, 'game'); });
   pmenuTag.addEventListener('click', function () { var id = pmenuTagId; pmenuClose(); if (id) tagInvite(id); });
   pmenuFriend.addEventListener('click', function () {
     var rm = !!pmenuFriend.getAttribute('data-rm'); pmenuClose();
@@ -8949,6 +9259,7 @@ function animateModel(t, dt, moving) {
       mp.room = room; mp.newT = performance.now(); mp.wFrom = null;
       room.onPeers(mpPeers, function () {});
       room.on('props', mpApply, function () {});
+      room.on('profile', pfIn, function () {});
       room.on('tidy', function (m) { if (!m.isMe) arrumar(true); }, function () {});
       room.on('chat', function (m) { var d = m.data; if (!m.isMe && d && typeof d.t === 'string' && !isMuted(m.peer, d.n)) { var ce = chatAdd(typeof d.n === 'string' ? d.n : '?', d.t, false); if (ce && m.peer !== 'server' && typeof d.n === 'string') { ce.classList.add('pl'); ce.firstChild.setAttribute('data-pl', d.n); } if (window.UISfx) UISfx.play('recv', 80); var r = mp.remotes[m.peer]; if (r) mpBubble(r, d.t); } }, function () {});
       room.on('meow', hearMeow, function () {});
@@ -8957,6 +9268,7 @@ function animateModel(t, dt, moving) {
       room.on('tacc', tagAccReceive, function () {});
       room.on('tdec', tagDecReceive, function () {});
       room.on('meal', mpMeal, function () {}); room.on('sip', mpSip, function () {}); room.on('eatk', mpEatK, function () {}); room.on('wst', mpWorldIn, function () {});
+      pfSendIfSet(); room.emit('profile', { req: 1 }).catch(function () {});   /* manda o seu perfil e pede os de quem já está na sala */
       say('Connected! You joined ' + code, 5000);
     } catch (e) { if (!(e && e.message === 'full')) say('Could not join the room: playing solo', 7000); }
   }
