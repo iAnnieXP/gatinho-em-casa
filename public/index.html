@@ -3279,12 +3279,14 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
         parts.push({ g: LUMPY[k % LUMPY.length], m: gmx(bl.x, bl.y, bl.z, r * (0.95 + 0.2 * rr()), r * 0.8, r * (0.95 + 0.2 * rr()), rr() * 0.6, rr() * 6.283, rr() * 0.6), c: tone(y / (hh * 0.85)) });
       }
       blobs.sort(function (a, c) { return c.y - a.y; });
-      for (k = 0; k < 7; k++) { var tb = blobs[k]; parts.push({ g: LUMPY[(k + 2) % 6], m: gmx(tb.x + (rr() - 0.5) * 0.1, tb.y + tb.r * 0.55, tb.z + (rr() - 0.5) * 0.1, 0.1, 0.08, 0.1, 0, rr() * 6, 0), c: tone(1) }); }   /* brotos novos, bem claros */
+      for (k = 0; k < 7; k++) { var tb = blobs[k]; var sh = { g: LUMPY[(k + 2) % 6], m: gmx(tb.x + (rr() - 0.5) * 0.1, tb.y + tb.r * 0.55, tb.z + (rr() - 0.5) * 0.1, 0.1, 0.08, 0.1, 0, rr() * 6, 0), c: tone(1) }; if (!(b[0] > 10 && b[0] < 14)) parts.push(sh); }   /* brotos novos, bem claros (removidos nas moitas da frente; o sorteio continua feito para nada mais mudar) */
       var kind = i % 4;                                                                                                                 /* 1 = florida, 2 = com frutinhas, resto = só folhagem */
       if (kind === 1 || kind === 2) {
         for (k = 0; k < (kind === 1 ? 16 : 13); k++) {
           var fb = blobs[Math.floor(rr() * Math.min(blobs.length, 30))], ua = rr() * 6.283, uy = 0.25 + rr() * 0.75, ux = Math.cos(ua) * Math.sqrt(1 - uy * uy), uz = Math.sin(ua) * Math.sqrt(1 - uy * uy);
           var fr = kind === 1 ? 0.034 : 0.03, fc = kind === 1 ? (rr() < 0.7 ? 0xfff6f2 : 0xf7b6cf) : (rr() < 0.8 ? 0xc92a3c : 0x9a1b2c);
+          if (kind === 2 && b[0] > 10 && b[0] < 14) continue;   /* moitas da frente da casa (lateral leste): frutinhas removidas (o sorteio acima ja foi feito, entao o resto nao muda) */
+          if (kind === 1 && b[0] > 10 && b[0] < 14) continue;   /* moitas da frente: florzinhas brancas e rosas (e o miolo amarelo delas) removidas */
           parts.push({ g: UNIT.sph, m: gmx(fb.x + ux * fb.r, fb.y + uy * fb.r * 0.8, fb.z + uz * fb.r, fr, fr, fr), c: new THREE.Color(fc) });
           if (kind === 1) parts.push({ g: UNIT.sph, m: gmx(fb.x + ux * fb.r * 1.05, fb.y + uy * fb.r * 0.84, fb.z + uz * fb.r * 1.05, 0.013, 0.013, 0.013), c: new THREE.Color(0xf2c94c) });   /* miolo amarelo */
         }
@@ -4096,7 +4098,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       flowers.forEach(function (q) {
         d.position.set(q[0], q[1], q[2]); d.rotation.set(0, 0, 0); d.scale.set(1, 0.7, 1); d.updateMatrix();
         var fi = Math.floor(rr() * 4);   /* o sorteio continua sendo feito para toda florzinha (as outras nao mudam de lugar nem de cor) */
-        if (fi < 2) return;   /* florzinhas brancas (0xfff6f2, indices 0 e 1 de flowC) removidas dos arcos: ficam so as rosas e as amarelas */
+        if (fi < 3) return;   /* florzinhas brancas (0xfff6f2, indices 0 e 1 de flowC) e rosas (0xf7b6cf, indice 2) removidas dos arcos: ficam so as amarelas */
         HF_ALL.push({ m: new THREE.Matrix4().multiplyMatrices(grp.matrix, d.matrix), c: new THREE.Color(flowC[fi]) });
       });
     }
@@ -5211,8 +5213,7 @@ var DEFS = {
     g.add(pm(Cy(.0385, .0325, .06, 22), M(0x6ab7e8, { roughness: .25 }), 0, .047, 0));                    /* água */
     g.add(pm(Cy(.0388, .0388, .003, 22), M(0x9ad8f7, { roughness: .2 }), 0, .0765, 0));                    /* tampo da água */
     var rim = pm(new THREE.TorusGeometry(.0443, .0022, 6, 24), M(0xf4fbff, { roughness: .2 }), 0, .1095, 0); rim.rotation.x = HP; rim.castShadow = false; g.add(rim);
-    var hl = new THREE.Mesh(new THREE.CylinderGeometry(.0465, .0358, .09, 12, 1, true, 0.5, 0.42), new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: .5, depthWrite: false, side: THREE.DoubleSide }));
-    hl.position.y = .058; g.add(hl); } },
+  } },
   vaso: { r: .068, h: .34, brk: 1, bloom: { petals: [0xf08fb0, 0xffd23f, 0xffffff], leaves: [0x2f7a3e, 0x57a65a], ps: 0.022, ls: 0.04, y: 0.3 }, shard: 0xb5603a, bounce: .2, lie: [0, HP, .068], build: function (g) {
     /* vasinho de barro com flores: pratinho, pé, corpo cônico com textura de barro, faixa creme, colarinho, terra com pedrinhas e 3 flores de pétalas com folhinhas (tudo dentro do raio .068) */
     var cl = M(0xc9693e, { roughness: .92 }, 'clay'), cd = M(0xa1512d, { roughness: .92 }, 'clay'), cr = M(0xf0e0c2, { roughness: .8 }), soil = M(0x3b2414, { roughness: 1 });
@@ -5241,7 +5242,6 @@ var DEFS = {
     g.add(pm(new THREE.LatheGeometry(prof.map(function (q) { return new THREE.Vector2(q[0], q[1]); }), 24), m, 0, 0, 0));
     g.add(pm(Cy(.0462, .0466, .012, 24), band, 0, .072, 0));                                               /* faixa clara */
     g.add(pm(Cy(.0398, .0398, .004, 24), M(0x4a2e1a, { roughness: .4 }), 0, .0775, 0));                    /* café */
-    g.add(pm(Cy(.0185, .0185, .0015, 18), M(0xc9a27a, { roughness: .6 }), .004, .0801, 0));                /* creminha */
     var hd = pm(new THREE.TorusGeometry(.026, .0078, 8, 16, Math.PI * 1.25), m, .0515, .045, 0); hd.rotation.z = -Math.PI * .625; g.add(hd); } },
   garrafa: { r: .042, h: .3, brk: 1, liq: 0xe8963a, liqR: .3, shard: 0xa9d9bd, bounce: .2, lie: [0, HP, .042], build: function (g) {
     var gl = M(0xa9d9bd, { transparent: true, opacity: .6, roughness: .1 });
@@ -5536,7 +5536,6 @@ var DEFS = {
     g.add(pm(new THREE.CylinderGeometry(.13, .085, .075, 24, 1, true), M(0x6aa0b8), 0, .0375, 0));
     g.add(pm(new THREE.CylinderGeometry(.13, .085, .075, 24, 1, true), M(0x4a6f82, { side: THREE.BackSide }), 0, .0375, 0));
     g.add(pm(Cy(.085, .085, .012, 24), M(0x58849a), 0, .006, 0));
-    var ring = pm(new THREE.TorusGeometry(.05, .004, 6, 24), M(0x6f9db3), 0, .0125, 0); ring.rotation.x = HP; ring.castShadow = false; g.add(ring);   /* anel marcado no fundo */
     var rim = pm(new THREE.TorusGeometry(.128, .007, 8, 24), M(0xf4f1ea), 0, .074, 0); rim.rotation.x = HP; g.add(rim);
     var fill = new THREE.Group();   /* escala em y a partir do fundo (fillB): bowlView usa position.y = fillB * (1 - escala) */
     var dome = pm(new THREE.SphereGeometry(.082, 16, 8, 0, 6.2832, 0, HP), M(0x7a4a22), 0, .014, 0); dome.scale.y = 1.25; fill.add(dome);   /* monte generoso: passa bem da borda do pote */
@@ -5698,7 +5697,7 @@ var SPAWN = [
   ['patinho', 6.3, .29, 6.2], ['perfume', 4.51, .86, 6.5],
   ['abajurPe', -9.3, 0, -6.3], ['abajurQ', -9.3, .55, 6.4], ['abajurMesa', 1.45, .8, 6.6],
   ['pote', 8.5, 0, -5.1], ['poteAgua', 8.5, 0, -4.5], ['caixa', 9.1, 0, 4.3, 0],
-  ['vaso', YARD.bench.x + 0.6, .45, YARD.bench.z], ['bola', 14.5, 0, 3.5, 0, 0x6aa86a], ['patinho', 14.0, 0, -3.6],
+  ['vaso', YARD.bench.x + 0.6, .45, YARD.bench.z], ['bola', 14.5, 0, 3.5, 0, 0x6aa86a],
   /* plantas: vasos grandes da sala e do escritório (tombam e o vaso quebra) e o vasinho no rack da TV */
   ['plantaGrande', .2, 0, -6.3, 0, 1], ['plantaGrande', -1.3, 0, 6.3, 0, 2], ['plantinha', -9.55, .54, -2.45, 0, 1],
   /* garrafas */
@@ -5706,8 +5705,8 @@ var SPAWN = [
   /* vasos de planta no quintal (banco, casinha, mesinhas de jardim) */
   /* mais brinquedos */
   ['novelo', -6.5, 0, 1.6, 0, 0xe86a50], ['ratinho', -5.2, 0, 2.4, .6, 0x9aa3ad], ['bolaGuizo', .3, 0, 2.8, 0, 0xd9b24a], ['peixeBrinq', 1.2, 0, 3.2, 2.2, 0xf2994a],
-  ['ratinho', -7.4, .55, 5.6, 1.2, 0xd9c8b0], ['varinha', 15, 0, -4, .4, 0xf08fb0], ['novelo', 17, 0, .5, 0, 0x6a8caf], ['peixeBrinq', 13.8, 0, 1.9, 1, 0x6aa8d8],
-  ['bolaGuizo', -13, 0, -2, 0, 0xc0c6cc], ['ratinho', -14.5, 0, 6, 2.5, 0x9aa3ad], ['varinha', -12.5, 0, -6, 1.2, 0xc79bf2],
+  ['ratinho', -7.4, .55, 5.6, 1.2, 0xd9c8b0], ['varinha', 15, 0, -4, .4, 0xf08fb0], ['novelo', 17, 0, .5, 0, 0x6a8caf],
+  ['varinha', -12.5, 0, -6, 1.2, 0xc79bf2],
   ['vasoPlanta', YARD.bench.x - 0.6, .45, YARD.bench.z, 0, 0xffd23f],
   ['vasoPlanta', YARD.tabs[0][0], .7, YARD.tabs[0][1], 0, 0xffd23f],
   ['vasoPlanta', YARD.tabs[1][0], .7, YARD.tabs[1][1], 0, 0xf08fb0], ['vasoPlanta', YARD.tabs[2][0], .7, YARD.tabs[2][1], 0, 0xc79bf2], ['vasoPlanta', YARD.tabs[3][0], .7, YARD.tabs[3][1], 0, 0xf08fb0],
@@ -5724,8 +5723,8 @@ var SPAWN = [
   ['notebook', -0.1, .8, 6.45, 0], ['portaLapis', .45, .8, 6.3, 0],   /* notebook e porta-lápis da escrivaninha */
   ['esponja', 6.95, .92, -6.2, .3],   /* esponja da pia da cozinha (bancada ao lado da cuba) */
   /* area de churrasqueira (mesa em x 20,67 / z 14,72, tampo a 0,76; bancada em x 23,47 com tampo a 0,91; bancos em x 19,72 e 21,62, assento a 0,47) */
-  ['prato', 20.37, .76, 14.12], ['prato', 20.97, .76, 14.12], ['prato', 20.37, .76, 15.32], ['prato', 20.97, .76, 15.32],   /* quatro lugares */
-  ['copo', 20.35, .76, 14.4], ['copo', 21.0, .76, 14.42], ['copo', 20.4, .76, 15.05],
+  ['prato', 20.37, .76, 14.12], ['prato', 20.97, .76, 14.12],   /* quatro lugares */
+  ['copo', 20.35, .76, 14.4], ['copo', 21.0, .76, 14.42],
   ['garrafa', 20.9, .76, 14.95], ['garrafaVinho', 20.45, .76, 14.55], ['maca', 20.8, .76, 14.45], ['maca', 20.55, .76, 15.0],
   ['vaso', 20.67, .76, 13.87], ['abajurMesa', 20.67, .76, 15.55],                                   /* vasinho de flores e abajur nas pontas da mesa */
   ['garrafa', 23.75, .91, 14.98], ['garrafaVinho', 23.62, .91, 14.97], ['copo', 23.38, .91, 15.0],   /* bancada: bebidas ao lado da fornalha */
