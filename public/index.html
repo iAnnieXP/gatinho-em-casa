@@ -1254,18 +1254,18 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
         }
         for (var y = 0; y < S; y += 4) { g.fillStyle = 'rgba(255,255,255,0.035)'; g.fillRect(0, y, S, 1); }
       } },
-      /* pedra clara: manchas, riscos e pontinhos escuros (mesinhas de jardim, soleira) */
-      stone: { tile: 0.7, rough: 0.95, bump: 0.7, draw: function (g, S) {
+      /* pedra clara: riscos e pontinhos escuros (mesinhas de jardim, soleira) */
+      stone: { tile: 0.7, rough: 0.95, bump: 0.7, res: 128, draw: function (g, S) {   /* res 128 = metade da resolucao original (256); mesinhas, soleira e fonte compartilham esta textura */
         g.fillStyle = '#e4e0d8'; g.fillRect(0, 0, S, S);
-        blobs(g, S, 90, 8, 38, 0.03, 0.08, 0.5);
         specks(g, S, 2200, 1, 2.2, ['#6e6a62', '#ffffff', '#a59f94'], 0.12, 0.35);
         for (var i = 0; i < 6; i++) { var x = rnd() * S, y = rnd() * S; g.strokeStyle = 'rgba(70,64,56,' + (0.12 + rnd() * 0.12) + ')'; g.lineWidth = 0.8 + rnd(); g.beginPath(); g.moveTo(x, y); g.lineTo(x + (rnd() - 0.5) * 60, y + (rnd() - 0.5) * 60); g.lineTo(x + (rnd() - 0.5) * 90, y + (rnd() - 0.5) * 90); g.stroke(); }
       } }
     };
     function get(type) {
       if (cache[type]) return cache[type];
-      var sp = SPEC[type], S = sp.size || 256, c = cv(S);
+      var sp = SPEC[type], S = sp.size || 256, R = sp.res || S, c = cv(R);
       var gx = c.getContext('2d');
+      if (R !== S) gx.scale(R / S, R / S);   /* res: o desenho e feito em S x S, mas o canvas (a textura) tem R x R */
       sp.draw(gx, S);
       /* estilo minimalista: clareia a textura para sobrar só uma sugestão discreta (paredes usam um clareamento menor, pois já são suaves) */
       gx.fillStyle = 'rgba(250,250,250,' + (sp.wash !== undefined ? sp.wash : 0.68) + ')'; gx.fillRect(0, 0, S, S);
@@ -1276,7 +1276,8 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
     function getBump(type) {
       var k = type + '#bump';
       if (cache[k]) return cache[k];
-      var sp = SPEC[type], S = sp.size || 256, c = cv(S), gx = c.getContext('2d');
+      var sp = SPEC[type], S = sp.size || 256, R = sp.res || S, c = cv(R), gx = c.getContext('2d');
+      if (R !== S) gx.scale(R / S, R / S);
       sp.bumpDraw(gx, S);
       var t = new THREE.CanvasTexture(c);
       t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = an;
@@ -1348,7 +1349,7 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
           });
           var fw = f[2] - f[0], fh = f[3] - f[1], cx = (f[0] + f[2]) / 2, cy = (f[1] + f[3]) / 2, k, a;
           clip(f);
-          for (k = -fh; k < fw; k += 0.24) { line(f[0] + k, f[1], f[0] + k + fh, f[3], lite, 0.08, 0.012); line(f[0] + k, f[3], f[0] + k + fh, f[1], lite, 0.08, 0.012); }
+          for (k = -fh; k < fw; k += 0.24) { line(f[0] + k, f[1], f[0] + k + fh, f[3], lite, 0.04, 0.012); line(f[0] + k, f[3], f[0] + k + fh, f[1], lite, 0.04, 0.012); }
           var rx = fw * 0.27, ry = fh * 0.47;
           [-1, 1].forEach(function (sd) {   /* losangos laterais */
             var lx = cx + sd * (rx + 0.42);
@@ -1449,17 +1450,13 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
         };
         (S[style] || S.persian)();
 
-        /* trama, desgaste e mosqueado: so onde ja tem tapete (franja e cantos continuam transparentes) */
+        /* trama e desgaste: so onde ja tem tapete (franja e cantos continuam transparentes) */
         g.setTransform(1, 0, 0, 1, 0, 0);
         g.globalCompositeOperation = 'source-atop';
+        var wy = style === 'door' ? 6 : 4, hf = (style === 'persian' || style === 'kilim' || style === 'trellis') ? 0.5 : 1;   /* hf: textura (trama/mosqueado) pela metade nos tapetes persa, kilim e trellis (declarada fora do if: no tapete do banheiro ela ficava indefinida, o alpha virava NaN e os circulos do mosqueado saiam pretos e opacos) */
         if (style !== 'bath') {
-          var wy = style === 'door' ? 6 : 4;
-          for (y = 0; y < ph; y += wy) { g.fillStyle = 'rgba(0,0,0,' + (0.015 + rnd() * 0.02) + ')'; g.fillRect(0, y, pw, 1); }
-          for (x = 0; x < pw; x += 6) { g.fillStyle = 'rgba(255,255,255,' + (0.01 + rnd() * 0.02) + ')'; g.fillRect(x, 0, 1, ph); }
-        }
-        for (i = 0; i < 28; i++) {
-          var br = 14 + rnd() * 50, bx = rnd() * pw, by = rnd() * ph;
-          g.fillStyle = 'rgba(' + (rnd() < 0.5 ? '0,0,0,' : '255,255,255,') + (0.015 + rnd() * 0.03) + ')'; g.beginPath(); g.arc(bx, by, br, 0, 6.2832); g.fill();
+          for (y = 0; y < ph; y += wy) { g.fillStyle = 'rgba(0,0,0,' + ((0.015 + rnd() * 0.02) * hf) + ')'; g.fillRect(0, y, pw, 1); }
+          for (x = 0; x < pw; x += 6) { g.fillStyle = 'rgba(255,255,255,' + ((0.01 + rnd() * 0.02) * hf) + ')'; g.fillRect(x, 0, 1, ph); }
         }
         g.globalCompositeOperation = 'source-over';
         if (fr) {   /* franja nas duas pontas */
@@ -1715,8 +1712,9 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     function rgb(c, k) { k = k || 1; return 'rgb(' + cl(c[0] * k) + ',' + cl(c[1] * k) + ',' + cl(c[2] * k) + ')'; }
     /* grade de ladrilhos quadrados: n x n por textura, cores alternadas em xadrez bem suave */
     function grid(n, size, ca, cb, gro, grout, gloss, bs, W, D) {
-      var S = 1024, T = S / n, c = cv(S, S), g = c.getContext('2d'), hc = cv(S / 2, S / 2), hg = hc.getContext('2d'), i, j, k;
-      hg.setTransform(0.5, 0, 0, 0.5, 0, 0);
+      var S = 1024, T = S / n, c = cv(S / 2, S / 2), g = c.getContext('2d'), hc = cv(S / 4, S / 4), hg = hc.getContext('2d'), i, j, k;
+      g.setTransform(0.5, 0, 0, 0.5, 0, 0);    /* desenho em 1024 x 1024; cor final 512 x 512 (antes 1024) */
+      hg.setTransform(0.25, 0, 0, 0.25, 0, 0); /* relevo/brilho final 256 x 256 (antes 512) */
       g.fillStyle = rgb(gro); g.fillRect(0, 0, S, S);
       hg.fillStyle = 'rgb(60,235,0)'; hg.fillRect(0, 0, S, S);
       for (i = 0; i < n; i++) for (j = 0; j < n; j++) {
@@ -1746,13 +1744,14 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     m.position.set((x1 + x2) / 2, 0, (z1 + z2) / 2);
     m.receiveShadow = true;
     scene.add(m);
+    return m;
   }
   var rugs = [];   /* tapetes (para as manchas aparecerem por cima deles) */
   function rug(x, z, w, d, color, style, turn) {   /* turn: gira o tapete 90 graus (lado maior ao longo de z); w e d continuam sendo as medidas do desenho */
     var ew = turn ? d : w, ed = turn ? w : d;   /* medidas reais no mundo (x, z) */
     rugs.push({ x: x, z: z, w: ew, d: ed });
     var rt = TEXLIB.rug(w, d, color, style), fr = (style === 'bath' || style === 'door') ? 0 : 0.07;
-    var m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.MeshStandardMaterial({ map: rt, bumpMap: rt, bumpScale: 0.12, alphaTest: 0.5, roughness: 1, metalness: 0 }));
+    var m = new THREE.Mesh(new THREE.PlaneGeometry(w, d), new THREE.MeshStandardMaterial({ map: rt, bumpMap: rt, bumpScale: (style === 'persian' || style === 'kilim' || style === 'trellis') ? 0.06 : 0.12, alphaTest: 0.5, roughness: 1, metalness: 0 }));
     m.rotation.order = 'YXZ'; m.rotation.x = -Math.PI / 2; if (turn) m.rotation.y = Math.PI / 2;
     m.position.set(x, 0.02, z);
     m.receiveShadow = true;
@@ -1778,11 +1777,12 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
 
   floor(-10, 1, -7, 0, plank('#b98a5c', 5.5, 3.5));
   var kitchenFloor = FLOORFX.kitchen(9, 7);   /* cozinha: ladrilho liso off-white e verde-agua palido, minimalista */
-  floor(1, 10, -7, 0, kitchenFloor.map, kitchenFloor);
+  var TILE_DAY_DIM = 0.18;   /* quanto a luz do dia e reduzida nos pisos de ladrilho (0 = igual a antes; 0,3 = bem mais escuro) */
+  var tileFloorMats = [floor(1, 10, -7, 0, kitchenFloor.map, kitchenFloor).material];   /* materiais dos pisos de ladrilho (cozinha e banheiro): updateSky() escurece de leve de dia para a luz do sol nao estourar o branco */
   floor(-10, -2, 0, 7, plank('#b98a5c', 4, 3.5));
   floor(-2, 3, 0, 7, plank('#a8744a', 2.5, 3.5));
   var bathFloor = FLOORFX.bath(7, 7);   /* banheiro: ladrilho liso azul bem palido, minimalista */
-  floor(3, 10, 0, 7, bathFloor.map, bathFloor);
+  tileFloorMats.push(floor(3, 10, 0, 7, bathFloor.map, bathFloor).material);
 
   var WALL_H = 2.6, T = 0.3;
   var curC = [0xd9894a, 0x7a93c4, 0xe68ba0, 0x6aa86a], winN = 0;
@@ -2813,7 +2813,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
   var flowers = [], FLI = null, FLB = [];   /* flores dos canteiros: {x,z,col,fi,alive} (fi: indice da flor nas malhas instanciadas FLI) — o gatinho destrói ao passar por cima */
   (function () {
     /* ----- textura do gramado (desenhada em canvas, sem arquivos): folhinhas, trevos e tufos secos que se repetem sem emenda,
-       mais uma camada grande com manchas claras/escuras e faixas de grama cortada para quebrar a repetição ----- */
+       (a camada extra de manchas grandes e faixas de grama cortada foi removida) ----- */
     var rs = 20261121;
     function rr() { rs = (rs * 1664525 + 1013904223) >>> 0; return rs / 4294967296; }
     var aniso = Math.min(8, renderer.capabilities.getMaxAnisotropy ? renderer.capabilities.getMaxAnisotropy() : 1);
@@ -2839,17 +2839,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     var gtex = new THREE.CanvasTexture(gc); gtex.wrapS = gtex.wrapT = THREE.RepeatWrapping; gtex.repeat.set(FX * 2 / 4, FZ * 2 / 4); gtex.anisotropy = aniso;
     var lawn = new THREE.Mesh(new THREE.PlaneGeometry(FX * 2, FZ * 2), new THREE.MeshStandardMaterial({ map: gtex, roughness: 1, metalness: 0 }));
     lawn.rotation.x = -Math.PI / 2; lawn.position.y = -0.012; lawn.receiveShadow = true; scene.add(lawn);
-    var OW = 1024, OH = 683, oc = document.createElement('canvas'); oc.width = OW; oc.height = OH;
-    var ox = oc.getContext('2d');
-    for (gi = 0; gi < 170; gi++) {   /* manchas grandes: grama mais viçosa, mais gasta e mais seca */
-      var bx = rr() * OW, by = rr() * OH, br = 30 + rr() * 80, bk = rr(), bg = ox.createRadialGradient(bx, by, 0, bx, by, br);
-      bg.addColorStop(0, bk < 0.4 ? 'rgba(200,236,140,0.2)' : bk < 0.8 ? 'rgba(70,120,70,0.2)' : 'rgba(205,195,110,0.16)'); bg.addColorStop(1, 'rgba(0,0,0,0)');
-      ox.fillStyle = bg; ox.fillRect(bx - br, by - br, br * 2, br * 2);
-    }
-    for (gi = 0; gi < 16; gi++) { ox.fillStyle = gi % 2 ? 'rgba(255,255,255,0.045)' : 'rgba(0,30,0,0.05)'; ox.fillRect(gi * OW / 16, 0, OW / 16, OH); }   /* faixas de grama cortada */
-    var otex = new THREE.CanvasTexture(oc); otex.anisotropy = aniso;
-    var over = new THREE.Mesh(new THREE.PlaneGeometry(FX * 2, FZ * 2), new THREE.MeshBasicMaterial({ map: otex, transparent: true, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -1, polygonOffsetUnits: -1 }));
-    over.rotation.x = -Math.PI / 2; over.position.y = -0.008; scene.add(over);
+    /* camada de manchas grandes e faixas de grama cortada (plano extra transparente sobre o gramado) REMOVIDA: deixava o gramado mais pesado; sobra so a textura base do gramado */
     box({ x: 0, z: 0, w: 20.8, d: 14.8, h: 0.12, y: WALL_H + 0.14, color: 0xf3e9d6, collide: false, cast: false, solid: true });   /* beiral/forro claro sob o telhado */
     /* ----- telhado de duas aguas (estilo americano): cumeeira ao longo de x, empenas triangulares, boas de rake, chamine e frontao sobre a porta ----- */
     window.ROOF_R = 2.6;
@@ -3010,7 +3000,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       function pr() { ps = (ps * 1664525 + 1013904223) >>> 0; return ps / 4294967296; }
       function hw(px) { return 0.86 + 0.05 * Math.sin(px * 1.9) + 0.04 * Math.sin(px * 0.7 + 1.2); }   /* meia-largura do leito em cada x */
       var CS = 256;   /* tamanho da textura que esta sendo desenhada (as lajes usam 512 para ter mais detalhe fino) */
-      function ctex(draw, size) { CS = size || 256; var c = document.createElement('canvas'); c.width = c.height = CS; draw(c.getContext('2d')); var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 4; return t; }
+      function ctex(draw, size, res) { CS = size || 256; var c = document.createElement('canvas'); c.width = c.height = res || CS; var cg = c.getContext('2d'); if (res) cg.scale(res / CS, res / CS); draw(cg); var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.anisotropy = 4; return t; }
       function wrapAt(px, py, r, fn) { for (var ox = -CS; ox <= CS; ox += CS) for (var oy = -CS; oy <= CS; oy += CS) { if (px + ox + r < 0 || px + ox - r > CS || py + oy + r < 0 || py + oy - r > CS) continue; fn(px + ox, py + oy); } }
       function blob(g, px, py, r, col) { wrapAt(px, py, r, function (qx, qy) { var gr = g.createRadialGradient(qx, qy, 0, qx, qy, r); gr.addColorStop(0, col); gr.addColorStop(1, 'rgba(0,0,0,0)'); g.fillStyle = gr; g.fillRect(qx - r, qy - r, r * 2, r * 2); }); }
 
@@ -3026,60 +3016,18 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       });
       gravelTex.repeat.set(1.3, 1.3);
 
-      /* textura das lajes (minimalista, mas com mais detalhe fino): pedra creme com nuvens suaves, estratos sedimentares bem leves, fissurinhas finas com um
-         fiozinho de luz, poros, granulado e uma pitada de liquen. Tudo em tons proximos para nao poluir (a cor de cada laje vem de tints). Cada variacao tem um mapa
-         de cor e um mapa de relevo desenhados a partir das MESMAS feicoes, entao fissuras e poros ficam em relevo de verdade. Usa um sorteio proprio (tr) para nao
-         mexer na disposicao do caminho. */
+      /* textura das lajes (estilizada e de baixa resolucao): pedra creme lisa com poucas manchas suaves de cor, sem poros, fissuras, estratos, granulado nem relevo.
+         64 x 64 px (antes 256 com mapa de relevo). Usa um sorteio proprio (tr) para nao mexer na disposicao do caminho. */
       var ts = 7741;
       function tr() { ts = (ts * 1664525 + 1013904223) >>> 0; return ts / 4294967296; }
-      function wrapDraw(g, fn) { for (var ox = -CS; ox <= CS; ox += CS) for (var oy = -CS; oy <= CS; oy += CS) { g.save(); g.translate(ox, oy); fn(); g.restore(); } }
-      function stoneFeatures() {
-        var F = { strata: [], cracks: [], pits: [], grain: [], clouds: [], lichen: [] }, i, j;
-        for (i = 0; i < 3; i++) F.strata.push({ y: (i + 0.3 + tr() * 0.5) * CS / 3, am: 3 + tr() * 7, n: 1 + Math.floor(tr() * 2), ph: tr() * 6.28, w: 1.4 + tr() * 2, a: 0.04 + tr() * 0.04 });
-        for (i = 0; i < 1; i++) {   /* fissuras: caminhadas curtas e tortas */
-          var cx = tr() * CS, cy = tr() * CS, an = tr() * 6.28, pts = [[cx, cy]], len = 4 + Math.floor(tr() * 4);
-          for (j = 0; j < len; j++) { an += (tr() - 0.5) * 1.1; cx += Math.cos(an) * (14 + tr() * 30); cy += Math.sin(an) * (14 + tr() * 30); pts.push([cx, cy]); }
-          F.cracks.push(pts);
-        }
-        for (i = 0; i < 10; i++) F.pits.push([tr() * CS, tr() * CS, 1.6 + tr() * 3.2]);
-        for (i = 0; i < 260; i++) F.grain.push([tr() * CS, tr() * CS, 0.8 + tr() * 1.5, tr() < 0.5]);
-        for (i = 0; i < 18; i++) F.clouds.push([tr() * CS, tr() * CS, 60 + tr() * 110, tr() < 0.5]);
-        for (i = 0; i < 0; i++) { var lx = tr() * CS, ly = tr() * CS, d = []; for (j = 0; j < 11; j++) d.push([lx + (tr() - 0.5) * 34, ly + (tr() - 0.5) * 24, 2 + tr() * 4.5]); F.lichen.push(d); }
-        return F;
-      }
-      function paintStone(g, F, bump) {
-        var i, j;
-        g.fillStyle = bump ? '#808080' : '#f1eadc'; g.fillRect(0, 0, CS, CS);
-        F.clouds.forEach(function (c) { blob(g, c[0], c[1], c[2], bump ? (c[3] ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.10)') : (c[3] ? 'rgba(255,255,250,0.32)' : 'rgba(176,156,124,0.15)')); });
-        g.lineCap = 'round'; g.lineJoin = 'round';
-        F.strata.forEach(function (st) {
-          for (var pass = 0; pass < 2; pass++) {
-            g.strokeStyle = bump ? (pass ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.16)') : (pass ? 'rgba(255,255,250,' + st.a * 2.2 + ')' : 'rgba(150,134,106,' + st.a + ')');
-            g.lineWidth = st.w * (pass ? 0.6 : 1); g.beginPath();
-            for (var xx = 0; xx <= CS; xx += 8) { var yy = st.y + pass * 2.4 + Math.sin(xx / CS * 6.2832 * st.n + st.ph) * st.am + Math.sin(xx / CS * 25.13 + st.ph * 2) * 1.6; if (xx === 0) g.moveTo(xx, yy); else g.lineTo(xx, yy); }
-            g.stroke();
-          }
-        });
-        F.grain.forEach(function (q) { g.fillStyle = bump ? (q[3] ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.3)') : (q[3] ? 'rgba(255,255,250,0.5)' : 'rgba(140,122,94,0.3)'); wrapAt(q[0], q[1], q[2] + 1, function (wx, wy) { g.beginPath(); g.arc(wx, wy, q[2], 0, 6.2832); g.fill(); }); });
-        F.pits.forEach(function (q) {   /* poros: covinha escura com um brilhinho na borda de baixo */
-          blob(g, q[0], q[1], q[2] * 1.9, bump ? 'rgba(0,0,0,0.55)' : 'rgba(112,96,72,0.30)');
-          if (!bump) blob(g, q[0] + 0.8, q[1] + q[2] * 0.9, q[2] * 0.9, 'rgba(255,255,250,0.28)');
-        });
-        F.cracks.forEach(function (pts) {
-          for (var pass = 0; pass < 2; pass++) {
-            g.strokeStyle = bump ? (pass ? 'rgba(255,255,255,0.35)' : 'rgba(0,0,0,0.7)') : (pass ? 'rgba(255,255,250,0.4)' : 'rgba(118,102,78,0.34)'); g.lineWidth = pass ? 0.9 : 1.2;
-            wrapDraw(g, function () { g.beginPath(); for (j = 0; j < pts.length; j++) { var px = pts[j][0] + pass * 1.2, py = pts[j][1] + pass * 1.2; if (j === 0) g.moveTo(px, py); else g.lineTo(px, py); } g.stroke(); });
-          }
-        });
-        if (!bump) F.lichen.forEach(function (d) { d.forEach(function (q, n) { blob(g, q[0], q[1], q[2], n % 3 ? 'rgba(160,168,128,0.30)' : 'rgba(218,216,176,0.34)'); }); });
-        g.lineCap = 'butt';
-      }
       var stoneVars = [0, 1, 2].map(function () {
-        var F, cc, bb, tx, tb;
-        CS = 512; F = stoneFeatures();
-        tx = ctex(function (g) { paintStone(g, F, false); }, 512);
-        tb = ctex(function (g) { paintStone(g, F, true); }, 512);
-        return { map: tx, bump: tb };
+        var clouds = [], i;
+        for (i = 0; i < 6; i++) clouds.push([tr() * 64, tr() * 64, 14 + tr() * 18, tr() < 0.5]);
+        var tx = ctex(function (g) {
+          g.fillStyle = '#f1eadc'; g.fillRect(0, 0, 64, 64);
+          clouds.forEach(function (c) { blob(g, c[0], c[1], c[2], c[3] ? 'rgba(255,255,250,0.30)' : 'rgba(176,156,124,0.18)'); });
+        }, 64, 64);
+        return { map: tx };
       });
       CS = 256;
 
@@ -3093,7 +3041,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       bedM.rotation.x = -Math.PI / 2; bedM.position.y = 0.004; bedM.receiveShadow = true; BEDS.push(bedM);
 
       /* lajes: poligono irregular arredondado, extrudado com borda chanfrada (40 mm de altura total, como antes) e uma sombra escura nas juntas */
-      var tints = [0xe9d9c4, 0xd9d3c6, 0xe6dccb, 0xd4cdbd, 0xeadfce], mats = tints.map(function (c, i) { var sv = stoneVars[i % 3]; return new THREE.MeshStandardMaterial({ color: c, map: sv.map, bumpMap: sv.bump, bumpScale: 0.5, roughness: 0.95 }); });   /* tons pastel quentinhos */
+      var tints = [0xe9d9c4, 0xd9d3c6, 0xe6dccb, 0xd4cdbd, 0xeadfce], mats = tints.map(function (c, i) { var sv = stoneVars[i % 3]; return new THREE.MeshStandardMaterial({ color: c, map: sv.map, roughness: 0.95 }); });   /* tons pastel quentinhos */
       var rimM = M(0x9c8f78, { roughness: 1 }), bt = 0.007, bs = 0.012;   /* junta suave (antes bem escura) */
       /* ----- ferramentas de fusão: geometria "assada" na posição do mundo e concatenada (position + normal + uv) ----- */
       function plain(geo) {   /* cópia manual dos atributos (geo.clone() de Extrude/Shape quebra no three r128: o construtor roda sem shape) */
@@ -3343,7 +3291,10 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     /* ---------- árvores do quintal: tronco que afina, base alargada com raízes, galhos e copa de tufos irregulares em tons de verde.
        Mesmo estilo facetado das moitas (uma malha de tronco e outra de copa por árvore). Copa até ~3,7 k de altura: os poleiros dos passarinhos e da coruja continuam valendo. ---------- */
     (function () {
-      var TRUNK = gni(new THREE.CylinderGeometry(0.68, 1, 1, 8, 1)), FLARE = gni(new THREE.CylinderGeometry(0.62, 1, 1, 8, 1));
+      var FLARE = gni(new THREE.CylinderGeometry(0.62, 1, 1, 10, 1));
+      var TY = [0.4, 0.85, 1.3, 1.75, 2.1];   /* alturas (x escala) dos cortes do tronco: 4 trechos que afinam e acompanham uma leve curva */
+      function trR(y) { return 0.215 - 0.085 * (y / 2.1); }   /* raio do tronco na altura y (x escala) */
+      var TSEG = [0, 1, 2, 3].map(function (j) { return gni(new THREE.CylinderGeometry(trR(TY[j + 1]) / trR(TY[j]), 1, 1, 9, 1)); });
       var bark = [0x4e301b, 0x5e3b22, 0x6b4426, 0x7a5233].map(function (h) { return new THREE.Color(h); });
       function leafTone(t) { t = Math.max(0, Math.min(1, t)); var f = t * 4, a = Math.min(3, Math.floor(f)); return BUSH_T[a].clone().lerp(BUSH_T[a + 1], f - a); }
       /* tufos da copa: [x, y, z, raio, tom 0..1] (tom alto = folhas claras no alto; baixo = sombra por baixo) */
@@ -3354,17 +3305,44 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       function tree(x, z, k, seed) {
         var sd = seed * 977 + 13; function r() { sd = (sd * 16807) % 2147483647; return (sd - 1) / 2147483646; }
         var tp = [], lp = [], i, a, ca, cb, rot = r() * 6.2832, cr = Math.cos(rot), sr = Math.sin(rot);
-        /* tronco: base alargada (escura), corpo que afina, raízes em lombinhas e três galhos para dentro da copa */
-        tp.push({ g: FLARE, m: gmx(0, 0.225 * k, 0, 0.34 * k, 0.45 * k, 0.34 * k, 0, r() * 6.2832, 0), c: bark[0] });
-        tp.push({ g: TRUNK, m: gmx(0, 1.0 * k, 0, 0.21 * k, 2.0 * k, 0.21 * k, 0, r() * 6.2832, 0), c: bark[2] });
-        for (i = 0; i < 5; i++) {
-          a = rot + i * 1.2566 + r() * 0.3;
-          tp.push({ g: UNIT.stone, m: gmx(Math.cos(a) * 0.27 * k, 0.05 * k, Math.sin(a) * 0.27 * k, 0.15 * k, 0.085 * k, 0.1 * k, 0, -a, 0), c: bark[i % 2 ? 1 : 0] });
+        /* tronco: PRNG proprio (a copa continua sorteando exatamente como antes); base alargada escura, 4 trechos que afinam numa leve curva com tom que clareia para cima,
+           estrias de casca (sulcos escuros e cristas claras), nos, manchas de musgo na base, raizes que se abrem pelo chao e tres galhos com bifurcacao */
+        for (i = 0; i < 13; i++) r();   /* mantem a sequencia de r() que o tronco antigo consumia */
+        var ts = seed * 3571 + 29; function tr() { ts = (ts * 16807) % 2147483647; return (ts - 1) / 2147483646; }
+        var bd = tr() * 6.2832, bamt = 0.05 + tr() * 0.09, MOSS = new THREE.Color(0x5d7d3b), MOSS2 = new THREE.Color(0x748f45);
+        function tcx(y) { return Math.cos(bd) * bamt * Math.pow(y / 2.1, 1.5) * k; }   /* deslocamento do eixo do tronco (x) na altura y */
+        function tcz(y) { return Math.sin(bd) * bamt * Math.pow(y / 2.1, 1.5) * k; }
+        function bark2(t, v) { var c = bark[0].clone().lerp(bark[3], Math.max(0, Math.min(1, t))); return c.multiplyScalar(1 + (v || 0)); }
+        tp.push({ g: FLARE, m: gmx(0, 0.225 * k, 0, 0.36 * k, 0.45 * k, 0.36 * k, 0, tr() * 6.2832, 0), c: bark[0].clone().multiplyScalar(0.9) });
+        for (i = 0; i < 4; i++) {
+          var y0 = (i ? TY[i] - 0.04 : TY[i] - 0.06), y1 = TY[i + 1] + (i < 3 ? 0.04 : 0.0), x0 = tcx(y0), z0 = tcz(y0), x1 = tcx(y1), z1 = tcz(y1), dy = (y1 - y0) * k;
+          var rb = trR(y0) * k * 1.04;
+          tp.push({ g: TSEG[i], m: gdir((x0 + x1) / 2, (y0 + y1) / 2 * k, (z0 + z1) / 2, x1 - x0, dy, z1 - z0, rb, Math.sqrt(dy * dy + (x1 - x0) * (x1 - x0) + (z1 - z0) * (z1 - z0)), rb), c: bark2(i / 3.2, (tr() - 0.5) * 0.14) });
         }
-        for (i = 0; i < 3; i++) {
-          a = rot + i * 2.1 + r() * 0.5; ca = Math.cos(a) * 0.8; cb = Math.sin(a) * 0.8;
-          var bl = (0.85 + r() * 0.3) * k, by = (1.6 + i * 0.15) * k, d = new THREE.Vector3(ca, 0.75, cb).normalize();
-          tp.push({ g: UNIT.cane, m: gdir(d.x * bl / 2, by + d.y * bl / 2, d.z * bl / 2, d.x, d.y, d.z, 0.07 * k, bl, 0.07 * k), c: bark[3] });
+        for (i = 0; i < 9; i++) {   /* estrias da casca: tiras finas ao longo do tronco, alternando sulco escuro e crista clara */
+          a = bd + i * 0.698 + (tr() - 0.5) * 0.3; var ym = (0.5 + tr() * 1.3), len = (0.5 + tr() * 0.7) * k, rm = trR(ym) * k;
+          tp.push({ g: UNIT.cane, m: gdir(tcx(ym) + Math.cos(a) * rm * 0.98, ym * k, tcz(ym) + Math.sin(a) * rm * 0.98, (tr() - 0.5) * 0.12, 1, (tr() - 0.5) * 0.12, 0.034 * k, len, 0.034 * k), c: i % 2 ? bark2(0.1, -0.12) : bark2(0.85, 0.1) });
+        }
+        for (i = 0; i < 2; i++) {   /* nos da madeira */
+          a = bd + 2.4 + i * 2.7 + tr() * 0.4; var yk = 0.8 + i * 0.7 + tr() * 0.2, rk = trR(yk) * k;
+          /* nos da madeira removidos do tronco (so consome o sorteio, para o resto do visual nao mudar) */
+        }
+        for (i = 0; i < 3; i++) {   /* musgo na base, do lado mais umido */
+          a = bd + 3.14 + (i - 1) * 0.5 + (tr() - 0.5) * 0.2; var ym2 = 0.2 + i * 0.16, rm2 = (trR(ym2) + 0.07) * k;
+          /* musgo da base removido do tronco (so consome o sorteio) */
+        }
+        for (i = 0; i < 5; i++) {   /* raizes: afinam e afundam ao se afastar do tronco, com um nozinho no meio */
+          a = rot + i * 1.2566 + tr() * 0.4; var rl = (0.5 + tr() * 0.25) * k, ca2 = Math.cos(a), sa2 = Math.sin(a);
+          tp.push({ g: UNIT.cane, m: gdir(ca2 * (0.3 * k + rl * 0.4), 0.05 * k, sa2 * (0.3 * k + rl * 0.4), ca2, -0.16, sa2, 0.085 * k, rl, 0.06 * k), c: bark[i % 2 ? 0 : 1] });
+          tp.push({ g: UNIT.stone, m: gmx(ca2 * 0.28 * k, 0.1 * k, sa2 * 0.28 * k, 0.12 * k, 0.1 * k, 0.12 * k, 0, -a, 0), c: bark[0] });
+        }
+        for (i = 0; i < 3; i++) {   /* galhos grossos (mais largos na base) com uma bifurcacao e um tocozinho no encontro com o tronco */
+          a = rot + i * 2.1 + tr() * 0.5; ca = Math.cos(a) * 0.8; cb = Math.sin(a) * 0.8;
+          var bl = (0.85 + tr() * 0.3) * k, by = (1.6 + i * 0.15) * k, d = new THREE.Vector3(ca, 0.75, cb).normalize(), ox = tcx(by / k), oz = tcz(by / k);
+          tp.push({ g: UNIT.cane, m: gdir(ox + d.x * bl / 2, by + d.y * bl / 2, oz + d.z * bl / 2, d.x, d.y, d.z, 0.095 * k, bl, 0.095 * k), c: bark[3] });
+          /* tocozinho no encontro do galho com o tronco removido */
+          var fa = a + (i % 2 ? 0.7 : -0.7), fd = new THREE.Vector3(Math.cos(fa) * 0.7, 0.95, Math.sin(fa) * 0.7).normalize(), fl = bl * 0.55;
+          tp.push({ g: UNIT.cane, m: gdir(ox + d.x * bl * 0.62 + fd.x * fl / 2, by + d.y * bl * 0.62 + fd.y * fl / 2, oz + d.z * bl * 0.62 + fd.z * fl / 2, fd.x, fd.y, fd.z, 0.05 * k, fl, 0.05 * k), c: bark[2] });
         }
         /* copa */
         BLOBS.forEach(function (b, bi) {
@@ -3696,8 +3674,6 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (s, si) {
         box({ x: b[0] + s[0] * 0.155, z: b[1] + s[1] * 0.155, w: 0.27, d: 0.27, h: 0.006, y: 0.7, color: (si + (si > 1 ? 1 : 0)) % 2 ? 0xd9894a : 0x5fa8a0, collide: false, cast: false });
       });
-      ball(b[0] + (bi % 2 ? 0.3 : -0.3), 0.1, b[1] + 0.32, 0.07, 0x5f8f4a, 1.3, 0.45, 0.8);
-      ball(b[0] - 0.31, 0.14, b[1] - 0.12 + bi * 0.1, 0.05, 0x4f7f3a, 0.8, 0.5, 1.2);
     });
     /* ----- chafariz na frente da casa (gramado leste, ao sul do caminho de pedras, entre a casa e a mesinha do vaso; afastado da area da churrasqueira, com o poste de luz ao norte dela, junto ao caminho): piso redondo de lajes em aneis, degrau, bacia de pedra com
        azulejos azuis por dentro e agua IGUAL a da piscina (mesmo material e brilho; ligados no bloco da piscina), pedestal, taca de cima, repuxo, vitorias-regias, bolinhas na borda e uma banda esculpida. Tudo e estatico (fundido ou instanciado)
@@ -3710,7 +3686,8 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       function cv(n) { var c = document.createElement('canvas'); c.width = c.height = n; return c; }
       function mkTex(c, rx, ry) { var t = new THREE.CanvasTexture(c); t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(rx || 1, ry || 1); t.anisotropy = 4; return t; }
       /* piso: aneis de lajes (2 fileiras) em volta da bacia, com juntas escuras; o miolo fica escondido sob a bacia */
-      var pc = cv(512), g = pc.getContext('2d'), i, j, q;
+      var pc = cv(256), g = pc.getContext('2d'), i, j, q;
+      g.scale(0.5, 0.5);   /* piso desenhado em 512 x 512, textura final 256 x 256 (metade) */
       g.fillStyle = '#8f897e'; g.fillRect(0, 0, 512, 512);
       g.fillStyle = '#b9b3a6'; g.beginPath(); g.arc(256, 256, 190, 0, 6.2832); g.fill();
       [[0.72, 0.86, 22], [0.86, 1.0, 30]].forEach(function (rg, ri) {
@@ -3721,7 +3698,6 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
           g.beginPath(); g.arc(256, 256, rg[1] * 256 - 2, a0, a1); g.arc(256, 256, rg[0] * 256 + 2, a1, a0, true); g.closePath(); g.fill();
         }
       });
-      for (q = 0; q < 420; q++) { g.fillStyle = rr() < 0.5 ? 'rgba(90,84,74,0.12)' : 'rgba(255,255,255,0.14)'; g.beginPath(); g.arc(rr() * 512, rr() * 512, 0.8 + rr() * 1.6, 0, 6.2832); g.fill(); }
       var pave = new THREE.Mesh(new THREE.CircleGeometry(2.7, 64), new THREE.MeshStandardMaterial({ map: mkTex(pc), roughness: 0.95 }));
       pave.rotation.x = -Math.PI / 2; pave.position.set(CX, 0.032, CZ); pave.receiveShadow = true; scene.add(pave);
       /* azulejos azuis do fundo e da parede de dentro da bacia */
@@ -4203,10 +4179,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       var ag = new THREE.ExtrudeGeometry(sh, { depth: 0.6, bevelEnabled: false, curveSegments: 18 }); ag.translate(0, 0, -0.3); ag.rotateY(-Math.PI / 2);
       var am = new THREE.Mesh(ag, coreM); am.position.set(0, 0, ZC); am.castShadow = true; am.receiveShadow = true; grp.add(am); solids.push(am);
       })();
-      /* canteiro de casca no pe da parede (deixa o vao livre) */
-      (ARCH ? [[Z0, ZC - HW], [ZC + HW, Z1]] : GAP ? [[Z0, ZC - GAP], [ZC + GAP, Z1]] : [[Z0, Z1]]).forEach(function (q) {
-        HK_ALL.push(new THREE.Matrix4().multiplyMatrices(grp.matrix, new THREE.Matrix4().compose(new THREE.Vector3(0, 0.015, (q[0] + q[1]) / 2), new THREE.Quaternion(), new THREE.Vector3(1.5, 0.03, q[1] - q[0]))));
-      });
+      /* canteiro de casca (terra) no pe da parede: removido (HK_ALL fica vazio, entao flushHedges() nao cria a malha) */
       /* colisao: as alas e os pilares do arco bloqueiam; o vao e o topo do arco ficam livres. a, b: trecho ao longo da parede (em coordenadas do mundo).
          Caixa um pouco maior que o miolo da folhagem para o gatinho nao entrar no arbusto: espessura TH = +-0,85 (antes 0,62) e EM = 0,25 a mais nas pontas.
          Topo das alas em HL + 0,3 (antes HL + 0,1): o gatinho que pula em cima fica apoiado na folhagem, nao afundado nela. */
@@ -4752,6 +4725,10 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     hemi.intensity = 0.22 + 0.56 * day; hemi.color.copy(cHN).lerp(cHD, day);
     if (redK > 0.001) { hemi.color.lerp(cHRed, redK * 0.8); if (e < 0) { sun.color.lerp(cMoonRed, redK); sun.intensity *= 1 + 0.4 * redK; } }
     sun.intensity *= 1 - 0.6 * rainK; hemi.intensity *= 1 - 0.3 * rainK;
+    /* pisos de ladrilho claros (cozinha e banheiro): de dia o sol + a luz do ceu passavam de 100% e o piso estourava em branco. Aqui eles recebem uma fracao menor dessa luz
+       (TILE_DAY_DIM = 0,18 -> 18% a menos ao meio-dia). De noite e na chuva o fator volta a 1 (a luz ja e fraca), entao as lampadas e o clima nao mudam. */
+    var tileK = 1 - TILE_DAY_DIM * day * (1 - rainK);
+    for (var tf = 0; tf < tileFloorMats.length; tf++) tileFloorMats[tf].color.setScalar(tileK);
     lampK = (LOFI ? 1.25 : 1) + 2.8 * Math.max(night, rainK * 0.7);   /* abajures mais fortes: a casa fica um cantinho aconchegante de noite */
     /* luzes de teto: no maximo ROOM_LIT_MAX acesas ao mesmo tempo (as mais proximas do gatinho; a que ja esta acesa leva uma vantagem de 15% na distancia para nao ficar trocando
        na fronteira). Cada luz tem um peso (r.w) que sobe/desce em ~0,4 s, entao a troca e uma transicao suave. Alem disso a distancia ainda apaga aos poucos (cheia ate 12 m, zero a partir de 16 m).
@@ -5592,8 +5569,20 @@ var DEFS = {
     }); } },
   bolaParque: { r: .16, h: .32, bounce: .72, round: 1, float: 1, build: function (g, c) {
     var ro = new THREE.Group(); ro.position.y = .16; g.add(ro); g.userData.ro = ro;
-    ro.add(pm(new THREE.SphereGeometry(.16, 24, 16), M(c || 0x4aa3ff, { roughness: .45 }), 0, 0, 0));
-    [0, 1, 2].forEach(function (k) { var t = pm(new THREE.TorusGeometry(.161, .014, 6, 28), M(k === 2 ? 0xffd23f : 0xffffff), 0, 0, 0); if (k === 1) t.rotation.y = HP; else if (k === 0) t.rotation.x = HP; else t.rotation.set(HP, .8, 0); ro.add(t); }); } },
+    var col = c || 0x4aa3ff;
+    var tx = toyTex('bolaParque' + col, 256, 128, function (x, w, h) {   /* bola de praia: 6 gomos (cor / branco / amarelo / branco / coral / branco), brilho leve no meio de cada gomo, costuras finas e polos brancos */
+      var i, n = 6, gw = w / n, cols = [hexCss(col), '#ffffff', '#ffd23f', '#ffffff', '#ff6b5e', '#ffffff'], gr;
+      for (i = 0; i < n; i++) {
+        x.fillStyle = cols[i]; x.fillRect(i * gw, 0, gw + 1, h);
+        gr = x.createLinearGradient(i * gw, 0, (i + 1) * gw, 0);
+        gr.addColorStop(0, 'rgba(0,0,0,0.14)'); gr.addColorStop(.5, 'rgba(255,255,255,0.10)'); gr.addColorStop(1, 'rgba(0,0,0,0.14)');
+        x.fillStyle = gr; x.fillRect(i * gw, 0, gw + 1, h);
+      }
+      x.fillStyle = 'rgba(0,0,0,0.12)'; for (i = 0; i < n; i++) x.fillRect(i * gw - 1, 0, 2, h);
+      x.fillStyle = '#ffffff'; x.fillRect(0, 0, w, h * .09); x.fillRect(0, h * .91, w, h * .09);
+    });
+    var sph = pm(new THREE.SphereGeometry(.16, 24, 16), toyMat(tx, { roughness: .35 }), 0, 0, 0);   /* plastico brilhante */
+    ro.add(sph); } },
   boia: { r: .42, h: .45, bounce: .3, round: 1, noroll: 1, float: 2, build: function (g, c) {
     var m = pm(new THREE.TorusGeometry(.32, .1, 10, 20), M(c || 0xff6b6b), 0, .35, 0); m.rotation.x = -HP; g.add(m); g.userData.mesh = m; } },
   maca: { r: .05, h: .1, bounce: .35, round: 1, build: function (g) {
@@ -5882,9 +5871,48 @@ var SPAWN = [
   ['almofada', -20.52, .47, 1.0, -.3, 0xe58a8a],
   ['bolaFutebol', PITCH.cx, 0, PITCH.cz, 0, 0xffffff]   /* bola do campo (sempre por último: o índice é usado na sincronização online) */
 ];
+/* texturas dos objetos que o gato pode pegar, derrubar ou quebrar: metade da resolução (largura e altura divididas por 2). Fica de fora so a bola de praia ('bolaParque').
+   A textura original nao e alterada (o cenario que a divide continua igual): cada objeto recebe uma copia reduzida, uma so por textura original. */
+var PROP_TEX_SCALE = 0.5, propTexHalfC = {}, propMatHalfC = {};
+function propHalfTex(t) {
+  var im = t && t.isTexture ? t.image : null, w, h, c, x, n;
+  if (!im) return t;
+  if (propTexHalfC[t.uuid]) return propTexHalfC[t.uuid];
+  w = im.width || im.naturalWidth || 0; h = im.height || im.naturalHeight || 0;
+  if (!(w > 1 || h > 1)) return t;   /* 1x1: nada a reduzir */
+  c = document.createElement('canvas'); c.width = Math.max(1, Math.round(w * PROP_TEX_SCALE)); c.height = Math.max(1, Math.round(h * PROP_TEX_SCALE));
+  x = c.getContext('2d'); x.imageSmoothingEnabled = true; x.imageSmoothingQuality = 'high'; x.drawImage(im, 0, 0, c.width, c.height);
+  n = new THREE.CanvasTexture(c);
+  n.wrapS = t.wrapS; n.wrapT = t.wrapT; n.repeat.copy(t.repeat); n.offset.copy(t.offset); n.center.copy(t.center); n.rotation = t.rotation;
+  n.anisotropy = t.anisotropy; n.encoding = t.encoding; n.flipY = t.flipY; n.premultiplyAlpha = t.premultiplyAlpha;
+  n.minFilter = t.minFilter; n.magFilter = t.magFilter; n.generateMipmaps = t.generateMipmaps; n.format = t.format;
+  return (propTexHalfC[t.uuid] = n);
+}
+function propHalfMat(m, inPlace) {   /* inPlace: materiais ligados por userData (cupula, lampada, brilho), que o jogo altera pela referencia; os demais viram copias, porque podem ser compartilhados com o cenario (cache de materiais) */
+  var k, slots = [];
+  if (!m || m.isShaderMaterial) return m;
+  for (k in m) if (m[k] && m[k].isTexture && m[k].image) slots.push(k);
+  if (!slots.length) return m;
+  if (!inPlace) {
+    if (propMatHalfC[m.uuid]) return propMatHalfC[m.uuid];
+    var cm = m.clone(); slots.forEach(function (q) { cm[q] = propHalfTex(m[q]); }); cm.needsUpdate = true;
+    return (propMatHalfC[m.uuid] = cm);
+  }
+  slots.forEach(function (q) { m[q] = propHalfTex(m[q]); }); m.needsUpdate = true;
+  return m;
+}
+function halveProp(g) {
+  var keep = [g.userData.shade, g.userData.bulb, g.userData.glow];
+  g.traverse(function (o) {
+    if (!o.material) return;
+    if (Array.isArray(o.material)) o.material = o.material.map(function (m) { return propHalfMat(m, keep.indexOf(m) >= 0); });
+    else o.material = propHalfMat(o.material, keep.indexOf(o.material) >= 0);
+  });
+}
 SPAWN.forEach(function (s) {
   var d = DEFS[s[0]], g = new THREE.Group(), ry = d.round ? 0 : (s[4] || 0);
   d.build(g, s[5]); g.position.set(s[1], s[2], s[3]); g.rotation.y = ry; scene.add(g);
+  if (s[0] !== 'bolaParque') halveProp(g);   /* texturas pela metade (menos a bola de praia) */
   if (d.toy || /^abajur/.test(s[0])) g.traverse(function (o) { if (o.isMesh) o.castShadow = false; });   /* abajures e objetos que o gato pode pegar (toy) não projetam sombra */
   var p = { d: d, g: g, c: s[5], x: s[1], y: s[2], z: s[3], vx: 0, vy: 0, vz: 0, r: d.r, h: d.h, air: false, fromY: s[2],
     counted: false, broken: false, lay: false, sx: 0, sz: 0, home: { x: s[1], y: s[2], z: s[3], ry: ry } };
