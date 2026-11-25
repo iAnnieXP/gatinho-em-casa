@@ -637,9 +637,11 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
       if (gone) return; gone = true; ld.classList.add('done');
       setTimeout(function () { ld.classList.add('out'); setTimeout(function () { if (ld.parentNode) ld.parentNode.removeChild(ld); }, 700); }, 280);
     }
-    function ready() { var w = 2000 - (Date.now() - t0); if (w > 0) setTimeout(hide, w); else hide(); }
+    function finish() { var w = 2000 - (Date.now() - t0); if (w > 0) setTimeout(hide, w); else hide(); }
+    /* a página carregou: se o jogo está fazendo o pré-aquecimento (shaders, texturas e variações de luz), a tela de carregamento fica até ele terminar */
+    function ready() { var p = window.__lunaWarm; if (p && typeof p.then === 'function') p.then(finish, finish); else finish(); }
     if (document.readyState === 'complete') ready(); else window.addEventListener('load', ready);
-    setTimeout(hide, 12000);
+    setTimeout(hide, 30000);   /* trava de segurança (antes 12 s): o pré-aquecimento pode levar alguns segundos em PCs fracos */
   })();
   </script>
   <script>
@@ -1498,14 +1500,61 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
   var solids = [];      // tudo que a câmera não pode atravessar
   var mergeSet = new WeakSet(), mergeOn = false;   // malhas marcadas para a fusão estática fora da casa (cercas e muros de madeira); mergeOn liga a marcação em box()/cyl()
 
+  /* ---------- frustum culling das malhas instanciadas ----------
+     No three r128 o corte por camera de um InstancedMesh usa a esfera da GEOMETRIA (na origem) e nao as instancias; por isso estas malhas ficavam com frustumCulled = false
+     (sempre desenhadas). Aqui cada uma ganha uma esfera de corte propria que cobre as instancias (no espaco local da malha; o three aplica a matriz do mundo), numa copia da
+     geometria que compartilha os mesmos buffers (sem memoria extra), e frustumCulled = true. Vale tambem para a sombra (corte pelo frustum da luz).
+       fitCull(im)         : uma esfera para a malha toda (no proprio objeto; flores, folhas de arvore, franja de grama).
+       cullCells(im, cell) : divide em varias malhas por celulas de `cell` m no plano x/z, cada uma com a sua esfera (malhas grandes e espalhadas); devolve as novas malhas.
+     Desligar para testar: adicione ?fc=0 ao endereco. Nao mexe em pecas esqueletadas (gatinho), sprites, estrelas e pontos (continuam sem corte). */
+  var FRUSTUM_CULL = !/[?&]fc=0/.test(location.search);
+  function ccGeo(geo, sphere) {
+    var g = new THREE.BufferGeometry(), a;
+    if (geo.index) g.setIndex(geo.index);
+    for (a in geo.attributes) g.setAttribute(a, geo.attributes[a]);
+    geo.groups.forEach(function (q) { g.addGroup(q.start, q.count, q.materialIndex); });
+    g.boundingSphere = sphere; return g;
+  }
+  function ccSphere(geo, idx, im) {   /* esfera (espaco local da malha) que cobre as instancias de `idx` (lista de indices) */
+    var m4 = new THREE.Matrix4(), s = new THREE.Sphere(), bx = new THREE.Box3(), out = new THREE.Sphere(), j;
+    if (!geo.boundingSphere) geo.computeBoundingSphere();
+    for (j = 0; j < idx.length; j++) {
+      im.getMatrixAt(idx[j], m4); s.copy(geo.boundingSphere).applyMatrix4(m4);
+      bx.expandByPoint(new THREE.Vector3(s.center.x - s.radius, s.center.y - s.radius, s.center.z - s.radius));
+      bx.expandByPoint(new THREE.Vector3(s.center.x + s.radius, s.center.y + s.radius, s.center.z + s.radius));
+    }
+    bx.getBoundingSphere(out); out.radius += 0.05; return out;
+  }
+  function fitCull(im) {
+    var idx = [], j;
+    if (!FRUSTUM_CULL || !im || !im.isInstancedMesh || !im.count) return im;
+    for (j = 0; j < im.count; j++) idx.push(j);
+    im.geometry = ccGeo(im.geometry, ccSphere(im.geometry, idx, im)); im.frustumCulled = true;
+    return im;
+  }
+  function cullCells(im, cell) {
+    var parent = im.parent, geo = im.geometry, m4 = new THREE.Matrix4(), col = new THREE.Color(), hasCol = !!im.instanceColor, groups = {}, out = [], i, k, e;
+    if (!FRUSTUM_CULL || !parent || !im.count) return [im];
+    for (i = 0; i < im.count; i++) { im.getMatrixAt(i, m4); e = m4.elements; k = Math.floor(e[12] / cell) + ',' + Math.floor(e[14] / cell); (groups[k] = groups[k] || []).push(i); }
+    Object.keys(groups).forEach(function (key) {
+      var idx = groups[key], m = new THREE.InstancedMesh(ccGeo(geo, ccSphere(geo, idx, im)), im.material, idx.length), j;
+      for (j = 0; j < idx.length; j++) { im.getMatrixAt(idx[j], m4); m.setMatrixAt(j, m4); if (hasCol) { im.getColorAt(idx[j], col); m.setColorAt(j, col); } }
+      m.instanceMatrix.needsUpdate = true; if (m.instanceColor) m.instanceColor.needsUpdate = true;
+      m.castShadow = im.castShadow; m.receiveShadow = im.receiveShadow; m.renderOrder = im.renderOrder; m.name = im.name; m.frustumCulled = true;
+      m.position.copy(im.position); m.quaternion.copy(im.quaternion); m.scale.copy(im.scale);
+      parent.add(m); out.push(m);
+    });
+    parent.remove(im); return out;
+  }
+
   /* ---------- corte por distancia do cenario estatico (zonas) ----------
      Cada zona esconde o que e dela quando o gatinho esta a mais de R metros (distancia ate a CAIXA do objeto no plano x/z, nao ate o centro: cercas compridas
      continuam aparecendo enquanto qualquer ponto delas estiver dentro do raio). Histerese de 0,5 m (volta a aparecer a R - 0,5).
        ZC_FAR  = 40 m: cercas (muros, cercados, portao), area da churrasqueira, parquinho, campo de futebol, piscina e pula-pula.
-       ZC_NEAR = 20 m: mesas de jardim (com cadeiras e toalha) e os moveis estaticos da casa (os abajures sao objetos derrubaveis: ver PROP_CULL/p.isLamp).
+       ZC_NEAR = 23 m (20 + 3): mesas de jardim (com cadeiras e toalha) e os moveis estaticos da casa (os abajures sao objetos derrubaveis: ver PROP_CULL/p.isLamp).
      zcBegin()/zcEnd() registram o que entrou na cena entre as duas chamadas. A fusao estatica (mergeStaticHouse) nao mistura zonas no mesmo chunk, e o chunk
      inteiro e escondido; malhas que nao foram fundidas sao escondidas uma a uma. Ficam de fora o que ja nasce escondido e luzes. */
-  var ZC_FAR = 40, ZC_NEAR = 20, ZC = { items: [], tag: new WeakMap(), rec: new WeakMap(), ready: false };
+  var ZC_FAR = 40, ZC_NEAR = 23, ZC = { items: [], tag: new WeakMap(), rec: new WeakMap(), ready: false };
   function zcBegin() { return scene.children.length; }
   function zcEnd(i0, zone, skip) {
     var k, o, R = zone === 'far' ? ZC_FAR : ZC_NEAR;
@@ -1930,7 +1979,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       if (!bk.length) return;
       var im = new THREE.InstancedMesh(LEAF_GEO, M(o.cols[ci], { roughness: 0.5 }), bk.length);
       bk.forEach(function (mx, k) { im.setMatrixAt(k, mx); });
-      im.castShadow = true; im.receiveShadow = true; im.frustumCulled = false; g.add(im);
+      im.castShadow = true; im.receiveShadow = true; im.frustumCulled = false; g.add(im); fitCull(im);
     });
   }
 
@@ -3079,7 +3128,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
           ca.set(l.instanceColor.array.subarray(0, l.count * 3), o * 3); o += l.count;
         });
         mg.instanceColor = new THREE.InstancedBufferAttribute(ca, 3);
-        mg.castShadow = a.castShadow; mg.receiveShadow = a.receiveShadow; mg.frustumCulled = false; scene.add(mg);
+        mg.castShadow = a.castShadow; mg.receiveShadow = a.receiveShadow; mg.frustumCulled = false; scene.add(mg); cullCells(mg, 10);
         list.forEach(function (l, i) { if (i) { l.geometry.dispose(); l.material.dispose(); } });
       }
       function flag(spx, spz, idx, skip) {   /* skip: laje removida (o sorteio pr() e consumido igual, so a malha deixa de ser criada) */
@@ -3220,7 +3269,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
             Df.scale.set(1, 0.5 + fr() * 0.7, 1); Df.updateMatrix(); fim.setMatrixAt(fi, Df.matrix); fim.setColorAt(fi, cf.setHex(fcols[Math.floor(fr() * 4)])); fi++;
           }
         });
-        fim.receiveShadow = true; fim.frustumCulled = false; scene.add(fim);
+        fim.receiveShadow = true; fim.frustumCulled = false; scene.add(fim); cullCells(fim, 10);
       })();
 
       /* ----- FUSÃO FINAL dos dois caminhos (antes: ~60 malhas soltas + 4 instanciadas; agora: 5 lajes + 1 juntas + 1 cascalho + 2 instanciadas) ----- */
@@ -3523,7 +3572,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       function mk(geo, mat, mats, cols) {
         var im = new THREE.InstancedMesh(geo, mat, mats.length), n;
         for (n = 0; n < mats.length; n++) { im.setMatrixAt(n, mats[n]); if (cols) im.setColorAt(n, cc.setHex(cols[n])); }
-        im.frustumCulled = false; im.castShadow = false; im.receiveShadow = false; im.instanceMatrix.needsUpdate = true; scene.add(im);
+        im.frustumCulled = false; im.castShadow = false; im.receiveShadow = false; im.instanceMatrix.needsUpdate = true; scene.add(im); fitCull(im);
         im.userData.orig = im.instanceMatrix.array.slice();   /* matrizes originais: voltam quando a casa e arrumada */
         return im;
       }
@@ -4671,11 +4720,11 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       if (!list.length) return;
       var im = new THREE.InstancedMesh(geo, mt, list.length);
       list.forEach(function (m, k) { im.setMatrixAt(k, m); });
-      im.instanceMatrix.needsUpdate = true; im.frustumCulled = false; grp.add(im); return im;
+      im.instanceMatrix.needsUpdate = true; im.frustumCulled = false; grp.add(im); return cullCells(im, 12);
     }
     inst(boxGeo, mHouse, bodies); inst(roofGeo, mHouse, roofs); inst(boxGeo, mHouse, chims);
     inst(sphGeo, mTree, crowns); inst(trunkGeo, mTree, trunks); inst(coneGeo, mTree, cones);
-    var winMesh = inst(winGeo, mWin, wins); if (winMesh) winMesh.renderOrder = 1;
+    var winMesh = inst(winGeo, mWin, wins); if (winMesh) winMesh.forEach(function (w) { w.renderOrder = 1; });
     var tmp = new THREE.Color(), tTD = new THREE.Color(0x3a5560), tTN = new THREE.Color(0x090a18), tHD = new THREE.Color(0x5a5878), tHN = new THREE.Color(0x15142c);
     return {
       update: function (night, rain) {
@@ -5198,6 +5247,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
 
 /* ---------- objetos para derrubar (fazer arte) ---------- */
 var props = [], held = null, shards = [], mess = [], artes = 0, swatT = 0, swatHit = true, sayT = 0, PG = 14, rollAx = new THREE.Vector3();
+var SCENERY_CULL = 23;   /* distancia (m) de corte do cenario estatico que ficava em 20 m (flores dos canteiros e fonte): 20 + 3 m. Os objetos do cenario que ja eram desenhados a 40 m (ZC_FAR) nao mudam */
 var FAUNA_CULL = 20;   /* distancia (m) de corte de passarinhos, borboletas, morcegos, ratinhos, coelhos, flores, fonte e restos esparramados no chao */
 var PROP_CULL = 17;   /* distancia (m) do gatinho alem da qual NAO se desenha (17 m): objetos que ele pega/empurra/quebra (menos a bola do campo, as bexigas e os abajures, que usam 20 m), liquidos derramados e cacos. Os demais (bichos, flores, fonte, restos esparramados) usam FAUNA_CULL (20 m): objetos que ele pega/empurra/quebra, bichos que ele caca (ratinhos, coelhos, passarinhos, borboletas, morcegos) as flores dos canteiros, a fonte (chafariz), as pocas de liquido derramado, o que se esparrama no chao (racao, areia, penas, terra) e os cacos/restos soltos. Os 12 peixinhos coletaveis ficam de fora (sempre desenhados). Para desligar o recurso, use um valor grande (ex.: 999) */
 var glass = M(0xbfe6f2, { transparent: true, opacity: 0.55, roughness: 0.1 });
@@ -10808,7 +10858,7 @@ function animateModel(t, dt, moving) {
     var F = FOUNT, was, v, i;
     if (!F) return;
     was = F.far;
-    farOf(F, cat.x + Math.max(0, Math.hypot(cat.x - F.x, cat.z - F.z) - 2.7), cat.z);
+    farOf(F, cat.x + Math.max(0, Math.hypot(cat.x - F.x, cat.z - F.z) - 2.7), cat.z, SCENERY_CULL);
     if (F.far === was && F.shinesN === F.shines.length) return;
     v = !F.far; F.shinesN = F.shines.length;
     for (i = 0; i < F.parts.length; i++) F.parts[i].visible = v;
@@ -10819,7 +10869,7 @@ function animateModel(t, dt, moving) {
     for (var i = 0; i < FLB.length; i++) {
       var g = FLB[i], hx = g.v ? 0.55 : 1.6, hz = g.v ? 1.6 : 0.55,
           dx = Math.max(Math.abs(cat.x - g.bx) - hx, 0), dz = Math.max(Math.abs(cat.z - g.bz) - hz, 0), was = g.far;
-      farOf(g, cat.x + dx, cat.z + dz);   /* so importa o tamanho (dx, dz): distancia do gatinho ate a borda do canteiro */
+      farOf(g, cat.x + dx, cat.z + dz, SCENERY_CULL);   /* so importa o tamanho (dx, dz): distancia do gatinho ate a borda do canteiro */
       if (g.far !== was) { var S = FLI[i], v = !g.far; S.stem.visible = S.leaf.visible = S.petal.visible = S.ctr.visible = v; }
     }
   }
@@ -11004,6 +11054,90 @@ function animateModel(t, dt, moving) {
     while (smDirty.length) { d = smDirty.pop(); smBuild(d); }
   }
 
+  /* ---------- pré-aquecimento (roda atrás da tela de carregamento) ----------
+     Antes, quando uma área nova entrava na tela pela primeira vez, o navegador compilava os shaders e enviava as texturas para a GPU no meio de um quadro (a "engasgada").
+     Agora esse trabalho todo acontece aqui, uma vez só, enquanto a tela de carregamento está aberta:
+       1. renderer.compile: compila os shaders de todos os materiais da cena, inclusive dos objetos escondidos pelo corte por zona (zonas longe do gatinho);
+       2. renderer.initTexture: envia para a GPU cada textura (canvas e glTF) antes de ser usada;
+       3. renderiza um quadro para cada quantidade possível de luzes de teto acesas (0..ROOM_LIT_MAX), porque o three.js gera um shader diferente para cada número de luzes.
+     Nada é descartado (dispose) de propósito: descartar um material derrubaria o programa que acabou de ser compilado. Para pular o pré-aquecimento (debug): ?warm=0 */
+  var WARM_ON = !/[?&]warm=0/.test(location.search), warmKeep = [];
+  function warmUp() {
+    var t0 = performance.now(), progs0 = renderer.info.programs ? renderer.info.programs.length : 0, texN = 0;
+    var forced = [], culled = [], lampVis = roomLamps.map(function (r) { return r.l.visible; }), probes = [], shAuto = renderer.shadowMap.autoUpdate;
+    function wait(ms) { return new Promise(function (res) { setTimeout(res, ms || 0); }); }
+    function flush() { try { var gl = renderer.getContext(); gl.readPixels(0, 0, 1, 1, gl.RGBA, gl.UNSIGNED_BYTE, new Uint8Array(4)); } catch (e) {} }   /* força a GPU a terminar o que foi pedido */
+    function waitCat() {   /* o modelo glTF do gato carrega de forma assíncrona: espera (até ~4 s) para compilar também o shader de malha com ossos */
+      return new Promise(function (res) { var n = 0; (function poll() { if (catModel || !THREE.GLTFLoader || ++n > 80) res(); else setTimeout(poll, 50); })(); });
+    }
+    function prepare() {
+      /* mostra tudo e desliga o corte por frustum só durante o pré-aquecimento (restaurado no fim). Luzes ficam como estão (o número de luzes visíveis muda o shader);
+         as malhas fundidas da casa têm `visible` com getter próprio: não se mexe nelas (quem é desenhado é o chunk) */
+      scene.traverse(function (o) {
+        if (!o.visible && !o.isLight) { var d = Object.getOwnPropertyDescriptor(o, 'visible'); if (!(d && d.get)) { o.visible = true; forced.push(o); } }
+        if (o.frustumCulled) { o.frustumCulled = false; culled.push(o); }
+      });
+      /* efeitos criados na hora durante o jogo (faíscas do peixe, balões de fala): um exemplar de cada tipo de material, para o shader já existir */
+      probes.push(new THREE.Mesh(new THREE.SphereGeometry(0.04, 6, 6), new THREE.MeshBasicMaterial({ color: 0x9be8f5, transparent: true })));
+      probes.push(new THREE.Sprite(new THREE.SpriteMaterial({ transparent: true, depthTest: false })));
+      probes.forEach(function (o) { o.frustumCulled = false; scene.add(o); });
+      warmKeep = probes.map(function (o) { return o.material; });
+    }
+    function collectTextures() {
+      var seen = new Set(), list = [];
+      function add(t) {
+        if (!t || !t.isTexture || seen.has(t) || t.isCubeTexture || t.isVideoTexture || !t.image) return;
+        if (t.image.tagName === 'IMG' && !t.image.complete) return;
+        seen.add(t); list.push(t);
+      }
+      scene.traverse(function (o) {
+        var ms = o.material, k, u;
+        if (!ms) return;
+        (Array.isArray(ms) ? ms : [ms]).forEach(function (m) {
+          for (k in m) add(m[k]);   /* map, normalMap, bumpMap, roughnessMap, alphaMap, emissiveMap... */
+          if (m.uniforms) for (u in m.uniforms) add(m.uniforms[u] && m.uniforms[u].value);   /* shaders próprios */
+        });
+      });
+      return list;
+    }
+    function textures() {
+      var list = collectTextures(), i = 0; texN = list.length;
+      return new Promise(function (res) {
+        (function next() {
+          var end = Math.min(list.length, i + 6);
+          for (; i < end; i++) { try { renderer.initTexture(list[i]); } catch (e) {} }
+          if (i < list.length) setTimeout(next, 0); else res();
+        })();
+      });
+    }
+    function compileAll() { try { renderer.compile(scene, camera); } catch (e) { console.warn('[warmup] compile', e); } }
+    function lightVariants() {
+      var N = Math.min(ROOM_LIT_MAX, roomLamps.length), seq = Promise.resolve(), k, first = true;
+      function one(n) {
+        return function () {
+          roomLamps.forEach(function (r, i) { r.l.visible = i < n; });
+          try { renderer.render(scene, camera); flush(); } catch (e) { console.warn('[warmup] render', e); }
+          if (first) { first = false; renderer.shadowMap.autoUpdate = false; }   /* o shader da sombra não depende das luzes de teto: uma passada basta */
+          return wait(0);
+        };
+      }
+      for (k = N; k >= 0; k--) seq = seq.then(one(k));
+      return seq;
+    }
+    function finish(err) {
+      if (err) console.warn('[warmup]', err);
+      renderer.shadowMap.autoUpdate = shAuto;
+      probes.forEach(function (o) { scene.remove(o); if (o.geometry && o.geometry.dispose) o.geometry.dispose(); });   /* só a geometria: o material fica vivo para manter o programa compilado */
+      forced.forEach(function (o) { o.visible = false; });
+      culled.forEach(function (o) { o.frustumCulled = true; });
+      roomLamps.forEach(function (r, i) { r.l.visible = lampVis[i]; });
+      try { renderer.clear(); } catch (e) {}
+      console.info('[warmup] ' + Math.round(performance.now() - t0) + ' ms | shaders: ' + progs0 + ' -> ' + (renderer.info.programs ? renderer.info.programs.length : '?') + ' | texturas: ' + texN + ' | variações de luz: ' + (Math.min(ROOM_LIT_MAX, roomLamps.length) + 1));
+    }
+    if (!smDone) mergeStaticHouse();   /* a fusão da casa também acontece aqui, e não no primeiro quadro do jogo */
+    return waitCat().then(prepare).then(wait).then(textures).then(wait).then(compileAll).then(wait).then(lightVariants).then(function () { finish(); }, finish);
+  }
+
   var last = performance.now(), fpsN = 0, fpsT = last, fpsEl = $('fpsBox');
   function frame(now) {
     if (FPSCAP && now - last < 1000 / FPSCAP - 2) { requestAnimationFrame(frame); return; }   /* limite de FPS: pula o quadro até dar o intervalo */
@@ -11056,7 +11190,11 @@ function animateModel(t, dt, moving) {
     updateTv();
     requestAnimationFrame(frame);
   }
-  requestAnimationFrame(frame);
+  function startLoop() { last = performance.now(); requestAnimationFrame(frame); }
+  var warmP;
+  try { warmP = WARM_ON ? warmUp() : Promise.resolve(); } catch (e) { console.warn('[warmup]', e); warmP = Promise.resolve(); }
+  window.__lunaWarm = warmP;   /* a tela de carregamento (script lá no começo da página) espera por esta promessa */
+  warmP.then(startLoop, startLoop);
 })();
 </script>
 
