@@ -326,3 +326,24 @@ TEXTURAS DA CASA E DOS MOVEIS (versao 46, estilo minimalista: texturas suaves e 
      perfil visto nesta sessao. No controle, a opcao tambem aparece no menu do jogador (direcional esquerdo).
      IMPORTANTE: suba tambem o server.js e o chat-guard.js atualizados (o servidor valida o perfil e entrega os perfis a quem entra depois).
      Com servidor antigo os perfis ainda aparecem, mas sem filtro de palavroes na descricao.
+
+   - Versao 1.1.21 (so mudou o public/index.html): o corte por distancia (PROP_CULL) passou de 15 m para 20 m (volta a aparecer a 19,5 m).
+     Corrigido o motivo de objetos pegaveis e quebraveis (copos, pratos, vasos, frutas, brinquedos...) nunca sumirem longe: a linha
+     "p.g.visible = !p.far || p.carried" recebia undefined quando o objeto nunca tinha sido pego (carried so ganhava valor depois de pegar/soltar
+     ou arrumar a casa) e o three.js so deixa de desenhar com visible === false. Agora usa !!p.carried.
+
+   - Versao 1.1.22 (so mudou o public/index.html): distancias de corte separadas. PROP_CULL = 17 m (volta a 16,5 m) vale para objetos pegaveis/quebraveis
+     (inclui bexigas), liquidos derramados e cacos. FAUNA_CULL = 20 m (volta a 19,5 m) vale para passarinhos, borboletas, morcegos, ratinhos, coelhos,
+     flores, fonte e restos esparramados no chao (racao, areia, penas, terra).
+
+   - Versao 1.1.23 (so mudou o public/index.html): a bola do campo de futebol passou a usar o corte de 20 m (FAUNA_CULL; volta a 19,5 m), em vez dos 17 m dos demais objetos.
+
+   - Versao 1.1.24 (so mudou o public/index.html): as bexigas tambem usam o corte de 20 m (FAUNA_CULL; volta a 19,5 m), junto com a bola do campo.
+
+   - Versao 1.1.25 (so mudou o public/index.html): corte por distancia do cenario estatico, por zonas (distancia medida ate a caixa do objeto, volta a aparecer 0,5 m antes):
+       * 40 m: cercas (muros, pilares, portao, cercados da churrasqueira, da piscina, do campo e do parquinho, divisoria da casinha), area da churrasqueira,
+         parquinho, campo de futebol, piscina (com deque) e pula-pula.
+       * 20 m: mesas de jardim (com cadeiras e toalha), moveis estaticos da casa (sala, cozinha, quarto, escritorio e banheiro, incluindo tapetes) e abajures
+         (que sao objetos derrubaveis; agora usam 20 m em vez de 17 m).
+     A fusao estatica passou a nao misturar zonas no mesmo chunk (so isso: o resto continua igual). Paredes, pisos, telhado, quadros, arbustos, arvores,
+     bancos, casinha e fonte nao entram nessas zonas.
