@@ -2093,7 +2093,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       box({ x: xL + 0.17 + (k % 2) * 0.01, z: zF - 0.19, w: b[1], d: 0.2, h: 0.035, y: 0.98 + k * 0.035, color: b[0], tex: null, collide: false, cast: false });
     });
     (function () {   /* caneca em cima da pilha: oca, com café e alça em D (mesmo desenho da caneca derrubável, em escala menor) */
-      var mg = new THREE.Group(), cm = M(0xe8e0d0, { roughness: .32, side: THREE.DoubleSide }), sc = 0.78, i, pr = [[0, 0], [.034, 0], [.039, .004], [.0452, .02], [.0466, .055], [.0455, .09], [.0413, .09], [.0403, .084], [.0398, .012], [0, .012]];
+      var mg = new THREE.Group(), cm = M(0xe8e0d0, { roughness: .32, side: THREE.FrontSide }), sc = 0.78, i, pr = [[0, 0], [.034, 0], [.039, .004], [.0452, .02], [.0466, .055], [.0455, .09], [.0413, .09], [.0403, .084], [.0398, .012], [0, .012]];
       var body = new THREE.Mesh(new THREE.LatheGeometry(pr.map(function (q) { return new THREE.Vector2(q[0], q[1]); }), 20), cm);
       var cf = new THREE.Mesh(new THREE.CylinderGeometry(.0398, .0398, .004, 20), M(0x4a2e1a, { roughness: .4 })); cf.position.y = .0775;
       var hd = new THREE.Mesh(new THREE.TorusGeometry(.026, .0078, 8, 14, Math.PI * 1.25), cm); hd.position.set(.0515, .045, 0); hd.rotation.z = -Math.PI * .625;
@@ -3599,7 +3599,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       cyl({ x: CX, z: CZ, r: 0.39, h: 0.08, y: 1.22, color: STD, tex: 'stone', seg: 20, collide: false, cast: false });                                     /* colar sob a taca de cima */
       cyl({ x: CX, z: CZ, r: 0.09, r2: 0.045, h: 0.4, y: 1.456, color: ST, tex: 'stone', seg: 10, collide: false, cast: false });                 /* haste do repuxo */
       mergeOn = false;
-      var stoneM = M(ST, { side: THREE.DoubleSide }, 'stone');
+      var stoneM = M(ST, { side: THREE.FrontSide }, 'stone');   /* so a face de fora: com a camera dentro da parede da bacia (gato entrando), o verso da pedra nao aparece mais (todos os lathes sao fechados e saem com a frente virada para fora) */
       function lathe(pts, r, h, mat) {   /* pts: [raio, altura] ja na escala 1; multiplica por K */
         var gg = new THREE.LatheGeometry(pts.map(function (p2) { return new V2(p2[0] * K, p2[1] * K); }), 36), m;
         if (mat === stoneM) TEXLIB.uvCyl(gg, r * K, h * K, 'stone');
@@ -3608,7 +3608,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       lathe([[1.26, 0.03], [1.38, 0.08], [1.4, 0.44], [1.5, 0.5], [1.5, 0.58], [1.22, 0.58], [1.2, 0.5], [1.18, 0.46]], 1.45, 0.8, stoneM);   /* bacia de baixo: parede de fora e borda */
       lathe([[0.1, 1.0], [0.3, 1.03], [0.52, 1.1], [0.66, 1.22], [0.66, 1.27], [0.58, 1.27], [0.5, 1.19], [0.3, 1.12], [0.0, 1.12]], 0.6, 0.3, stoneM);   /* taca de cima */
       var tileWall = mkTex(tc, 6, 0.2), tileFloor = mkTex(tc, 2, 2);
-      lathe([[1.18, 0.46], [1.18, 0.22]], 1, 1, new THREE.MeshStandardMaterial({ map: tileWall, roughness: 0.5, side: THREE.DoubleSide }));   /* parede de dentro com azulejos */
+      lathe([[1.18, 0.46], [1.18, 0.22]], 1, 1, new THREE.MeshStandardMaterial({ map: tileWall, roughness: 0.5, side: THREE.FrontSide }));   /* parede de dentro com azulejos (so a face virada para o centro; vista por tras, de dentro da pedra, fica invisivel) */
       var fl = new THREE.Mesh(new THREE.CircleGeometry(1.18 * K, 40), new THREE.MeshStandardMaterial({ map: tileFloor, roughness: 0.5 }));   /* fundo com azulejos */
       fl.rotation.x = -Math.PI / 2; fl.position.set(CX, 0.22 * K, CZ); fl.receiveShadow = true; scene.add(fl);
       var fin = new THREE.Mesh(new THREE.SphereGeometry(0.085, 10, 7), stoneM); fin.position.set(CX, 1.87, CZ); fin.castShadow = false; scene.add(fin);   /* bolinha no alto do repuxo */
@@ -5236,7 +5236,7 @@ var DEFS = {
       var ce = new THREE.Mesh(cenG, M(f[4], { roughness: .6 })); ce.position.y = .004; ce.castShadow = false; fg.add(ce); }); } },
   caneca: { r: .06, h: .09, brk: 1, liq: 0x4a2e1a, liqR: .17, shard: 0xe86a50, bounce: .2, lie: [0, HP, .045], build: function (g, c) {
     /* caneca oca de cerâmica brilhante: pé, barriga suave, borda grossa, faixa clara perto da boca, café com creminha e alça em D */
-    var col = c || 0xe86a50, m = M(col, { roughness: .32, side: THREE.DoubleSide }), band = M(new THREE.Color(col).lerp(new THREE.Color(0xffffff), .55).getHex(), { roughness: .32 });
+    var col = c || 0xe86a50, m = M(col, { roughness: .32, side: THREE.FrontSide }), band = M(new THREE.Color(col).lerp(new THREE.Color(0xffffff), .55).getHex(), { roughness: .32 });
     var prof = [[0, 0], [.034, 0], [.039, .004], [.0452, .02], [.0466, .055], [.0455, .09], [.0413, .09], [.0403, .084], [.0398, .012], [0, .012]];
     g.add(pm(new THREE.LatheGeometry(prof.map(function (q) { return new THREE.Vector2(q[0], q[1]); }), 24), m, 0, 0, 0));
     g.add(pm(Cy(.0462, .0466, .012, 24), band, 0, .072, 0));                                               /* faixa clara */
@@ -5394,7 +5394,7 @@ var DEFS = {
   prato: { r: .11, h: .02, brk: 1, shard: 0xf4f1ea, bounce: .1, build: function (g) {
     /* prato de porcelana: perfil torneado (pé, fundo liso, aba que sobe até a borda) com uma faixa azul pintada na aba e um discreto círculo azul no centro */
     var V = function (a) { return a.map(function (q) { return new THREE.Vector2(q[0], q[1]); }); }, sd = { side: THREE.DoubleSide, roughness: .22 };
-    g.add(pm(new THREE.LatheGeometry(V([[0, 0], [.05, 0], [.052, .003], [.085, .007], [.108, .018], [.11, .02], [.108, .0215], [.095, .0155], [.075, .0105], [.055, .0085], [0, .0085]]), 28), M(0xf6f3ec, sd), 0, 0, 0));
+    g.add(pm(new THREE.LatheGeometry(V([[0, 0], [.05, 0], [.052, .003], [.085, .007], [.108, .018], [.11, .02], [.108, .0215], [.095, .0155], [.075, .0105], [.055, .0085], [0, .0085]]), 28), M(0xf6f3ec, { side: THREE.FrontSide, roughness: .22 }), 0, 0, 0));
     g.add(pm(new THREE.LatheGeometry(V([[.082, .0128], [.098, .0168]]), 28), M(0x5f8fc2, sd), 0, 0, 0));
     g.add(pm(new THREE.LatheGeometry(V([[.1, .0182], [.104, .0196]]), 28), M(0x5f8fc2, sd), 0, 0, 0));
     var dot = pm(new THREE.CircleGeometry(.02, 24), M(0xa8c8e6, { roughness: .3 }), 0, .0091, 0); dot.rotation.x = -HP; dot.castShadow = false; g.add(dot); } },
@@ -5402,7 +5402,7 @@ var DEFS = {
     /* bule de porcelana (bico para +z, alca para -z, assim fica de lado sem enterrar bico nem alca): barriga torneada com duas faixas pintadas (azul no branco; branca quando tem cor),
        tampa com botao, bico conico inclinado e alca em argola. Mesmo acabamento brilhante do prato e da caneca. */
     var V = function (a) { return a.map(function (q) { return new THREE.Vector2(q[0], q[1]); }); };
-    var mb = M(c || 0xf6f3ec, { roughness: .24, side: THREE.DoubleSide }), mband = M(c ? 0xffffff : 0x5f8fc2, { roughness: .24 });
+    var mb = M(c || 0xf6f3ec, { roughness: .24, side: THREE.FrontSide }), mband = M(c ? 0xffffff : 0x5f8fc2, { roughness: .24 });
     g.add(pm(new THREE.LatheGeometry(V([[0, 0], [.034, 0], [.04, .004], [.056, .02], [.066, .05], [.068, .075], [.062, .1], [.046, .118], [.038, .124], [.034, .12]]), 26), mb, 0, 0, 0));   /* barriga */
     g.add(pm(Cy(.0675, .0675, .01, 26), mband, 0, .058, 0));          /* faixa pintada de baixo */
     g.add(pm(Cy(.0645, .0645, .006, 26), mband, 0, .092, 0));         /* faixa fina de cima */
@@ -5559,7 +5559,7 @@ var DEFS = {
     /* pudim no pratinho: prato branco com aba, poça de calda, corpo de creme (tronco de cone) e capa de caramelo que escorre pelos lados.
        O corpo e a calda ficam no grupo "fill", que encolhe a cada mordida (bowlView) */
     var V = function (a) { return a.map(function (q) { return new THREE.Vector2(q[0], q[1]); }); };
-    g.add(pm(new THREE.LatheGeometry(V([[0, 0], [.1, 0], [.105, .003], [.15, .01], [.17, .018], [.172, .02], [.17, .0215], [.15, .0145], [.12, .0105], [0, .0105]]), 32), M(0xf6f3ec, { side: THREE.DoubleSide, roughness: .22 }), 0, 0, 0));
+    g.add(pm(new THREE.LatheGeometry(V([[0, 0], [.1, 0], [.105, .003], [.15, .01], [.17, .018], [.172, .02], [.17, .0215], [.15, .0145], [.12, .0105], [0, .0105]]), 32), M(0xf6f3ec, { side: THREE.FrontSide, roughness: .22 }), 0, 0, 0));
     var fill = new THREE.Group();
     var pool = pm(Cy(.14, .14, .004, 28), M(0x9a5522, { roughness: .3 }), 0, .0125, 0); pool.castShadow = false; fill.add(pool);
     fill.add(pm(Cy(.095, .12, .07, 28), M(0xf0c25a, { roughness: .55 }), 0, .051, 0));                 /* corpo de creme */
@@ -5581,7 +5581,7 @@ var DEFS = {
     tg.fillStyle = '#d9894a'; for (i = 0; i < 8; i++) { tg.beginPath(); tg.arc(8 + i * 16, 32, 3.2, 0, 6.2832); tg.fill(); }
     var tex = new THREE.CanvasTexture(tcv); tex.anisotropy = 4; tex.wrapS = THREE.RepeatWrapping;
     var prof = [[0, 0], [.058, 0], [.066, .006], [.07, .02], [.07, .1], [.0675, .102], [.0635, .1], [.0625, .02], [.0575, .012], [0, .012]].map(function (q) { return new THREE.Vector2(q[0], q[1]); });
-    g.add(pm(new THREE.LatheGeometry(prof, 28), new THREE.MeshStandardMaterial({ map: tex, roughness: .45, side: THREE.DoubleSide }), 0, 0, 0));
+    g.add(pm(new THREE.LatheGeometry(prof, 28), new THREE.MeshStandardMaterial({ map: tex, roughness: .45, side: THREE.FrontSide }), 0, 0, 0));
     var bot = pm(new THREE.CircleGeometry(.0575, 24), new THREE.MeshStandardMaterial({ color: 0x3a2a14, roughness: 1 }), 0, .0125, 0); bot.rotation.x = -HP; bot.castShadow = false; g.add(bot);   /* fundo escuro por dentro */
     var rim = pm(new THREE.TorusGeometry(.0655, .0032, 6, 28), M(0xd9a93a, { roughness: .4 }), 0, .101, 0); rim.rotation.x = HP; rim.castShadow = false; g.add(rim);   /* borda arredondada */
     /* lápis e canetas (PENS): ficam no copo, inclinados; ao cair no chão saem voando e se espalham (spillPens) */
@@ -5660,7 +5660,7 @@ var DEFS = {
   } },
   balde: { r: .14, h: .21, bounce: .3, snd: 'clang', slow: .85, build: function (g, c) {   /* balde oco de praia: parede, borda, fundo por dentro e alça */
     var pts = [[0, 0], [.095, 0], [.132, .18], [.142, .186], [.132, .192], [.122, .19], [.088, .035], [0, .035]].map(function (q) { return new THREE.Vector2(q[0], q[1]); });
-    g.add(pm(new THREE.LatheGeometry(pts, 20), M(c || 0xff6b6b, { side: THREE.DoubleSide }), 0, 0, 0));
+    g.add(pm(new THREE.LatheGeometry(pts, 20), M(c || 0xff6b6b, { side: THREE.FrontSide }), 0, 0, 0));
     var h = pm(new THREE.TorusGeometry(.13, .008, 6, 16, Math.PI), M(0xdddddd), 0, .185, 0); g.add(h); } },
   travesseiro: { r: .27, h: .11, bounce: .08, soft: .35, build: function (g, c) {   /* soft: pancada abafada ao cair */
     var m = pm(pillowGeo(), M(c || 0xfaf7f2, { roughness: 1 }), 0, .03, 0); m.scale.set(.44, .075, .25); g.add(m); } },
@@ -6352,7 +6352,7 @@ function popBalloon(p, remote) {   /* estoura: some e deixa retalhos de borracha
   var sup = supportAt(p.x, p.z, p.y), col = p.c || 0xe94b6b, k;
   for (k = 0; k < 9; k++) {
     var w = 0.04 + Math.random() * 0.04;
-    var m = new THREE.Mesh(new THREE.BoxGeometry(w, 0.004, w * 0.7), new THREE.MeshStandardMaterial({ color: col, roughness: 0.3, side: THREE.DoubleSide }));
+    var m = new THREE.Mesh(new THREE.BoxGeometry(w, 0.004, w * 0.7), new THREE.MeshStandardMaterial({ color: col, roughness: 0.3, side: THREE.FrontSide }));
     m.position.set(p.x, p.y + 0.18, p.z); m.castShadow = false; m.rotation.set(Math.random() * 3, Math.random() * 3, Math.random() * 3); scene.add(m);
     var a = Math.random() * 6.28, u = 0.5 + Math.random() * 1.3;
     shards.push({ m: m, vx: Math.cos(a) * u, vy: 0.6 + Math.random() * 1.6, vz: Math.sin(a) * u, fy: sup, life: 7, rs: (Math.random() - 0.5) * 12 });
@@ -7217,7 +7217,7 @@ function prepCatModel(m, bn) {
       o.castShadow = true; o.frustumCulled = false;
       (Array.isArray(o.material) ? o.material : [o.material]).forEach(function (mt) {
         if (mt.map) { mt.map.encoding = THREE.LinearEncoding; mt.map.needsUpdate = true; }
-        mt.side = THREE.DoubleSided;
+        mt.side = THREE.FrontSide;   /* (estava THREE.DoubleSided, que nao existe: virava undefined e ja desenhava so a frente; agora explicito) */
         if (mt.transparent) mt.depthWrite = false;
         mt.needsUpdate = true;
       });
@@ -10287,7 +10287,7 @@ function animateModel(t, dt, moving) {
     lounger(cx - 4.1, cz + 1.3); lounger(cx - 4.1, cz - 1.4);
     cyl({ x: cx + 4.1, z: cz + 2.9, r: 0.04, h: 2.1, color: 0xdddddd, tex: 'metal', collide: true });
     cyl({ x: cx + 4.1, z: cz + 2.9, r: 0.45, h: 0.04, y: 0.5, color: 0xf4efe4, tex: 'stone', collide: false });
-    var par = new THREE.Mesh(new THREE.ConeGeometry(1.25, 0.45, 10), M(0xff6b6b, { side: THREE.DoubleSide }, 'fabric')); TEXLIB.uvCyl(par.geometry, 1.25, 0.45, 'fabric');
+    var par = new THREE.Mesh(new THREE.ConeGeometry(1.25, 0.45, 10), M(0xff6b6b, { side: THREE.FrontSide }, 'fabric')); TEXLIB.uvCyl(par.geometry, 1.25, 0.45, 'fabric');
     par.position.set(cx + 4.1, 2.2, cz + 2.9); par.castShadow = true; scene.add(par);
 
     /* ----- parquinho ----- */
