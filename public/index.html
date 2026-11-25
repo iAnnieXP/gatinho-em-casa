@@ -37,7 +37,7 @@ body {
 #c:active { cursor: grabbing; }
 /* ---------- acabamento lo-fi: tom quente, pretos "lavados", vinheta e grão de filme (camadas leves por cima do canvas) ----------
    --n = quão de noite está (0 dia, 1 noite), atualizado em updateSky. Para desligar: abra a página com ?lofi=0 */
-#c.lf-ca { filter: url(#lfCA); }   /* aberração cromática leve: canais R e B deslocados ~1px (só no canvas 3D, não na interface) */
+#c.lf-ca, #fgOv.lf-ca { filter: url(#lfCA); }   /* aberração cromática leve: canais R e B deslocados ~1px (só no canvas 3D, não na interface) */
 #lofi { position: absolute; inset: 0; z-index: 0; pointer-events: none; --n: 0; overflow: hidden; }
 #lofi i { position: absolute; inset: 0; display: block; }
 #lofi .lf-fade { background: #2b2038; mix-blend-mode: lighten; opacity: calc(.07 + .04 * var(--n)); }
@@ -564,6 +564,7 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
 .sp-row input[type=range] { width: 100%; height: 1.625rem; accent-color: var(--accent); cursor: pointer; }
 .sp-row input[type=range]:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; border-radius: 0.5rem; }
 .sp-h { font-size: 0.72rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); font-weight: 800; margin-top: 0.25rem; padding-top: 0.625rem; border-top: 1px solid var(--line); }
+.sp-note { font-size: 0.74rem; line-height: 1.3; color: var(--muted); margin-top: -0.35rem; }
 .sp-tg { display: flex; justify-content: space-between; align-items: center; gap: 0.625rem; font-weight: 700; color: var(--ink); font-size: 0.92rem; }
 .sp-sw, .sp-opts button { font: inherit; font-weight: 800; font-size: 0.9rem; padding: 0.5rem 0.75rem; border-radius: 0.75rem; border: 1px solid var(--line); background: rgba(255, 238, 214, 0.06); color: var(--muted); cursor: pointer; }
 .sp-sw { min-width: 4.25rem; }
@@ -648,7 +649,7 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
 /* configurações do jogo (som, gráficos, câmera): salvas no navegador */
 (function () {
   var DEF = { music: 100, sfx: 100, amb: 100, meow: 100, chat: 100, birds: true, clock: true, rain: true, crickets: true, uiClicks: true,
-    quality: 'high', pr: 1, shadow: 1024, fps: 0, showFps: false, lofi: true, mist: false, chroma: true, fov: 62, sens: 100, invX: false, invY: false };
+    quality: 'high', pr: 1, shadow: 1024, fps: 0, vsync: false, upscale: false, framegen: false, showFps: false, lofi: true, mist: false, chroma: true, fov: 62, sens: 100, invX: false, invY: false };
   var cur = {}, subs = [], k;
   function clamp(v, a, b) { return Math.max(a, Math.min(b, v)); }
   function fix(key, v) {
@@ -7492,6 +7493,12 @@ function animateModel(t, dt, moving) {
       { t: 'opt', k: 'shadow', label: 'Shadow resolution', opts: [[512, 'Low'], [1024, 'Medium'], [2048, 'High']] },
       { t: 'opt', k: 'pr', label: 'Pixel ratio', opts: [[0.75, '0.75'], [1, '1'], [1.5, '1.5'], [2, '2']] },
       { t: 'opt', k: 'fps', label: 'FPS limit', opts: [[30, '30'], [60, '60'], [0, 'Unlimited']] },
+      { t: 'tog', k: 'vsync', label: 'VSync' },
+      { t: 'note', label: 'Desktop app only: VSync changes apply the next time you open the game.' },
+      { t: 'tog', k: 'upscale', label: 'Upscale (FSR)' },
+      { t: 'note', label: 'Renders at 67% resolution and rebuilds the image with an FSR-style edge-aware upscaler and sharpening: faster, nearly as crisp.' },
+      { t: 'tog', k: 'framegen', label: 'Frame generation (FSR)' },
+      { t: 'note', label: 'Draws every other frame and generates the in-between one with motion estimation (optical flow): smoother on slower PCs, with a tiny bit of delay.' },
       { t: 'tog', k: 'showFps', label: 'Show FPS' },
       { t: 'head', label: 'Filters' },
       { t: 'tog', k: 'lofi', label: 'Lo-fi filter' },
@@ -7508,6 +7515,7 @@ function animateModel(t, dt, moving) {
   SP.forEach(function (p) { p.rows.forEach(function (r) { if (r.k) SPK[r.k] = r; }); });
   function spRow(r) {
     if (r.t === 'head') return '<div class="sp-h">' + r.label + '</div>';
+    if (r.t === 'note') return '<div class="sp-note">' + r.label + '</div>';
     if (r.t === 'fs') return '<div class="sp-row"><div class="vol-row"><span>Display</span></div><div class="seg"><button type="button" class="go alt seg-btn" data-fs="0">Window</button><button type="button" class="go alt seg-btn" data-fs="1">Full screen</button></div></div>';
     if (r.t === 'range') return '<div class="sp-row"><div class="vol-row"><span>' + r.label + '</span><span data-val="' + r.k + '"></span></div><input type="range" data-k="' + r.k + '" min="' + (r.min == null ? 0 : r.min) + '" max="' + (r.max == null ? 100 : r.max) + '" step="' + (r.step || 5) + '" aria-label="' + r.label + '"></div>';
     if (r.t === 'tog') return '<div class="sp-tg"><span>' + r.label + '</span><button type="button" class="sp-sw" role="switch" data-k="' + r.k + '" aria-label="' + r.label + '"></button></div>';
@@ -8423,10 +8431,180 @@ function animateModel(t, dt, moving) {
   resize();
 
   /* ---------- gráficos: qualidade (sombras, partículas), pixel ratio (resolução), campo de visão, campo de visão, limite e contador de FPS ---------- */
+  var UPSCALE = 0.67;
+  /* Upscale estilo FSR 1.0 (AMD FidelityFX Super Resolution): a cena é desenhada em UPSCALE (67%) da resolução da tela e depois passa por 2 etapas de shader na GPU:
+       1. EASU (reconstrução com borda adaptativa): kernel Lanczos2 de 16 amostras, alongado ao longo das bordas (direção do gradiente de luminância) e limitado ao
+          mínimo/máximo dos 4 pixels vizinhos (sem halos). Versão própria, no espírito do EASU original.
+       2. RCAS (nitidez adaptativa de contraste): afia sem estourar os realces nem as sombras.
+     É um algoritmo espacial: roda em qualquer placa de vídeo (diferente do DLSS, que é só NVIDIA e exige SDK nativo). */
+  var US = { on: false, ready: false, w: 0, h: 0, rtLow: null, rtMid: null, scene: null, cam: null, quad: null, matE: null, matR: null };
+  var US_VS = 'varying vec2 vUv; void main() { vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }';
+  var US_EASU = [
+    'precision highp float; uniform sampler2D tDiffuse; uniform vec2 srcSize; varying vec2 vUv;',
+    'float lum(vec3 c) { return dot(c, vec3(0.299, 0.587, 0.114)); }',
+    'float lanczos2(float x) { if (x < 1e-4) return 1.0; if (x >= 2.0) return 0.0; float px = 3.14159265 * x; return 2.0 * sin(px) * sin(px * 0.5) / (px * px); }',
+    'void main() {',
+    '  vec2 pos = vUv * srcSize - 0.5; vec2 ip = floor(pos); vec2 f = pos - ip;',
+    '  vec3 c[16]; float l[16];',
+    '  for (int j = 0; j < 4; j++) { for (int i = 0; i < 4; i++) {',
+    '    vec3 col = texture2D(tDiffuse, (ip + vec2(float(i) - 1.0, float(j) - 1.0) + 0.5) / srcSize).rgb;',
+    '    c[j * 4 + i] = col; l[j * 4 + i] = lum(col);',
+    '  } }',
+    '  vec2 g5 = vec2(l[6] - l[4], l[9] - l[1]), g6 = vec2(l[7] - l[5], l[10] - l[2]), g9 = vec2(l[10] - l[8], l[13] - l[5]), g10 = vec2(l[11] - l[9], l[14] - l[6]);',
+    '  vec2 g = mix(mix(g5, g6, f.x), mix(g9, g10, f.x), f.y);',
+    '  float len = length(g); float e = smoothstep(0.03, 0.3, len);',
+    '  vec2 across = len > 1e-5 ? g / len : vec2(1.0, 0.0); vec2 along = vec2(-across.y, across.x);',
+    '  float sAlong = mix(1.0, 0.55, e), sAcross = mix(1.0, 1.2, e);',
+    '  vec3 sum = vec3(0.0); float wsum = 0.0;',
+    '  for (int j = 0; j < 4; j++) { for (int i = 0; i < 4; i++) {',
+    '    vec2 d = vec2(float(i) - 1.0, float(j) - 1.0) - f;',
+    '    float w = lanczos2(length(vec2(dot(d, along) * sAlong, dot(d, across) * sAcross)));',
+    '    sum += c[j * 4 + i] * w; wsum += w;',
+    '  } }',
+    '  vec3 col = sum / max(wsum, 1e-4);',
+    '  vec3 mn = min(min(c[5], c[6]), min(c[9], c[10])), mx = max(max(c[5], c[6]), max(c[9], c[10]));',
+    '  gl_FragColor = vec4(clamp(col, mn, mx), 1.0);',
+    '}'
+  ].join('\n');
+  var US_RCAS = [
+    'precision highp float; uniform sampler2D tDiffuse; uniform vec2 dstSize; uniform float sharp; varying vec2 vUv;',
+    'void main() {',
+    '  vec2 px = 1.0 / dstSize;',
+    '  vec3 e = texture2D(tDiffuse, vUv).rgb;',
+    '  vec3 b = texture2D(tDiffuse, vUv + vec2(0.0, -px.y)).rgb, d = texture2D(tDiffuse, vUv + vec2(-px.x, 0.0)).rgb;',
+    '  vec3 f = texture2D(tDiffuse, vUv + vec2(px.x, 0.0)).rgb, h = texture2D(tDiffuse, vUv + vec2(0.0, px.y)).rgb;',
+    '  vec3 mn4 = min(min(b, d), min(f, h)), mx4 = max(max(b, d), max(f, h));',
+    '  vec3 hitMin = mn4 / (4.0 * mx4 + 1e-4), hitMax = (1.0 - mx4) / (4.0 * mn4 - 4.0 - 1e-4);',
+    '  vec3 lobe3 = max(-hitMin, hitMax);',
+    '  float lobe = max(-0.1875, min(max(lobe3.r, max(lobe3.g, lobe3.b)), 0.0)) * sharp;',
+    '  vec3 col = (lobe * (b + d + f + h) + e) / (4.0 * lobe + 1.0);',
+    '  gl_FragColor = vec4(clamp(col, 0.0, 1.0), 1.0);',
+    '}'
+  ].join('\n');
+  /* Frame generation estilo FSR 3: fluxo óptico + interpolação com compensação de movimento. A cada 2 quadros só 1 é desenhado de verdade; o do meio é gerado:
+       1. fluxo óptico: para cada bloco 8x8 do quadro novo, procura na imagem anterior para onde aquele pedaço andou (busca grossa de +-16 px e refino de +-2 px);
+       2. interpolação: cada pixel do quadro gerado é a média do quadro anterior e do novo, deslocados metade do movimento (ponto médio da trajetória);
+       3. se as duas versões deslocadas não batem (algo apareceu/sumiu), volta para a mistura simples 50/50 naquele pixel.
+     Diferente do FSR 3 original, o jogo não entrega vetores de movimento nem profundidade: o movimento é estimado só pelas imagens. */
+  var FG_FLOW = [
+    'precision highp float; uniform sampler2D tA, tB; uniform vec2 size;',
+    'float L(sampler2D t, vec2 p) { return dot(texture2D(t, p / size).rgb, vec3(0.299, 0.587, 0.114)); }',
+    'float sad(vec2 p, vec2 d) {',
+    '  float s = 0.0;',
+    '  for (int j = 0; j < 4; j++) { for (int i = 0; i < 4; i++) {',
+    '    vec2 o = (vec2(float(i), float(j)) - 1.5) * 2.0;',
+    '    s += abs(L(tB, p + o) - L(tA, p + o - d));',
+    '  } }',
+    '  return s;',
+    '}',
+    'void main() {',
+    '  vec2 p = floor(gl_FragCoord.xy) * 8.0 + 4.0;',
+    '  vec2 best = vec2(0.0); float bc = sad(p, best);',
+    '  for (int j = -4; j <= 4; j++) { for (int i = -4; i <= 4; i++) {',
+    '    vec2 d = vec2(float(i), float(j)) * 4.0; float c = sad(p, d) + 0.0015 * length(d);',
+    '    if (c < bc) { bc = c; best = d; }',
+    '  } }',
+    '  vec2 c0 = best;',
+    '  for (int j = -2; j <= 2; j++) { for (int i = -2; i <= 2; i++) {',
+    '    vec2 d = c0 + vec2(float(i), float(j)); float c = sad(p, d) + 0.0015 * length(d);',
+    '    if (c < bc) { bc = c; best = d; }',
+    '  } }',
+    '  gl_FragColor = vec4(clamp(best / 32.0 * 0.5 + 0.5, 0.0, 1.0), 0.0, 1.0);',
+    '}'
+  ].join('\n');
+  var FG_INTERP = [
+    'precision highp float; uniform sampler2D tA, tB, tFlow; uniform vec2 size; varying vec2 vUv;',
+    'void main() {',
+    '  vec2 d = (texture2D(tFlow, vUv).rg * 2.0 - 1.0) * 32.0 / size;',
+    '  vec3 a = texture2D(tA, vUv - d * 0.5).rgb, b = texture2D(tB, vUv + d * 0.5).rgb;',
+    '  vec3 a0 = texture2D(tA, vUv).rgb, b0 = texture2D(tB, vUv).rgb;',
+    '  float k = smoothstep(0.12, 0.4, length(a - b));',
+    '  gl_FragColor = vec4(mix(0.5 * (a + b), 0.5 * (a0 + b0), k), 1.0);',
+    '}'
+  ].join('\n');
+  var US_COPY = 'precision highp float; uniform sampler2D tDiffuse; varying vec2 vUv; void main() { gl_FragColor = vec4(texture2D(tDiffuse, vUv).rgb, 1.0); }';
+  function usInit() {
+    if (US.ready) return;
+    var mk = function (fs, u) { return new THREE.ShaderMaterial({ vertexShader: US_VS, fragmentShader: fs, uniforms: u, depthTest: false, depthWrite: false }); };
+    US.matE = mk(US_EASU, { tDiffuse: { value: null }, srcSize: { value: new THREE.Vector2(1, 1) } });
+    US.matR = mk(US_RCAS, { tDiffuse: { value: null }, dstSize: { value: new THREE.Vector2(1, 1) }, sharp: { value: 0.87 } });
+    US.matC = mk(US_COPY, { tDiffuse: { value: null } });
+    US.matF = new THREE.ShaderMaterial({ vertexShader: US_VS, fragmentShader: FG_FLOW, uniforms: { tA: { value: null }, tB: { value: null }, size: { value: new THREE.Vector2(1, 1) } }, depthTest: false, depthWrite: false });
+    US.matI = new THREE.ShaderMaterial({ vertexShader: US_VS, fragmentShader: FG_INTERP, uniforms: { tA: { value: null }, tB: { value: null }, tFlow: { value: null }, size: { value: new THREE.Vector2(1, 1) } }, depthTest: false, depthWrite: false });
+    US.quad = new THREE.Mesh(new THREE.PlaneGeometry(2, 2), US.matE); US.quad.frustumCulled = false;
+    US.scene = new THREE.Scene(); US.scene.add(US.quad);
+    US.cam = new THREE.OrthographicCamera(-1, 1, 1, -1, 0, 1);
+    US.ready = true;
+  }
+  function usTargets(w, h) {   /* alvos de render: a cena em baixa resolução (com MSAA quando há WebGL2) e a imagem reconstruída em resolução cheia */
+    if (US.rtLow && US.w === w && US.h === h) return;
+    if (US.rtLow) { US.rtLow.dispose(); US.rtMid.dispose(); }
+    var lw = Math.max(2, Math.round(w * UPSCALE)), lh = Math.max(2, Math.round(h * UPSCALE));
+    var ms = renderer.capabilities.isWebGL2 && THREE.WebGLMultisampleRenderTarget, opt = { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, format: THREE.RGBAFormat };
+    US.rtLow = new (ms ? THREE.WebGLMultisampleRenderTarget : THREE.WebGLRenderTarget)(lw, lh, opt);
+    if (ms) US.rtLow.samples = 4;
+    US.rtMid = new THREE.WebGLRenderTarget(w, h, { minFilter: THREE.NearestFilter, magFilter: THREE.NearestFilter, format: THREE.RGBAFormat, depthBuffer: false });
+    US.w = w; US.h = h;
+    US.matE.uniforms.srcSize.value.set(lw, lh); US.matR.uniforms.dstSize.value.set(w, h);
+  }
+  function usRelease() { if (US.rtLow) { US.rtLow.dispose(); US.rtMid.dispose(); US.rtLow = US.rtMid = null; US.w = US.h = 0; } }
+  function usPass(mat, target) { US.quad.material = mat; renderer.setRenderTarget(target); renderer.render(US.scene, US.cam); }
+  /* desenha um quadro no alvo (null = tela): direto, ou (Upscale ligado) cena -> EASU -> RCAS */
+  function renderFrame(target) {
+    var w = canvas.width, h = canvas.height;
+    if (!US.on || w < 8 || h < 8) { renderer.setRenderTarget(target); renderer.render(scene, camera); if (target) renderer.setRenderTarget(null); return; }
+    usInit(); usTargets(w, h);
+    renderer.setRenderTarget(US.rtLow); renderer.render(scene, camera);
+    US.matE.uniforms.tDiffuse.value = US.rtLow.texture; usPass(US.matE, US.rtMid);
+    US.matR.uniforms.tDiffuse.value = US.rtMid.texture; usPass(US.matR, target);
+    renderer.setRenderTarget(null);
+  }
+  function drawScene() { renderFrame(null); }
+  /* VSync: só o programa (.exe) consegue mudar; o jogo grava a escolha e mostra no menu o que está valendo nesta sessão */
+  var vsyncSent = null;
+  function vsyncSync(v) {
+    if (!window.gatinhoGfx || vsyncSent === v) return;
+    vsyncSent = v; try { gatinhoGfx.setVsync(v); } catch (e) {}
+  }
+  if (window.gatinhoGfx) try { gatinhoGfx.state().then(function (st) { vsyncSent = !!st.vsync; LunaCfg.set('vsync', vsyncSent); }); } catch (e) {}
+  /* Frame generation (FSR 3): veja o comentário dos shaders FG_FLOW / FG_INTERP. A lógica do jogo roda em todos os quadros; a cena só é desenhada em 1 a cada 2.
+     No quadro desenhado aparece o quadro GERADO (ponto médio entre o anterior e o novo); no seguinte, o novo. Custo: 1 quadro de atraso. */
+  var FGON = false, fgTick = 0, fgHave = false, FG = { A: null, B: null, flow: null, w: 0, h: 0, ms: null };
+  function fgRelease() { ['A', 'B', 'flow'].forEach(function (k) { if (FG[k]) { FG[k].dispose(); FG[k] = null; } }); FG.w = FG.h = 0; FG.ms = null; fgHave = false; }
+  function fgSet(on) { FGON = on; fgTick = 0; fgHave = false; if (!on) fgRelease(); }
+  function fgTargets(w, h) {
+    var ms = !US.on && renderer.capabilities.isWebGL2 && !!THREE.WebGLMultisampleRenderTarget;   /* sem upscale a cena entra direto nestes alvos: com MSAA quando dá */
+    if (FG.A && FG.w === w && FG.h === h && FG.ms === ms) return;
+    fgRelease();
+    var opt = { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat };
+    function mk() { var t = new (ms ? THREE.WebGLMultisampleRenderTarget : THREE.WebGLRenderTarget)(w, h, opt); if (ms) t.samples = 4; return t; }
+    FG.A = mk(); FG.B = mk();
+    FG.flow = new THREE.WebGLRenderTarget(Math.ceil(w / 8), Math.ceil(h / 8), { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat, depthBuffer: false });
+    FG.w = w; FG.h = h; FG.ms = ms; fgHave = false; fgTick = 0;
+  }
+  function fgPresent(tex) { US.matC.uniforms.tDiffuse.value = tex; usPass(US.matC, null); }
+  function fgRender() {
+    var w = canvas.width, h = canvas.height;
+    if (!FGON || w < 8 || h < 8) { drawScene(); return; }
+    usInit(); fgTargets(w, h);
+    if (fgTick++ & 1) { fgPresent(FG.B.texture); return; }   /* quadro sem desenho: mostra de novo o último quadro real */
+    var t = FG.A; FG.A = FG.B; FG.B = t;
+    renderFrame(FG.B);
+    if (fgHave) {
+      US.matF.uniforms.tA.value = FG.A.texture; US.matF.uniforms.tB.value = FG.B.texture; US.matF.uniforms.size.value.set(w, h);
+      usPass(US.matF, FG.flow);
+      US.matI.uniforms.tA.value = FG.A.texture; US.matI.uniforms.tB.value = FG.B.texture; US.matI.uniforms.tFlow.value = FG.flow.texture; US.matI.uniforms.size.value.set(w, h);
+      usPass(US.matI, null);
+    } else fgPresent(FG.B.texture);
+    fgHave = true;
+  }
   var GQ = { low: { sh: 0, rain: 0.3, sparks: 4 }, med: { sh: 1, rain: 0.6, sparks: 7 }, high: { sh: 1, rain: 1, sparks: 10 } };   /* sh: 0 = sem sombras (Low); senão a resolução vem de Settings > Graphics > Shadow resolution */
   function applyGfx() {
     var C = LunaCfg, q = GQ[C.get('quality')] || GQ.high;
     renderer.setPixelRatio(C.get('pr'));
+    US.on = !!C.get('upscale'); if (!US.on) usRelease();   /* Upscale (FSR): a cena vai para um alvo em 67% e é reconstruída até o tamanho do canvas */
+    fgSet(!!C.get('framegen'));
+    vsyncSync(!!C.get('vsync'));
     if (q.sh) {
       var res = C.get('shadow');
       sun.castShadow = true;
@@ -11110,13 +11288,19 @@ function animateModel(t, dt, moving) {
         })();
       });
     }
-    function compileAll() { try { renderer.compile(scene, camera); } catch (e) { console.warn('[warmup] compile', e); } }
+    function compileAll() {
+      try { renderer.compile(scene, camera); } catch (e) { console.warn('[warmup] compile', e); }
+      try {   /* shaders do upscale (EASU/RCAS) e do frame generation (fluxo óptico/interpolação), mesmo desligados: ligar no meio do jogo não engasga */
+        usInit();
+        [US.matE, US.matR, US.matC, US.matF, US.matI].forEach(function (m) { US.quad.material = m; renderer.compile(US.scene, US.cam); });
+      } catch (e) { console.warn('[warmup] compile upscale/framegen', e); }
+    }
     function lightVariants() {
       var N = Math.min(ROOM_LIT_MAX, roomLamps.length), seq = Promise.resolve(), k, first = true;
       function one(n) {
         return function () {
           roomLamps.forEach(function (r, i) { r.l.visible = i < n; });
-          try { renderer.render(scene, camera); flush(); } catch (e) { console.warn('[warmup] render', e); }
+          try { drawScene(); flush(); } catch (e) { console.warn('[warmup] render', e); }
           if (first) { first = false; renderer.shadowMap.autoUpdate = false; }   /* o shader da sombra não depende das luzes de teto: uma passada basta */
           return wait(0);
         };
@@ -11185,7 +11369,7 @@ function animateModel(t, dt, moving) {
     updFountain(t);
     updateBubble();
     smPoll();
-    renderer.render(scene, camera);
+    fgRender();
     updatePrompts();
     updateTv();
     requestAnimationFrame(frame);
