@@ -347,3 +347,16 @@ TEXTURAS DA CASA E DOS MOVEIS (versao 46, estilo minimalista: texturas suaves e 
          (que sao objetos derrubaveis; agora usam 20 m em vez de 17 m).
      A fusao estatica passou a nao misturar zonas no mesmo chunk (so isso: o resto continua igual). Paredes, pisos, telhado, quadros, arbustos, arvores,
      bancos, casinha e fonte nao entram nessas zonas.
+
+   - Versao 1.1.26 (so mudou o public/index.html): +3 m na distancia de desenho do cenario estatico que era desenhado a menos de 40 m (volta a aparecer 0,5 m antes):
+       * 20 m -> 23 m: mesas de jardim (com cadeiras e toalha), moveis estaticos da casa (incluindo tapetes), flores dos canteiros e fonte (SCENERY_CULL / ZC_NEAR).
+       * Continuam em 40 m (ja eram desenhados a 40 m): cercas, muros, portao, churrasqueira, parquinho, campo de futebol, piscina e pula-pula.
+       * Nao mudaram: bichos, objetos pegaveis/quebraveis, abajures, bola, bexigas, liquidos e cacos (FAUNA_CULL 20 m e PROP_CULL 17 m).
+
+   - Versao 1.1.27 (so mudou o public/index.html): frustum culling (nao desenha o que esta fora do campo de visao da camera, nem a sombra do que esta fora do frustum da luz).
+       As malhas comuns ja tinham o corte ligado; faltavam as InstancedMesh (que estavam com frustumCulled = false porque o three r128 usa a esfera da geometria na origem).
+       Agora elas ganham esfera de corte propria que cobre as instancias (copia da geometria com os mesmos buffers, sem memoria extra):
+       * uma esfera por malha: folhas das arvores, flores dos canteiros (4 malhas por canteiro);
+       * divididas em celulas de 10-12 m: pedrinhas de borda e tufos de grama dos caminhos, franja cascalho->grama, casas e arvores do horizonte.
+       Continuam sem corte (de proposito): gatinho (malha esqueletada), sprites, estrelas e vagalumes.
+       Para comparar/testar, abra o jogo com ?fc=0 no endereco (desliga so esta parte).
