@@ -454,7 +454,7 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
 #pause .pfavx { position: absolute; top: -0.3rem; right: -0.3rem; z-index: 2; width: 2rem; height: 2rem; padding: 0; border-radius: 50%; display: grid; place-items: center; font: inherit; font-size: 1.3rem; font-weight: 700; line-height: 1; color: #fff; background: rgba(26, 29, 40, 0.94); border: 2px solid rgba(255, 255, 255, 0.75); cursor: pointer; transition: transform 0.15s, background 0.15s; }
 #pause .pfavx:hover { background: #b8455f; transform: scale(1.1); }
 #pause .pfav img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; display: block; }
-#pause .pfemo { position: absolute; right: -0.4rem; bottom: -0.3rem; width: 2rem; height: 2rem; border-radius: 50%; display: grid; place-items: center; font-size: 1.1rem; line-height: 1; background: rgba(26, 29, 40, 0.94); border: 2px solid rgba(255, 255, 255, 0.75); }
+#pause .pfemo { position: absolute; right: -0.4rem; bottom: -0.3rem; width: 2rem; height: 2rem; border-radius: 50%; display: grid; place-items: center; font-size: 1.1rem; line-height: 1; overflow: hidden; background: rgba(26, 29, 40, 0.94); border: 2px solid rgba(255, 255, 255, 0.75); }
 #pause input.pfnamein { display: block; width: 100%; box-sizing: border-box; padding: 0.05rem 0.5rem; border-radius: 0.75rem; border: 1px dashed transparent; background: transparent; color: inherit; font-family: var(--font-display); font-weight: 800; font-size: 1.4rem; line-height: 1.25; text-align: center; text-overflow: ellipsis; outline: none; cursor: text; transition: background 0.15s, border-color 0.15s; }
 #pause input.pfnamein::placeholder { color: inherit; opacity: 0.5; }
 #pause input.pfnamein:hover { border-color: rgba(128, 128, 128, 0.5); }
@@ -482,8 +482,8 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
 #pause .pfin { width: 100%; box-sizing: border-box; padding: 0.65rem 0.8rem; border-radius: 0.75rem; border: 1px solid var(--line); background: rgba(255, 238, 214, 0.06); color: var(--ink); font: inherit; font-size: 0.92rem; outline: none; }
 #pause .pfin:focus { border-color: #ffd060; }
 #pause .pfcount { margin-top: 0.25rem; text-align: right; font-size: 0.7rem; font-weight: 700; color: var(--muted); }
-#pause .pfgrid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 0.3rem; }
-#pause .pfe { aspect-ratio: 1; display: grid; place-items: center; padding: 0; font-size: 1.15rem; line-height: 1; border-radius: 0.6rem; background: rgba(255, 238, 214, 0.06); border: 1px solid var(--line); color: var(--ink); cursor: pointer; }
+#pause .pfgrid { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 0.3rem; }
+#pause .pfe { aspect-ratio: 1; display: grid; place-items: center; padding: 0; font-size: 1.15rem; line-height: 1; min-width: 0; overflow: hidden; font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif; border-radius: 0.6rem; background: rgba(255, 238, 214, 0.06); border: 1px solid var(--line); color: var(--ink); cursor: pointer; }
 #pause .pfe:hover { filter: brightness(1.3); }
 #pause .pfe.on { background: rgba(255, 208, 96, 0.22); border-color: #ffd060; }
 #pause .pfswrow { display: flex; flex-wrap: nowrap; align-items: center; justify-content: space-between; gap: 0.35rem; }
@@ -872,7 +872,7 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
     <div class="dialog">
       <h2>Settings</h2>
       <div class="sp-host" id="iSP"></div>
-      <p class="phint">L1 / R1 or Q / E: switch tab · D-pad: select &amp; adjust · Save keeps your settings · B / Esc: back</p>
+      <p class="phint">L1 / R1 or Q / E: switch tab · D-pad: select &amp; adjust · Graphics apply when you Save · B / Esc: back</p>
     </div>
   </div>
 
@@ -907,7 +907,7 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
     <div id="pfPicker" class="pfpicker" role="dialog" aria-label="Custom color" hidden></div>
     <div class="dialog">
       <div id="pauseMain">
-        <h2>Paused</h2>
+        <h2>Menu</h2>
         <div class="pmenu">
           <button id="pResume" class="go" type="button">Resume</button>
           <button id="pControls" class="go alt" type="button">Controls</button>
@@ -953,12 +953,12 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
           <div class="hr"><span class="hk"><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd></span><span class="hd">Walk (the arrow keys work too)</span></div>
           <div class="hr"><span class="hk"><kbd>Shift</kbd></span><span class="hd">Run (uses stamina)</span></div>
           <div class="hr"><span class="hk"><kbd>Space</kbd></span><span class="hd">Jump</span></div>
-          <div class="hr"><span class="hk"><kbd>F</kbd></span><span class="hd">Swat</span></div>
+          <div class="hr"><span class="hk"><kbd>F</kbd><kbd>Left click</kbd></span><span class="hd">Swat</span></div>
           <div class="hr"><span class="hk"><kbd>R</kbd></span><span class="hd">Tidy up</span></div>
           <div class="hr"><span class="hk"><kbd>T</kbd></span><span class="hd">Chat</span></div>
           <div class="hr"><span class="hk"><kbd>P</kbd></span><span class="hd">Player menu: invite to tag, friend, mute (nearest cat) / accept invite</span></div>
           <div class="hr"><span class="hk"><kbd>M</kbd></span><span class="hd">Meow</span></div>
-          <div class="hr"><span class="hk"><kbd>G</kbd></span><span class="hd">Grab / drop a toy or fruit</span></div>
+          <div class="hr"><span class="hk"><kbd>G</kbd><kbd>Right click</kbd></span><span class="hd">Grab / drop a toy or fruit</span></div>
           <div class="hr"><span class="hk"><kbd>C</kbd></span><span class="hd">Eat kibble / drink water (near the bowls or a puddle, or standing in the fountain, pool or bathtub)</span></div>
           <div class="hr"><span class="hk"><kbd>Mouse drag</kbd></span><span class="hd">Rotate the camera (it also follows behind the kitten)</span></div>
           <div class="hr"><span class="hk"><kbd>Q</kbd><kbd>E</kbd></span><span class="hd">Rotate the camera too</span></div>
@@ -970,7 +970,7 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
       <div id="pauseSet" hidden>
         <h2>Settings</h2>
         <div class="sp-host" id="pSP"></div>
-        <p class="phint">L1 / R1 or Q / E: switch tab · D-pad: select &amp; adjust · Save keeps your settings · B: back</p>
+        <p class="phint">L1 / R1 or Q / E: switch tab · D-pad: select &amp; adjust · Graphics apply when you Save · B: back</p>
       </div>
     </div>
   </div>
@@ -7306,8 +7306,33 @@ $('tidy').addEventListener('click', tidyUp);
 $('btnGrab').addEventListener('pointerdown', function (e) { e.preventDefault(); if (!started) { begin(); return; } toggleGrab(); });
 
 /* controle (Gamepad API): analógico esquerdo anda, direito gira a câmera, A pula, X patada, B miau, Y come a ração (ou pega/solta o brinquedo se não houver ração perto), direcional esquerdo convida para o pega-pega, gatilhos/L1/R1 correm, direcional cima/baixo zoom (cima aproxima, baixo afasta), Select arruma, Start começa */
-var gp = { x: 0, y: 0, run: false, jump: false }, gpPrev = {};
+var gp = { x: 0, y: 0, run: false, jump: false }, gpPrev = {}; var gpStick = { d: 0, t: 0 };
+var lastLblMode = '';
+/* ícones dos botões do controle (SVG inline, usam a cor do texto) */
+var GPI_ST = 'style="width:1.2em;height:1.2em;vertical-align:-0.28em;margin-left:0.2em" aria-hidden="true"';
+var GPI = {
+  dright: '<svg viewBox="0 0 24 24" ' + GPI_ST + '><path d="M9 2h6v7h7v6h-7v7H9v-7H2V9h7z" fill="currentColor" opacity=".35"/><path d="M15 9h7v6h-7z" fill="currentColor"/></svg>',
+  dleft: '<svg viewBox="0 0 24 24" ' + GPI_ST + '><path d="M9 2h6v7h7v6h-7v7H9v-7H2V9h7z" fill="currentColor" opacity=".35"/><path d="M2 9h7v6H2z" fill="currentColor"/></svg>',
+  start: '<svg viewBox="0 0 32 24" style="width:1.6em;height:1.2em;vertical-align:-0.28em;margin-left:0.2em" aria-hidden="true"><rect x="2" y="5" width="28" height="14" rx="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="M10 9.5h12M10 12h12M10 14.5h12" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>',
+  select: '<svg viewBox="0 0 32 24" style="width:1.6em;height:1.2em;vertical-align:-0.28em;margin-left:0.2em" aria-hidden="true"><rect x="2" y="5" width="28" height="14" rx="7" fill="none" stroke="currentColor" stroke-width="2"/><rect x="9" y="9.5" width="8" height="5" rx="1" fill="none" stroke="currentColor" stroke-width="1.5"/><rect x="13" y="11" width="8" height="5" rx="1" fill="currentColor" stroke="none" opacity=".9"/></svg>',
+  b: '<svg viewBox="0 0 24 24" ' + GPI_ST + '><circle cx="12" cy="12" r="10" fill="none" stroke="currentColor" stroke-width="2"/><text x="12" y="16.8" text-anchor="middle" font-size="13" font-weight="800" font-family="system-ui,sans-serif" fill="currentColor">B</text></svg>'
+};
+/* ícone de tecla (keycap) para o teclado */
+function KCAP(k) { return '<span style="display:inline-block;min-width:1.35em;box-sizing:border-box;text-align:center;margin-left:0.2em;padding:0 0.38em;font-size:0.82em;line-height:1.45;border-radius:0.35em;border:1px solid currentColor;border-bottom-width:2.5px;background:rgba(255,244,226,0.14);vertical-align:0.04em" aria-hidden="true">' + k + '</span>'; }
+/* rótulos da interface seguem o último controle usado: controle mostra o desenho dos botões do controle; teclado/mouse/toque mostram as teclas */
+function syncModeLabels(force) {
+  var pad = inMode === 'pad', m = pad ? 'pad' : 'key';
+  if (!force && m === lastLblMode) return; lastLblMode = m;
+  var set = function (id, t, icon, key) { var e = $(id); if (!e) return; e.innerHTML = ''; e.appendChild(document.createTextNode(t + ' ')); e.insertAdjacentHTML('beforeend', pad ? icon : KCAP(key)); };
+  set('chatBtn', '💬 Chat', GPI.dright, 'T');
+  set('menuBtn', '⏸ Menu', GPI.start, 'Esc');
+  set('tagBtn', '🐾 Players', GPI.dleft, 'P');
+  set('tidy', 'Tidy up the house', GPI.select, 'R');
+  set('tinvYes', 'Accept', GPI.dleft, 'P');
+  set('tinvNo', 'Decline', GPI.b, 'N');
+}
 function pollPad(dt) {
+  syncModeLabels();
   var pads = navigator.getGamepads ? navigator.getGamepads() : [], pad = null, i;
   for (i = 0; i < pads.length; i++) if (pads[i] && pads[i].connected) { pad = pads[i]; break; }
   if (!pad) { gp.x = 0; gp.y = 0; gp.run = false; gp.jump = false; return; }
@@ -7315,16 +7340,20 @@ function pollPad(dt) {
   function dn(n) { return !!(b[n] && b[n].pressed); }
   function press(n) { var d = dn(n), w = gpPrev[n]; gpPrev[n] = d; return d && !w; }
   function dz(v) { return Math.abs(v) < 0.18 ? 0 : v; }
-  var p0 = press(0), p1 = press(1), p2 = press(2), p3 = press(3), p8 = press(8), p9 = press(9), p14 = press(14), p4 = press(4), p5 = press(5);   /* p4/p5: L1/R1 (abas das configurações) */   /* p14: direcional esquerdo */
+  var p0 = press(0), p1 = press(1), p2 = press(2), p3 = press(3), p8 = press(8), p9 = press(9), p14 = press(14), p15 = press(15), p4 = press(4), p5 = press(5);   /* p4/p5: L1/R1 (abas das configurações) */   /* p14: direcional esquerdo */
   if (p0 || p1 || p2 || p3 || Math.abs(pad.axes[0] || 0) > 0.5 || Math.abs(pad.axes[1] || 0) > 0.5) inMode = 'pad';
   if (!started) { gp.x = 0; gp.y = 0; gp.run = false; gp.jump = false; if (setWinOpen()) { setPad(pad, p0, p1, p9, press(12), press(13), p4, p5); return; } if (mpWinOpen()) { mpPad(pad, p0, p1, p9, press(12), press(13)); return; } introPad(pad, p0, p1, p9, press(12), press(13)); return; }
   if (pauseOpen) { gp.x = 0; gp.y = 0; gp.run = false; gp.jump = false; pausePad(pad, p0, p1, p9, press(12), press(13), p4, p5); return; }
   if (p9) { openPause(); return; }   /* Start abre o menu de pausa */
   if (pmenuPad && !pmenu.hidden) {   /* menu do jogador aberto pelo controle: direcional cima/baixo escolhe, A confirma, B (ou o botão que abriu) fecha; o gato fica parado */
     gp.x = 0; gp.y = 0; gp.run = false; gp.jump = false;
-    pmenuPadNav(press(12), press(13), p0, p1 || p14 || press(11));
+    var sy = pad.axes[1] || 0, sd = sy < -0.55 ? -1 : sy > 0.55 ? 1 : 0, su = false, sdn = false, sn = performance.now();   /* analógico esquerdo cima/baixo também escolhe (repete se ficar segurado) */
+    if (sd !== gpStick.d) { gpStick.d = sd; gpStick.t = sn + 350; su = sd < 0; sdn = sd > 0; }
+    else if (sd && sn >= gpStick.t) { gpStick.t = sn + 180; su = sd < 0; sdn = sd > 0; }
+    pmenuPadNav(press(12) || su, press(13) || sdn, p0, p1 || p14 || press(11));
     return;
   }
+  gpStick.d = (pad.axes[1] || 0) < -0.55 ? -1 : (pad.axes[1] || 0) > 0.55 ? 1 : 0; gpStick.t = performance.now() + 350;   /* se o analógico já estava empurrado ao abrir o menu, não escolhe nada sozinho */
   gp.x = dz(pad.axes[0] || 0); gp.y = dz(pad.axes[1] || 0);
   gp.run = dn(4) || dn(5) || dn(6) || dn(7) || dn(10);
   gp.jump = dn(0) && performance.now() - pauseClosedAt > 300;
@@ -7334,6 +7363,7 @@ function pollPad(dt) {
   if (dn(13)) dist = Math.min(8, dist + 3 * dt);
   if (p2) swat();
   if (p1) { if (tagG.ask) tagAnswer(false); else meow(); }
+  if (p15 && $('chatbar').hidden) chatOpen();   /* direcional direito: abre o chat (igual à tecla T) */
   if (p14) tagKey(true);   /* direcional esquerdo: abre o menu do jogador mais perto / aceita convite do pega-pega */
   if (p3) { if (tagG.ask) tagKey(true); else if (!eat(true)) toggleGrab(); }   /* Y: come a ração se houver ao alcance; senão pega/solta o brinquedo (com um convite na tela, aceita) */
   if (p8) tidyUp();   /* botao do controle (Select/Back): arruma com o som de restauracao */
@@ -7441,8 +7471,38 @@ function animateModel(t, dt, moving) {
     if (cur === $('pSettings') && d > 0) pauseSel(it.indexOf($('pQuit')));
     else if (cur === $('pQuit') && d < 0) pauseSel(it.indexOf($('pSettings')));
   }
+  /* Navegação por posição na tela: cima/baixo vai para a linha de cima/baixo (mantendo a coluna), esquerda/direita anda dentro da linha.
+     Serve ao menu principal (Profile/Friends, Settings/Quit), à lista de amigos e ao perfil (pular direto da grade de emojis para as cores, Cancel e Save). */
+  var padKeep = null;
+  function pauseSpatial() { return !$('pauseMain').hidden || !$('pauseFriends').hidden || !$('pauseProfView').hidden || (!$('pauseProfile').hidden && $('pfPicker').hidden); }
+  function pauseNav(dx, dy) {
+    var it = pauseItems(); if (!it.length) return;
+    var cur = it[pauseIdx] || it[0], rows = [], node = null, ri = 0, row, n, i, j;
+    var info = it.map(function (e) { var r = e.getBoundingClientRect(); return { e: e, x: r.left + r.width / 2, y: r.top + r.height / 2, h: r.height }; });
+    info.sort(function (a, b) { return a.y - b.y || a.x - b.x; });
+    info.forEach(function (m) {
+      var last = rows[rows.length - 1];
+      if (last && Math.abs(m.y - last.y) <= Math.min(last.h, m.h) * 0.5) last.items.push(m); else rows.push({ y: m.y, h: m.h, items: [m] });
+    });
+    rows.forEach(function (r) { r.items.sort(function (a, b) { return a.x - b.x; }); });
+    for (i = 0; i < rows.length; i++) for (j = 0; j < rows[i].items.length; j++) if (rows[i].items[j].e === cur) { node = rows[i].items[j]; ri = i; }
+    if (!node) { pauseSel(0); return; }
+    row = rows[ri];
+    var target = null, keepX = node.x;
+    if (dx) { target = row.items[row.items.indexOf(node) + dx]; if (target) keepX = target.x; }
+    else if (dy) {
+      var nr = ri + dy; if (nr < 0) nr = rows.length - 1; else if (nr >= rows.length) nr = 0;
+      keepX = (padKeep && padKeep.e === cur) ? padKeep.x : node.x;
+      var bd = 1e9; rows[nr].items.forEach(function (m) { var d = Math.abs(m.x - keepX); if (d < bd) { bd = d; target = m; } });
+    }
+    if (!target || target.e === cur) return;
+    padKeep = { e: target.e, x: keepX };
+    pauseSel(it.indexOf(target.e));
+  }
+  function padDX(pad) { var d = ((pad.buttons[15] && pad.buttons[15].pressed) ? 1 : 0) - ((pad.buttons[14] && pad.buttons[14].pressed) ? 1 : 0); if (!d) { var a = pad.axes[0] || 0; if (Math.abs(a) > 0.6) d = a > 0 ? 1 : -1; } return d; }
   $('pause').addEventListener('focusin', function (e) { var i = pauseItems().indexOf(e.target); if (i >= 0) pauseMark(i); });
   function pauseShow(view) {   /* view: false = menu principal, true = Settings, 'help' = Controls */
+    spDiscard();   /* gráficos não salvos não valem: sair/entrar nas configurações começa limpo */
     $('pauseMain').hidden = view !== false; $('pauseSet').hidden = view !== true; $('pauseHelp').hidden = view !== 'help'; $('pauseFriends').hidden = view !== 'friends';
     $('pauseProfile').hidden = view !== 'profile'; $('pauseProfView').hidden = view !== 'pview'; if (view !== 'profile') pfPkClose();
     if (view === 'friends') renderFriends();
@@ -7460,7 +7520,7 @@ function animateModel(t, dt, moving) {
   function closePause() {
     if (!pauseOpen) return;
     if (!$('pauseProfile').hidden) pfCommit();   /* fechou o menu com o perfil aberto: o que foi editado fica salvo */
-    pfPkClose();
+    pfPkClose(); spDiscard();
     pauseOpen = false; pauseClosedAt = performance.now(); keys = {};
     $('pause').hidden = true; if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
   }
@@ -7493,13 +7553,13 @@ function animateModel(t, dt, moving) {
       { t: 'opt', k: 'shadow', label: 'Shadow resolution', opts: [[512, 'Low'], [1024, 'Medium'], [2048, 'High']] },
       { t: 'opt', k: 'pr', label: 'Pixel ratio', opts: [[0.75, '0.75'], [1, '1'], [1.5, '1.5'], [2, '2']] },
       { t: 'opt', k: 'fps', label: 'FPS limit', opts: [[30, '30'], [60, '60'], [0, 'Unlimited']] },
-      { t: 'tog', k: 'vsync', label: 'VSync' },
-      { t: 'note', label: 'Desktop app only: VSync changes apply the next time you open the game.' },
-      { t: 'tog', k: 'upscale', label: 'Upscale (FSR)' },
-      { t: 'note', label: 'Renders at 67% resolution and rebuilds the image with an FSR-style edge-aware upscaler and sharpening: faster, nearly as crisp.' },
-      { t: 'tog', k: 'framegen', label: 'Frame generation (FSR)' },
-      { t: 'note', label: 'Draws every other frame and generates the in-between one with motion estimation (optical flow): smoother on slower PCs, with a tiny bit of delay.' },
       { t: 'tog', k: 'showFps', label: 'Show FPS' },
+      { t: 'tog', k: 'vsync', label: 'VSync' },
+      { t: 'note', label: 'Desktop app only. Applies on restart.' },
+      { t: 'tog', k: 'upscale', label: 'Upscale (FSR)' },
+      { t: 'note', label: 'Renders at 67% and sharpens: faster, almost as crisp.' },
+      { t: 'tog', k: 'framegen', label: 'Frame generation (FSR)' },
+      { t: 'note', label: 'Generates every other frame: smoother, tiny delay.' },
       { t: 'head', label: 'Filters' },
       { t: 'tog', k: 'lofi', label: 'Lo-fi filter' },
       { t: 'tog', k: 'mist', label: 'Fog banks' },
@@ -7512,7 +7572,7 @@ function animateModel(t, dt, moving) {
     ] }
   ];
   var SPK = {}, spTab = 'sound';
-  SP.forEach(function (p) { p.rows.forEach(function (r) { if (r.k) SPK[r.k] = r; }); });
+  SP.forEach(function (p) { p.rows.forEach(function (r) { if (r.k) { SPK[r.k] = r; r.tab = p.id; } }); });
   function spRow(r) {
     if (r.t === 'head') return '<div class="sp-h">' + r.label + '</div>';
     if (r.t === 'note') return '<div class="sp-note">' + r.label + '</div>';
@@ -7555,7 +7615,7 @@ function animateModel(t, dt, moving) {
       Array.prototype.forEach.call(sp.querySelectorAll('.sp-tab'), function (t) { var on = t.getAttribute('data-tab') === spTab; t.classList.toggle('on', on); t.setAttribute('aria-selected', on ? 'true' : 'false'); });
       Array.prototype.forEach.call(sp.querySelectorAll('.sp-body'), function (b) { b.hidden = b.getAttribute('data-pane') !== spTab; });
       Array.prototype.forEach.call(sp.querySelectorAll('[data-k]'), function (el) {
-        var k = el.getAttribute('data-k'), d = SPK[k], v = k === 'master' ? Math.round((window.UISfx ? UISfx.getVolume() : 1) * 100) : C.get(k);
+        var k = el.getAttribute('data-k'), d = SPK[k], v = k === 'master' ? Math.round((window.UISfx ? UISfx.getVolume() : 1) * 100) : spGet(k);
         if (el.type === 'range') { el.value = v; var lab = sp.querySelector('[data-val="' + k + '"]'); if (lab) lab.textContent = v + (d.unit || '%'); }
         else if (d.t === 'tog') { el.classList.toggle('on', !!v); el.setAttribute('aria-checked', v ? 'true' : 'false'); el.textContent = v ? 'On' : 'Off'; }
         else { var on = String(v) === el.getAttribute('data-v'); el.classList.toggle('on', on); el.setAttribute('aria-pressed', on ? 'true' : 'false'); }
@@ -7569,32 +7629,52 @@ function animateModel(t, dt, moving) {
   }
   function spSetTab(id) { spTab = id; spRefresh(); }
   function spTabStep(d) { var i = 0; SP.forEach(function (p, n) { if (p.id === spTab) i = n; }); spSetTab(SP[(i + d + SP.length) % SP.length].id); if (window.UISfx) UISfx.play('pick', 90); }
-  function spSet(k, v) { if (k === 'master') setVolume(v / 100); else LunaCfg.set(k, v); spRefresh(); }
+  /* Gráficos e câmera ficam "pendentes": a tela mostra o valor novo, mas o jogo só muda quando aperta Save. Som continua mudando na hora. */
+  var spPend = {};
+  function spIsGfx(k) { return !!(SPK[k] && SPK[k].tab === 'gfx'); }
+  function spHasPend() { return Object.keys(spPend || {}).length > 0; }
+  function spGet(k) { return (spPend && k in spPend) ? spPend[k] : LunaCfg.get(k); }
+  function spFsVal() { return (spPend && spPend.__fs !== undefined) ? spPend.__fs : isFS(); }
+  function spSetFS(want) { if (want === isFS()) delete spPend.__fs; else spPend.__fs = want; syncFS(); spRefresh(); }
+  function spCommit() { var p = spPend, k; spPend = {}; for (k in p) { if (k === '__fs') setFS(p[k]); else LunaCfg.set(k, p[k]); } syncFS(); }
+  function spDiscard() { if (!spHasPend()) return; spPend = {}; syncFS(); spRefresh(); }
+  function spSet(k, v) {
+    if (k === 'master') setVolume(v / 100);
+    else if (spIsGfx(k)) { if (LunaCfg.get(k) === v) delete spPend[k]; else spPend[k] = v; }
+    else LunaCfg.set(k, v);
+    spRefresh();
+  }
   function spOptVal(d, el) { var raw = el.getAttribute('data-v'), r = d.opts.filter(function (o) { return String(o[0]) === raw; })[0]; return r ? r[0] : d.opts[0][0]; }
   /* ajusta o controle (dx: -1 / +1; wrap: com o botão A cicla) e devolve o elemento que deve ficar selecionado */
   function spAct(el, dx, wrap) {
     if (el.hasAttribute('data-fs')) {
-      var want = wrap ? !isFS() : dx > 0; setFS(want);
+      var want = wrap ? !spFsVal() : dx > 0; spSetFS(want);
       Array.prototype.forEach.call(document.querySelectorAll('.seg-btn'), function (b) { b.classList.toggle('on', (b.getAttribute('data-fs') === '1') === want); });
       return el.parentNode.querySelector('.on') || el;
     }
     var k = el.getAttribute('data-k'), d = SPK[k]; if (!d) return el;
     if (el.type === 'range') { var st = Number(el.step) || 5; spSet(k, Math.max(Number(el.min), Math.min(Number(el.max), Number(el.value) + dx * st))); return el; }
-    if (d.t === 'tog') { spSet(k, wrap ? !LunaCfg.get(k) : dx > 0); return el; }
-    var vals = d.opts.map(function (o) { return o[0]; }), i = vals.indexOf(LunaCfg.get(k)); if (i < 0) i = 0;
+    if (d.t === 'tog') { spSet(k, wrap ? !spGet(k) : dx > 0); return el; }
+    var vals = d.opts.map(function (o) { return o[0]; }), i = vals.indexOf(spGet(k)); if (i < 0) i = 0;
     i = wrap ? (i + 1) % vals.length : Math.max(0, Math.min(vals.length - 1, i + dx));
     spSet(k, vals[i]);
     return el.parentNode.querySelector('.on') || el;
   }
-  function spReset() { LunaCfg.reset(); setVolume(1); spRefresh(); if (window.UISfx) UISfx.play('pop', 100); }
+  function spReset() {   /* Default: o som volta ao padrão na hora; gráficos e câmera só ficam marcados até apertar Save */
+    var D = LunaCfg.DEF, k;
+    spPend = {};
+    for (k in D) { if (spIsGfx(k)) { if (LunaCfg.get(k) !== D[k]) spPend[k] = D[k]; } else LunaCfg.set(k, D[k]); }
+    setVolume(1); syncFS(); spRefresh(); if (window.UISfx) UISfx.play('pop', 100);
+  }
   /* predefinição: guarda tudo (som, gráficos, câmera, volume mestre e modo de tela) para as próximas vezes que abrir o jogo */
   var spSaved = null, spSavedT = 0;
-  function spState() { var o = LunaCfg.snapshot(); o.master = Math.round((window.UISfx ? UISfx.getVolume() : 1) * 100) / 100; o.fs = isFS(); return JSON.stringify(o); }
-  function spDirty() { return spSaved !== null && spSaved !== spState(); }
+  function spState(fs) { var o = LunaCfg.snapshot(); o.master = Math.round((window.UISfx ? UISfx.getVolume() : 1) * 100) / 100; o.fs = fs === undefined ? isFS() : fs; return JSON.stringify(o); }
+  function spDirty() { return spHasPend() || (spSaved !== null && spSaved !== spState()); }
   function spSave() {
-    var ok = true;
-    try { localStorage.setItem('luna_preset', spState()); localStorage.setItem('luna_volume', String(window.UISfx ? UISfx.getVolume() : 1)); } catch (e) { ok = false; }
-    spSaved = spState(); spSavedT = Date.now();
+    var ok = true, fsWant = spFsVal();
+    spCommit();   /* só agora os gráficos pendentes valem no jogo */
+    try { localStorage.setItem('luna_preset', spState(fsWant)); localStorage.setItem('luna_volume', String(window.UISfx ? UISfx.getVolume() : 1)); } catch (e) { ok = false; }
+    spSaved = spState(fsWant); spSavedT = Date.now();
     if (window.UISfx) UISfx.play(ok ? 'go' : 'pop', 110);
     spRefresh();
     setTimeout(spRefresh, 1600);
@@ -7628,7 +7708,7 @@ function animateModel(t, dt, moving) {
   /* tela cheia / modo janela */
   function isFS() { return !!(document.fullscreenElement || document.webkitFullscreenElement) || (innerWidth >= screen.width - 1 && innerHeight >= screen.height - 1); }
   function syncFS() {
-    var on = isFS();
+    var on = spFsVal();
     Array.prototype.forEach.call(document.querySelectorAll('.seg-btn'), function (b) { var a = (b.getAttribute('data-fs') === '1') === on; b.classList.toggle('on', a); b.setAttribute('aria-pressed', a ? 'true' : 'false'); });
   }
   function setFS(want) {
@@ -7640,7 +7720,7 @@ function animateModel(t, dt, moving) {
     } catch (e) {}
     setTimeout(syncFS, 150); setTimeout(syncFS, 600);
   }
-  Array.prototype.forEach.call(document.querySelectorAll('.seg-btn'), function (b) { b.addEventListener('click', function () { setFS(b.getAttribute('data-fs') === '1'); }); });
+  Array.prototype.forEach.call(document.querySelectorAll('.seg-btn'), function (b) { b.addEventListener('click', function () { spSetFS(b.getAttribute('data-fs') === '1'); }); });
   document.addEventListener('fullscreenchange', syncFS); document.addEventListener('webkitfullscreenchange', syncFS); window.addEventListener('resize', syncFS);
   syncFS();
   function quitGame() {
@@ -7790,8 +7870,15 @@ function animateModel(t, dt, moving) {
     pfSend();
   }
   function pfLeave() { pfCommit(); pauseShow(false); pauseSel(pauseItems().indexOf($('pProfile'))); }
+  function pfEmojiOK(em) {   /* sequência de emoji que o Windows antigo não conhece é desenhada como vários glifos (mais larga que um emoji normal): esses ficam fora da lista */
+    try {
+      var cx = document.createElement('canvas').getContext('2d');
+      cx.font = '32px "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif';
+      return cx.measureText(em).width <= cx.measureText('\uD83D\uDE3A').width * 1.25;
+    } catch (er) { return true; }
+  }
   (function () {   /* monta os botões de emoji e de cor uma vez só */
-    PF_EMOJIS.forEach(function (em) {
+    PF_EMOJIS.filter(pfEmojiOK).forEach(function (em) {
       var b = document.createElement('button'); b.type = 'button'; b.className = 'pfe'; b.textContent = em; b.setAttribute('data-e', em); b.setAttribute('aria-label', 'Emoji ' + em);
       b.addEventListener('click', function () { if (pfDraft) { pfDraft.e = em; pfRender(); } }); $('pfEmojis').appendChild(b);
     });
@@ -7931,10 +8018,10 @@ function animateModel(t, dt, moving) {
     if (!pauseOpen) return;
     e.stopPropagation();
     if (e.code === 'Escape') { e.preventDefault(); if (!e.repeat) pauseBack(); }
-    else if (e.code === 'ArrowUp' || e.code === 'ArrowDown') { e.preventDefault(); if (!$('pauseHelp').hidden) $('pauseHelpList').scrollBy(0, e.code === 'ArrowDown' ? 60 : -60); else pauseMove(e.code === 'ArrowDown' ? 1 : -1); }
-    else if (!$('pauseMain').hidden && (e.code === 'ArrowLeft' || e.code === 'ArrowRight')) { e.preventDefault(); pauseIcons(e.code === 'ArrowRight' ? 1 : -1); }
+    else if (e.code === 'ArrowUp' || e.code === 'ArrowDown') { e.preventDefault(); if (!$('pauseHelp').hidden) $('pauseHelpList').scrollBy(0, e.code === 'ArrowDown' ? 60 : -60); else if (pauseSpatial()) pauseNav(0, e.code === 'ArrowDown' ? 1 : -1); else pauseMove(e.code === 'ArrowDown' ? 1 : -1); }
+    else if ((!$('pauseMain').hidden || !$('pauseFriends').hidden) && (e.code === 'ArrowLeft' || e.code === 'ArrowRight')) { e.preventDefault(); pauseNav(e.code === 'ArrowRight' ? 1 : -1, 0); }
     else if (!$('pauseProfile').hidden && e.code === 'Enter' && e.target && (e.target.id === 'pfDescIn' || e.target.id === 'pfNameIn' || e.target.id === 'pfHex')) { e.preventDefault(); pauseMove(1); }   /* Enter na descrição: segue para o próximo item */
-    else if (!$('pauseProfile').hidden && (e.code === 'ArrowLeft' || e.code === 'ArrowRight') && !(e.target && (e.target.id === 'pfDescIn' || e.target.id === 'pfNameIn' || e.target.id === 'pfHex' || (e.target.classList && e.target.classList.contains('pfrng'))))) { e.preventDefault(); pauseMove(e.code === 'ArrowRight' ? 1 : -1); }   /* emojis e cores ficam em linha: esquerda/direita andam entre eles */
+    else if (!$('pauseProfile').hidden && (e.code === 'ArrowLeft' || e.code === 'ArrowRight') && !(e.target && (e.target.id === 'pfDescIn' || e.target.id === 'pfNameIn' || e.target.id === 'pfHex' || (e.target.classList && e.target.classList.contains('pfrng'))))) { e.preventDefault(); if (pauseSpatial()) pauseNav(e.code === 'ArrowRight' ? 1 : -1, 0); else pauseMove(e.code === 'ArrowRight' ? 1 : -1); }   /* emojis e cores ficam em linha: esquerda/direita andam entre eles */
     else if (!$('pauseSet').hidden) {
       if (e.code === 'KeyQ' || e.code === 'PageUp') { e.preventDefault(); spTabStep(-1); pauseSel(0); }
       else if (e.code === 'KeyE' || e.code === 'PageDown') { e.preventDefault(); spTabStep(1); pauseSel(0); }
@@ -7946,9 +8033,10 @@ function animateModel(t, dt, moving) {
     if (pStart) { closePause(); return; }
     if (pB) { pauseBack(); return; }
     var ay = pad.axes[1] || 0, ayDir = ay > 0.6 ? 1 : ay < -0.6 ? -1 : 0, mv = pDown ? 1 : pUp ? -1 : (ayDir && ayDir !== padAxisY ? ayDir : 0);
-    padAxisY = ayDir; if (mv) { if (!$('pauseHelp').hidden) $('pauseHelpList').scrollBy(0, mv * 60); else pauseMove(mv); }
-    if (!$('pauseMain').hidden) { var ix = ((pad.buttons[15] && pad.buttons[15].pressed) ? 1 : 0) - ((pad.buttons[14] && pad.buttons[14].pressed) ? 1 : 0) || ((pad.axes[0] || 0) > 0.6 ? 1 : (pad.axes[0] || 0) < -0.6 ? -1 : 0); if (ix && performance.now() - padNavT > 220) { padNavT = performance.now(); pauseIcons(ix); } }
-    if (!$('pauseProfile').hidden) { var qx = ((pad.buttons[15] && pad.buttons[15].pressed) ? 1 : 0) - ((pad.buttons[14] && pad.buttons[14].pressed) ? 1 : 0) || ((pad.axes[0] || 0) > 0.6 ? 1 : (pad.axes[0] || 0) < -0.6 ? -1 : 0); var pe = pauseItems()[pauseIdx]; if (qx && pe && pe.classList.contains('pfrng')) { if (performance.now() - padNavT > 60) { padNavT = performance.now(); pe.value = Math.max(+pe.min, Math.min(+pe.max, +pe.value + qx * 3)); pe.dispatchEvent(new Event('input', { bubbles: true })); } } else if (qx && performance.now() - padNavT > 220) { padNavT = performance.now(); pauseMove(qx); } }
+    padAxisY = ayDir; if (mv) { if (!$('pauseHelp').hidden) $('pauseHelpList').scrollBy(0, mv * 60); else if (pauseSpatial()) pauseNav(0, mv); else pauseMove(mv); }
+    if (!$('pauseMain').hidden) { var ix = ((pad.buttons[15] && pad.buttons[15].pressed) ? 1 : 0) - ((pad.buttons[14] && pad.buttons[14].pressed) ? 1 : 0) || ((pad.axes[0] || 0) > 0.6 ? 1 : (pad.axes[0] || 0) < -0.6 ? -1 : 0); if (ix && performance.now() - padNavT > 220) { padNavT = performance.now(); pauseNav(ix, 0); } }
+    if (!$('pauseFriends').hidden) { var fx = padDX(pad); if (fx && performance.now() - padNavT > 220) { padNavT = performance.now(); pauseNav(fx, 0); } }
+    if (!$('pauseProfile').hidden) { var qx = ((pad.buttons[15] && pad.buttons[15].pressed) ? 1 : 0) - ((pad.buttons[14] && pad.buttons[14].pressed) ? 1 : 0) || ((pad.axes[0] || 0) > 0.6 ? 1 : (pad.axes[0] || 0) < -0.6 ? -1 : 0); var pe = pauseItems()[pauseIdx]; if (qx && pe && pe.classList.contains('pfrng')) { if (performance.now() - padNavT > 60) { padNavT = performance.now(); pe.value = Math.max(+pe.min, Math.min(+pe.max, +pe.value + qx * 3)); pe.dispatchEvent(new Event('input', { bubbles: true })); } } else if (qx && performance.now() - padNavT > 220) { padNavT = performance.now(); if (pauseSpatial()) pauseNav(qx, 0); else pauseMove(qx); } }
     if ((pL || pR) && !$('pauseSet').hidden) { spTabStep(pR ? 1 : -1); pauseSel(0); return; }
     var el = pauseItems()[pauseIdx];
     if (pA && el && el.tagName === 'BUTTON') { if (el.matches('[data-k],[data-fs]')) { var na = spAct(el, 1, true); if (na !== el) pauseSel(pauseItems().indexOf(na)); } else el.click(); }
@@ -8005,7 +8093,7 @@ function animateModel(t, dt, moving) {
     try { localStorage.setItem('luna_nick', c); } catch (e) {}
   });
   function setWinOpen() { return !$('setWin').hidden; }
-  function openSet() { if (started) return; spRefresh(); $('setWin').hidden = false; setSel(0); }
+  function openSet() { if (started) return; spDiscard(); spRefresh(); $('setWin').hidden = false; setSel(0); }
   var setIdx = 0;
   function setItems() { return spItems($('setWin')); }
   function setMark(i) {
@@ -8081,7 +8169,7 @@ function animateModel(t, dt, moving) {
     if (mv) { padBlur(); mpSel(it[(i + mv + it.length) % it.length]); return; }
     if (pA) { if (it[i].tagName === 'INPUT') it[i].focus(); else it[i].click(); }
   }
-  function closeSet() { $('setWin').hidden = true; }
+  function closeSet() { spDiscard(); $('setWin').hidden = true; }
   $('startSet').addEventListener('click', openSet);
   $('startQuit').addEventListener('click', quitGame);
   $('start').addEventListener('click', openMp);
@@ -8106,7 +8194,8 @@ function animateModel(t, dt, moving) {
 
   var drag = null;
   canvas.addEventListener('pointerdown', function (e) {
-    drag = { id: e.pointerId, x: e.clientX, y: e.clientY };
+    drag = { id: e.pointerId, x: e.clientX, y: e.clientY, sx: e.clientX, sy: e.clientY, t: performance.now(), b: e.button, mouse: e.pointerType === 'mouse', swallow: pmenuSwallow };
+    pmenuSwallow = false;
     try { canvas.setPointerCapture(e.pointerId); } catch (err) { /* ignorado */ }
   });
   canvas.addEventListener('pointermove', function (e) {
@@ -8118,7 +8207,16 @@ function animateModel(t, dt, moving) {
     lastDrag = performance.now();
   });
   function endDrag(e) { if (drag && drag.id === e.pointerId) drag = null; }
-  canvas.addEventListener('pointerup', endDrag);
+  var pmenuSwallow = false;   /* true quando esse clique só fechou o menu do jogador: não vira patada/pegar */
+  /* mouse: clique esquerdo (sem arrastar) = patada; clique direito (sem arrastar, fora do nome de um jogador) = pegar / soltar. Arrastar continua girando a câmera */
+  canvas.addEventListener('pointerup', function (e) {
+    var d = drag;
+    if (d && d.id === e.pointerId && d.mouse && !d.swallow && started && !pauseOpen && performance.now() - d.t < 450 && Math.hypot(e.clientX - d.sx, e.clientY - d.sy) < 6) {
+      if (d.b === 0) swat();
+      else if (d.b === 2 && !nameTagAt(e.clientX, e.clientY)) toggleGrab();
+    }
+    endDrag(e);
+  });
   canvas.addEventListener('pointercancel', endDrag);
   canvas.addEventListener('wheel', function (e) {
     e.preventDefault();
@@ -8916,7 +9014,7 @@ function animateModel(t, dt, moving) {
     if (key === tagG.hud) return;
     tagG.hud = key; el.hidden = !txt; el.textContent = txt; el.className = it ? 'it' : '';
   }
-  function tagLabel() { $('tagBtn').textContent = '🐾 Players (P)'; }   /* o botão abre o menu do jogador mais perto (convidar, amigo, mute; e sair do pega-pega) */
+  function tagLabel() { syncModeLabels(true); }   /* o botão abre o menu do jogador mais perto (convidar, amigo, mute; e sair do pega-pega) */
   function tagLeave() { tagG.st = 0; tagG.inv = null; say('You left the game of tag', 1800); tagLabel(); }
   /* gato mais próximo que ainda não está brincando */
   function tagNear() {
@@ -9356,7 +9454,7 @@ function animateModel(t, dt, moving) {
     var un = !!pmenuBtn.getAttribute('data-un'); pmenuClose();
     muteCommand(un ? 'unmute' : 'mute', pmenuName, function (m) { chatAdd('Notice', m, false); });
   });
-  document.addEventListener('pointerdown', function (e) { if (!pmenu.hidden && !pmenu.contains(e.target)) pmenuClose(); }, true);
+  document.addEventListener('pointerdown', function (e) { if (!pmenu.hidden && !pmenu.contains(e.target)) { pmenuClose(); pmenuSwallow = true; } }, true);
   window.addEventListener('blur', pmenuClose);
   canvas.addEventListener('wheel', pmenuClose, { passive: true });
   window.addEventListener('keydown', function (e) { if (!pmenu.hidden && e.code === 'Escape') { e.preventDefault(); e.stopPropagation(); pmenuClose(); } }, true);   /* Esc fecha só o menu (não abre a pausa) */
@@ -9375,6 +9473,7 @@ function animateModel(t, dt, moving) {
   }
   document.addEventListener('contextmenu', function (e) {
     if (!started || pauseOpen) return;
+    if (e.target === canvas) e.preventDefault();   /* o botão direito no jogo pega/solta itens: sem o menu padrão do navegador */
     var b = e.target && e.target.closest ? e.target.closest('#chatlog b[data-pl]') : null, name = '', id;
     if (b) name = b.getAttribute('data-pl');
     else if (e.target === canvas) { id = nameTagAt(e.clientX, e.clientY); if (id) name = remoteName(id); }
