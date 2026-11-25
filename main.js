@@ -6,6 +6,12 @@ let win = null, hosting = false;
 const MIN_W = 960, MIN_H = 600;   /* tamanho mínimo da janela (16:10, igual à janela padrão de 1280x800) */
 const BUNDLED = path.join(__dirname, 'public');   /* o jogo que veio dentro do .exe */
 let active = null, pending = null, checking = false, checksStarted = false;
+/* VSync (Settings > Graphics): o Chromium só aceita estes parâmetros na inicialização, então a escolha é gravada em gfx.json e vale na próxima vez que o jogo abrir */
+let gfxFile = null, vsyncOn = false;   /* padrão: desligado */
+try { gfxFile = path.join(app.getPath('userData'), 'gfx.json'); vsyncOn = JSON.parse(fs.readFileSync(gfxFile, 'utf8')).vsync === true; } catch (e) {}
+if (!vsyncOn) { app.commandLine.appendSwitch('disable-frame-rate-limit'); app.commandLine.appendSwitch('disable-gpu-vsync'); }
+ipcMain.handle('gatinho:gfx-state', () => ({ vsync: vsyncOn }));   /* o que está valendo AGORA nesta sessão */
+ipcMain.handle('gatinho:gfx-vsync', (e, v) => { try { if (gfxFile) fs.writeFileSync(gfxFile, JSON.stringify({ vsync: !!v })); } catch (err) {} return true; });
 let wakeP = null, wakeDone = false;   /* wakeP = pedido que acorda o servidor; wakeDone = já respondeu (ou falhou) */   /* active = pasta que o jogo está usando; pending = versão já baixada esperando o jogador aplicar */
 
 function ips() {
