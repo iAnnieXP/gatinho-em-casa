@@ -1498,6 +1498,62 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
   var solids = [];      // tudo que a câmera não pode atravessar
   var mergeSet = new WeakSet(), mergeOn = false;   // malhas marcadas para a fusão estática fora da casa (cercas e muros de madeira); mergeOn liga a marcação em box()/cyl()
 
+  /* ---------- corte por distancia do cenario estatico (zonas) ----------
+     Cada zona esconde o que e dela quando o gatinho esta a mais de R metros (distancia ate a CAIXA do objeto no plano x/z, nao ate o centro: cercas compridas
+     continuam aparecendo enquanto qualquer ponto delas estiver dentro do raio). Histerese de 0,5 m (volta a aparecer a R - 0,5).
+       ZC_FAR  = 40 m: cercas (muros, cercados, portao), area da churrasqueira, parquinho, campo de futebol, piscina e pula-pula.
+       ZC_NEAR = 20 m: mesas de jardim (com cadeiras e toalha) e os moveis estaticos da casa (os abajures sao objetos derrubaveis: ver PROP_CULL/p.isLamp).
+     zcBegin()/zcEnd() registram o que entrou na cena entre as duas chamadas. A fusao estatica (mergeStaticHouse) nao mistura zonas no mesmo chunk, e o chunk
+     inteiro e escondido; malhas que nao foram fundidas sao escondidas uma a uma. Ficam de fora o que ja nasce escondido e luzes. */
+  var ZC_FAR = 40, ZC_NEAR = 20, ZC = { items: [], tag: new WeakMap(), rec: new WeakMap(), ready: false };
+  function zcBegin() { return scene.children.length; }
+  function zcEnd(i0, zone, skip) {
+    var k, o, R = zone === 'far' ? ZC_FAR : ZC_NEAR;
+    for (k = i0; k < scene.children.length; k++) {
+      o = scene.children[k];
+      if (o.isLight || o.visible === false || (skip && skip(o))) continue;
+      ZC.tag.set(o, R); ZC.items.push({ o: o, R: R, box: null, far: false });
+    }
+  }
+  function zcBox(o) {   /* caixa no mundo (com 1 m de folga para partes que se mexem: balancos, lona, gangorra); InstancedMesh: uma caixa por instancia */
+    var b = new THREE.Box3(), t = new THREE.Box3(), m4 = new THREE.Matrix4(), has = false;
+    o.updateMatrixWorld(true);
+    o.traverse(function (c) {
+      var g = c.geometry, k;
+      if (!g || !g.attributes || !g.attributes.position) return;
+      if (!g.boundingBox) g.computeBoundingBox();
+      if (c.isInstancedMesh) { for (k = 0; k < c.count; k++) { c.getMatrixAt(k, m4); m4.premultiply(c.matrixWorld); t.copy(g.boundingBox).applyMatrix4(m4); b.union(t); has = true; } }
+      else { t.copy(g.boundingBox).applyMatrix4(c.matrixWorld); b.union(t); has = true; }
+    });
+    if (!has || b.isEmpty()) return null;
+    b.min.x -= 1; b.min.z -= 1; b.max.x += 1; b.max.z += 1;
+    return b;
+  }
+  function zcInit() {
+    var i, e;
+    scene.updateMatrixWorld(true);
+    for (i = 0; i < ZC.items.length; i++) { e = ZC.items[i]; e.box = zcBox(e.o); }
+    ZC.ready = true;
+  }
+  function zcFar(st, b) {
+    var dx = Math.max(b.min.x - cat.x, 0, cat.x - b.max.x), dz = Math.max(b.min.z - cat.z, 0, cat.z - b.max.z), d2 = dx * dx + dz * dz;
+    if (st.far) { if (d2 < (st.R - 0.5) * (st.R - 0.5)) st.far = false; } else if (d2 > st.R * st.R) st.far = true;
+    return st.far;
+  }
+  function cullZones() {
+    var i, e, r, v, ch;
+    if (!ZC.ready) return;
+    for (i = 0; i < ZC.items.length; i++) {
+      e = ZC.items[i]; if (!e.box) continue;
+      r = ZC.rec.get(e.o); if (r && !r.dead) continue;   /* fundida num chunk: quem some e o chunk */
+      v = !zcFar(e, e.box); if (e.o.visible !== v) e.o.visible = v;
+    }
+    for (i = 0; i < smChunks.length; i++) {
+      ch = smChunks[i]; if (!ch.zst || !ch.mesh) continue;
+      v = !zcFar(ch.zst, ch.zbox); if (ch.mesh.visible !== v) ch.mesh.visible = v;
+    }
+  }
+
   function box(o) {
     var y = o.y || 0;
     var tx = o.tex === undefined ? AUTO_TEX[o.color] : (o.tex || null);
@@ -1982,6 +2038,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
   }
 
   /* ----- Sala ----- */
+  var zcH = zcBegin();
   rug(-6, -3.8, 4.2, 3, 0xc2574a, 'persian');
   /* sofá de 3 lugares: pés de madeira, estrutura, 3 almofadas de assento com chanfro, 3 almofadas de encosto inclinadas, braços arredondados (rolo), rolo no topo do encosto e 2 almofadas decorativas; as colisões são as mesmas de antes */
   (function () {
@@ -2108,6 +2165,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
   })();
   /* vaso grande da sala: agora é um objeto derrubável (veja DEFS.plantaGrande) */
   /* abajur de pé da sala: agora é um objeto derrubável (veja DEFS.abajurPe) */
+  zcEnd(zcH, 'near');   /* moveis da sala */
   wallPainting({ x: -6, y: 1.625, z: -6.85, w: 1.5, h: 1.0, kind: 'landscape', frame: 0xc9a24f, frame2: 0xe6c97a });   /* quadro da sala: paisagem ao entardecer */
 
   /* ----- Porta da entrada (sempre aberta): a porta fica no vão da parede leste, no fim do caminho de pedras e do portão ----- */
@@ -2189,6 +2247,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
   })();
 
   /* ----- Cozinha ----- */
+  zcH = zcBegin();
   box({ x: 4.9, z: -6.4, w: 5.8, d: 0.9, h: 0.84, color: 0xf0ece4, collide: false });
   [[3.875, 3.85, -6.4, 0.96], [7.325, 1.05, -6.4, 0.96], [6.3, 1.0, -6.765, 0.23], [6.3, 1.0, -6.035, 0.23]].forEach(function (q) {   /* tampo de granito recortado para a cuba da pia (x 5,8 a 6,8 / z -6,65 a -6,15) */
     box({ x: q[0], z: q[2], w: q[1], d: q[3], h: 0.08, y: 0.84, color: 0x4a4f55, collide: false });
@@ -2314,7 +2373,10 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
   });
   rug(5.8, -3, 3.4, 2.4, 0xe9d8a6, 'kilim');
 
+  zcEnd(zcH, 'near');   /* moveis da cozinha */
+
   /* ----- Quarto ----- */
+  zcH = zcBegin();
   rug(-6, 2, 3.6, 2.2, 0x7a93c4, 'trellis');
   /* cama: estrado de madeira com rodapé e molduras, colchão com vivo, lençol dobrado, edredom acolchoado caindo pelos lados, manta no pé, travesseiros fofos, almofada, cabeceira estofada com botões e colunas */
   (function () {
@@ -2433,9 +2495,11 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     var paw = new THREE.Mesh(new THREE.CircleGeometry(0.17, 32), new THREE.MeshStandardMaterial({ map: pawT, transparent: true, roughness: 1, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -2, polygonOffsetUnits: -2 }));
     paw.rotation.x = -Math.PI / 2; paw.position.set(bx0, 0.198, bz0); paw.receiveShadow = true; scene.add(paw);
   })();
+  zcEnd(zcH, 'near');   /* moveis do quarto */
   wallPainting({ x: -9.85, y: 1.625, z: 3.4, rotY: Math.PI / 2, w: 1.35, h: 0.95, kind: 'night', frame: 0x4a2f1a, frame2: 0xc9a24f });   /* quadro do quarto: gatinho na lua cheia */
 
   /* ----- Escritório ----- */
+  zcH = zcBegin();
   rug(0.5, 2.8, 2.6, 1.3, 0x5f8f7a, 'runner');
   /* escrivaninha: tampo com borda, gaveteiro de 3 gavetas com puxadores dourados, pernas afiladas no outro lado, painel traseiro e tapete de mesa (colisao igual: 2.2 x 0.9 ate 0.8) */
   (function () {
@@ -2510,7 +2574,10 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
   })();
   /* vaso grande do escritório: agora é um objeto derrubável (veja DEFS.plantaGrande) */
 
+  zcEnd(zcH, 'near');   /* moveis do escritorio */
+
   /* ----- Banheiro ----- */
+  zcH = zcBegin();
   rug(6.5, 3.5, 1.8, 1.1, 0x8fd0c8, 'bath');
   /* louças do banheiro: banheira (casco de louça de cantos arredondados, aro em relevo, interior fundo com água, espuma, ralo e torneira de bica curva
      com duas manoplas) e a pia da bancada (tampo recortado com cuba, torneira, manoplas e portas no armário). As formas são extrusões de retângulos arredondados. */
@@ -2643,6 +2710,8 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     box({ x: FXm - 0.04, z: WZ + 0.3, w: 0.03, d: 0.035, h: 0.14, y: 0.35, color: 0xc3ccd3, tex: 'metal', collide: false, cast: false });   /* puxador da porta */
   })();
 
+  zcEnd(zcH, 'near');   /* moveis do banheiro */
+
   /* ---------- quintal: gramado, muros de madeira, portão, caminho, árvores, arbustos, canteiros, banco e casinha ---------- */
   var FX = 24, FZ = 16, FENCE_H = 1.9;   /* FENCE_H: altura dos muros de madeira (era 1,5) */
   /* irregularidade no topo dos muros: cada tabua (0,2 m de largura) pode subir de 0 a 0,2 m ACIMA de FENCE_H (nunca abaixo), sempre mais baixa que os pilares (FENCE_H + 0,28).
@@ -2691,7 +2760,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
   function benchPt(b, lx, lz) { var r = b[2] & 3; return r === 0 ? [b[0] + lx, b[1] + lz] : r === 1 ? [b[0] + lz, b[1] - lx] : r === 2 ? [b[0] - lx, b[1] - lz] : [b[0] - lz, b[1] + lx]; }
   var ROSES = [[-3, 13.6, 'red', 1.05], [3, 13.6, 'pink', 1], [-8, 13.6, 'white', 1], [8, 13.6, 'yellow', 1.05]];   /* roseiras: x, z, cor, escala */
   var FOUNT = null;   /* chafariz da frente da casa (montado no quintal; animado por updFountain) */
-  var flowers = [], FLI = null;   /* flores dos canteiros: {x,z,col,fi,alive} (fi: indice da flor nas malhas instanciadas FLI) — o gatinho destrói ao passar por cima */
+  var flowers = [], FLI = null, FLB = [];   /* flores dos canteiros: {x,z,col,fi,alive} (fi: indice da flor nas malhas instanciadas FLI) — o gatinho destrói ao passar por cima */
   (function () {
     /* ----- textura do gramado (desenhada em canvas, sem arquivos): folhinhas, trevos e tufos secos que se repetem sem emenda,
        mais uma camada grande com manchas claras/escuras e faixas de grama cortada para quebrar a repetição ----- */
@@ -2833,7 +2902,8 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       }
       return occ(m);
     }
-    var GZ = -1.3, GH = 1.1;   /* portão na entrada: fim do caminho de pedras, no muro leste */
+    var GZ = -1.3, GH = 1.1;
+    var zcF = zcBegin();   /* portão na entrada: fim do caminho de pedras, no muro leste */
     wallPiece(0, -FZ, FX * 2 + 0.16, 0.16);
     wallPiece(0, FZ, FX * 2 + 0.16, 0.16);
     wallPiece(-FX, 0, 0.16, FZ * 2 - 0.16);
@@ -2881,6 +2951,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     shk.rotation.y = Math.PI / 2; shk.position.set(FX - 0.1, 0.855, GZ); scene.add(shk); occ(shk);
     colliders.push({ x1: -FX - 0.2, x2: FX + 0.2, z1: -FZ - 0.2, z2: -FZ + 0.06, h: 99 }, { x1: -FX - 0.2, x2: FX + 0.2, z1: FZ - 0.06, z2: FZ + 0.2, h: 99 },   /* caixa fina: a face de dentro fica quase colada no muro (0,08 do centro) */
       { x1: -FX - 0.2, x2: -FX + 0.06, z1: -FZ, z2: FZ, h: 99 }, { x1: FX - 0.06, x2: FX + 0.2, z1: -FZ, z2: FZ, h: 99 });
+    zcEnd(zcF, 'far');   /* muros, pilares e portao */
     rug(10.64, -1.3, 1.1, 0.75, 0x8a5a38, 'door', true);   /* capacho deitado ao longo da parede, com a patinha virada para dentro de casa */
     /* ----- caminho de pedras da entrada: leito de cascalho, lajes irregulares com sombra nas juntas, pedrinhas de contorno, tufos de grama e soleira no portao ----- */
     (function () {
@@ -3442,8 +3513,13 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
         flowers.push({ x: fx, z: fz, bx: b[0], bz: b[1], v: 1, col: fcol, alive: true, fi: flowers.length });
       }
     });
-    (function () {   /* as 4 malhas instanciadas de todas as flores (frustumCulled off: no three r128 o corte usaria a esfera da geometria na origem) */
+    (function () {   /* malhas instanciadas das flores: 4 por canteiro (caules, folhas, petalas, miolos), para esconder o canteiro inteiro quando o gatinho esta a mais de PROP_CULL metros (20 m) (frustumCulled off: no three r128 o corte usaria a esfera da geometria na origem) */
       var cc = new THREE.Color();
+      flowers.forEach(function (f, i) {   /* agrupa as flores seguidas do mesmo canteiro (flowers.push anda canteiro por canteiro) */
+        var g = FLB[FLB.length - 1];
+        if (!g || g.bx !== f.bx || g.bz !== f.bz || g.v !== (f.v ? 1 : 0)) { g = { bx: f.bx, bz: f.bz, v: f.v ? 1 : 0, s: i, n: 0, far: false }; FLB.push(g); }
+        g.n++; f.bi = FLB.length - 1;
+      });
       function mk(geo, mat, mats, cols) {
         var im = new THREE.InstancedMesh(geo, mat, mats.length), n;
         for (n = 0; n < mats.length; n++) { im.setMatrixAt(n, mats[n]); if (cols) im.setColorAt(n, cc.setHex(cols[n])); }
@@ -3451,12 +3527,19 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
         im.userData.orig = im.instanceMatrix.array.slice();   /* matrizes originais: voltam quando a casa e arrumada */
         return im;
       }
-      FLI = {
-        stem: mk(new THREE.CylinderGeometry(0.012, 0.012, 0.25, 6), M(0x4f9a4f), FLD.stem),
-        leaf: mk(new THREE.SphereGeometry(1, 8, 6), M(0x5fae5a, { roughness: 0.7 }), FLD.leaf),
-        petal: mk(new THREE.SphereGeometry(1, 10, 8), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.55 }), FLD.petal, FLD.petalC),
-        ctr: mk(new THREE.SphereGeometry(1, 12, 8), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 }), FLD.ctr, FLD.ctrC)
-      };
+      var gStem = new THREE.CylinderGeometry(0.012, 0.012, 0.25, 6), mStem = M(0x4f9a4f),
+          gLeaf = new THREE.SphereGeometry(1, 8, 6), mLeaf = M(0x5fae5a, { roughness: 0.7 }),
+          gPet = new THREE.SphereGeometry(1, 10, 8), mPet = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.55 }),
+          gCtr = new THREE.SphereGeometry(1, 12, 8), mCtr = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6 });
+      FLI = FLB.map(function (g) {
+        var a = g.s, b = g.s + g.n;
+        return {
+          stem: mk(gStem, mStem, FLD.stem.slice(a, b)),
+          leaf: mk(gLeaf, mLeaf, FLD.leaf.slice(a * 2, b * 2)),
+          petal: mk(gPet, mPet, FLD.petal.slice(a * 7, b * 7), FLD.petalC.slice(a * 7, b * 7)),
+          ctr: mk(gCtr, mCtr, FLD.ctr.slice(a, b), FLD.ctrC.slice(a, b))
+        };
+      });
     })();
     /* banco de jardim: pernas e travessas escuras, assento de tabuas com frestas, encosto de ripas e bracos (colisao e alturas iguais as do banco antigo) */
     YARD.benches.forEach(function (bn) {
@@ -3479,6 +3562,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     /* mesas redondas de jardim com 4 cadeiras: mesma madeira dos bancos (pernas escuras, tabuas medias e claras com frestas, ripas no encosto), so texturas 'wood' ja existentes.
        Tampo de tabuas (raio 0,8, a 0,75 m), pe central com base em cruz e aro sob o tampo; cadeiras em +z, +x, -z e -x (giro 0 a 3, como os bancos), de frente para a mesa.
        Colisoes: mesa (quadrado inscrito no tampo, topo a 0,75) e assento de cada cadeira (topo a 0,45, como o banco). Malhas marcadas para a fusao estatica. */
+    var zcT = zcBegin();
     YARD.tables.forEach(function (tb, ti) {
       var DK = 0x6b4426, MD = 0x9a6a42, LT = 0xc99a62, TX0 = tb[0], TZ0 = tb[1];
       mergeOn = true;
@@ -3553,6 +3637,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
         cm.position.set(TX0, 0, TZ0); cm.castShadow = false; cm.receiveShadow = true; scene.add(cm);
       })();
     });
+    zcEnd(zcT, 'near');   /* mesas de jardim: tampo, cadeiras e toalha */
     YARD.tabs.forEach(function (b, bi) {   /* mesinhas de jardim para os vasos de planta: pedestais de pedra com rodape, capitel e mosaico no tampo (colisoes iguais) */
       box({ x: b[0], z: b[1], w: 0.6, d: 0.6, h: 0.66, color: 0xb8b2a6, tex: 'stone' });
       box({ x: b[0], z: b[1], w: 0.72, d: 0.72, h: 0.04, y: 0.66, color: 0x9c968a, tex: 'stone' });
@@ -3569,6 +3654,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
        exceto a agua: gotas num InstancedMesh e aneis de onda (updFountain, no loop), mais o brilho da agua que desliza (igual ao da piscina). K: escala geral (1,3 = 30% maior que a primeira versao).
        Colisao (como a da banheira): so o anel da parede da bacia (topo 0,754 m, da para pular na borda e entrar) e o pedestal central (alto demais); o interior e a agua ficam livres. ----- */
     FOUNT = (function () {
+      var sc0 = scene.children.length;   /* as malhas da fonte sao as que entrarem na cena daqui ate o fim (viram F.parts, escondidas a mais de PROP_CULL m) */
       var K = 1.3, CX = 15.5, CZ = 5.6, ST = 0xb8b2a6, STD = 0x9c968a, k, V2 = THREE.Vector2, sd = 4417;
       function rr() { sd = (sd * 1664525 + 1013904223) >>> 0; return sd / 4294967296; }
       function cv(n) { var c = document.createElement('canvas'); c.width = c.height = n; return c; }
@@ -3593,7 +3679,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       tg.fillStyle = '#2d6b80'; tg.fillRect(0, 0, 128, 128);
       for (i = 0; i < 8; i++) for (j = 0; j < 8; j++) { tg.fillStyle = tn[Math.floor(rr() * 5)]; tg.fillRect(i * 16 + 1, j * 16 + 1, 14, 14); }
 
-      mergeOn = true;
+      mergeOn = false;   /* sem fusao estatica: assim a fonte inteira pode ser escondida quando o gatinho esta longe */
       cyl({ x: CX, z: CZ, r: 1.97, h: 0.08, y: 0.03, color: STD, tex: 'stone', seg: 36, collide: false, cast: false });                                  /* degrau em volta da bacia */
       cyl({ x: CX, z: CZ, r: 1.845, h: 0.06, y: 0.36, color: STD, tex: 'stone', seg: 36, collide: false, cast: false });                       /* banda esculpida na parede da bacia */
       cyl({ x: CX, z: CZ, r: 0.6, h: 0.13, y: 0.286, color: STD, tex: 'stone', seg: 20, collide: false, cast: false });                                    /* base do pedestal (dentro da bacia) */
@@ -3662,7 +3748,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
         colliders.push({ x1: CX - wHw, x2: CX + wHw, z1: CZ + wz0, z2: CZ + wz1, h: wFloor });
       }
       [[0.86, 0.34], [0.34, 0.86], [0.6, 0.6]].forEach(function (q4) { colliders.push({ x1: CX - q4[0], x2: CX + q4[0], z1: CZ - q4[1], z2: CZ + q4[1], h: 1.6 }); });   /* pedestal + taca de cima: topo da colisao a 1,6 m (a borda da taca fica a 1,65 m; pulo maximo do gatinho 1,36 m, entao da para pular do aro da bacia, a 0,754 m, e ficar em cima da taca) */
-      return { x: CX, z: CZ, drops: drops, dm: dm, rings: rings, wms: wms, wy: WL, shines: [], sph: new THREE.Sphere(new THREE.Vector3(CX, 1.1, CZ), 3.2), fr: new THREE.Frustum(), fm: new THREE.Matrix4(), last: -1, vis: false,
+      return { x: CX, z: CZ, parts: scene.children.slice(sc0), far: false, drops: drops, dm: dm, rings: rings, wms: wms, wy: WL, shines: [], sph: new THREE.Sphere(new THREE.Vector3(CX, 1.1, CZ), 3.2), fr: new THREE.Frustum(), fm: new THREE.Matrix4(), last: -1, vis: false,
         jetY: 1.885, jetV: 2.7, jetT: 0.663, jetLo: WU + 0.005, shR: 0.81, shY: 1.62, shT: 0.456, shLo: WL + 0.005 };
     })();
     /* ----- casinha de cachorro (centro em YARD.kennel; porta virada para +x): paredes pintadas, base e molduras brancas, porta em arco e telhado de duas aguas.
@@ -3716,6 +3802,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     })();
   })();
 
+  var zcB = zcBegin();
   /* ---------- area de churrasqueira (canto sudeste do quintal, colada nas duas cercas: face de dentro em x = 23.92 e z = 15.92): piso de lajotas, churrasqueira de tijolinho
      com moldura clara, coifa e chamine, bancada de granito, mesa com dois bancos e ombrelone listrado. Zona: x 18.1 a 23.92, z 11.42 a 15.92 ---------- */
   (function () {
@@ -3988,6 +4075,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     mergeOn = false;
   })();
 
+  zcEnd(zcB, 'far');   /* area da churrasqueira + cerca da piscina + cercas do campo de futebol e do parquinho */
   /* ---------- paredes de arbusto com frutinhas e passagem em arco ----------
      hedge({ fixed, a0, a1, c, rot, seed }): uma parede de moita que corre ao longo de um eixo, de a0 ate a1, com um arco florido (vao de 1,8 m) em c.
      rot falso: parede ao longo de z, em x = fixed (a0, a1 e c sao valores de z). rot verdadeiro: parede ao longo de x, em z = fixed (a0, a1 e c sao valores de x).
@@ -4277,6 +4365,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
 
   /* (o parreiral de uva do gramado oeste foi removido) */
 
+  var zcK = zcBegin();
   /* ---------- divisoria de cerca entre a casinha de cachorro e o parreiral: mesmo modelo da cerca da piscina e da churrasqueira (estacas de pontas piramidais, duas travessas, mourões, altura 0,95 m, com colisao).
      Corre ao longo de x em z = -4,55, do arbusto da cerca oeste (x = -22,55) ate x = -19,0 (mourão alto com capinha); a ponta leste fica aberta para o gatinho passar entre o cantinho da casinha e o gramado ---------- */
   (function () {
@@ -4302,6 +4391,8 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     box({ x: X1, z: DZ, w: 0.2, d: 0.2, h: 0.05, y: 1.25, color: 0x4a2f1a, tex: null, collide: false, cast: false });
     mergeOn = false;
   })();
+
+  zcEnd(zcK, 'far');   /* divisoria de cerca da casinha */
 
   /* ---------- ciclo de dia e noite: 10 min reais = 24 h do jogo; a hora vem do relógio do servidor, igual para todos ---------- */
   var dayK = 1, nightK = 0, DAY_MS = 600000, clockOff = 0, lampK = 1, sunOff = { x: 5, y: 15, z: 7 }, clockTxt = '';
@@ -5107,6 +5198,8 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
 
 /* ---------- objetos para derrubar (fazer arte) ---------- */
 var props = [], held = null, shards = [], mess = [], artes = 0, swatT = 0, swatHit = true, sayT = 0, PG = 14, rollAx = new THREE.Vector3();
+var FAUNA_CULL = 20;   /* distancia (m) de corte de passarinhos, borboletas, morcegos, ratinhos, coelhos, flores, fonte e restos esparramados no chao */
+var PROP_CULL = 17;   /* distancia (m) do gatinho alem da qual NAO se desenha (17 m): objetos que ele pega/empurra/quebra (menos a bola do campo, as bexigas e os abajures, que usam 20 m), liquidos derramados e cacos. Os demais (bichos, flores, fonte, restos esparramados) usam FAUNA_CULL (20 m): objetos que ele pega/empurra/quebra, bichos que ele caca (ratinhos, coelhos, passarinhos, borboletas, morcegos) as flores dos canteiros, a fonte (chafariz), as pocas de liquido derramado, o que se esparrama no chao (racao, areia, penas, terra) e os cacos/restos soltos. Os 12 peixinhos coletaveis ficam de fora (sempre desenhados). Para desligar o recurso, use um valor grande (ex.: 999) */
 var glass = M(0xbfe6f2, { transparent: true, opacity: 0.55, roughness: 0.1 });
 function pm(geo, mat, x, y, z) { var m = new THREE.Mesh(geo, mat); m.position.set(x, y, z); m.castShadow = true; m.receiveShadow = true; return m; }
 function Cy(rt, rb, h, seg) { return new THREE.CylinderGeometry(rt, rb, h, seg || 14); }
@@ -5745,6 +5838,7 @@ SPAWN.forEach(function (s) {
   var p = { d: d, g: g, c: s[5], x: s[1], y: s[2], z: s[3], vx: 0, vy: 0, vz: 0, r: d.r, h: d.h, air: false, fromY: s[2],
     counted: false, broken: false, lay: false, sx: 0, sz: 0, home: { x: s[1], y: s[2], z: s[3], ry: ry } };
   props.push(p);
+  p.isLamp = /^abajur/.test(s[0]);   /* abajures: corte de 20 m */
   if (d.float === 2) p.pw = 1;   /* ja nasce na agua: sem splash no inicio */
   p.shade = g.userData.shade || null;
   p.bulb = g.userData.bulb || null;
@@ -5758,6 +5852,7 @@ SPAWN.forEach(function (s) {
 var GOALS_TO_WIN = 3;   /* quem fizer 3 gols primeiro vence a partida */
 var SOC = { ball: null, score: [0, 0], win: -1, inG: 0, resetT: 0, pop: 0, hint: 0, face: null, draw: null };   /* win: -1 jogando · 0/1 gol (lado) que venceu */
 SOC.ball = props[props.length - 1];
+var zcS = zcBegin();
 (function () {
   var P = PITCH, W = P.x2 - P.x1, D = P.z2 - P.z1, S = 100, i;
   /* gramado: faixas de corte + linhas brancas (textura desenhada em canvas) */
@@ -5846,6 +5941,7 @@ SOC.ball = props[props.length - 1];
   f1.position.z = 0.056; f2.position.z = -0.056; f2.rotation.y = Math.PI; face.add(f1); face.add(f2);
   colliders.push({ x1: P.cx - 0.8, x2: P.cx + 0.8, z1: bz - 0.07, z2: bz + 0.07, h: 2 });
 })();
+zcEnd(zcS, 'far');   /* campo de futebol: traves, redes, placar e marcacoes */
 function goalAt(p) {   /* 0: gol oeste · 1: gol leste · -1: fora (bola inteira passou da linha, entre as traves e abaixo do travessão) */
   var P = PITCH;
   if (p.y > P.gh - 0.12 || Math.abs(p.z - P.cz) > P.gw / 2 - 0.03) return -1;
@@ -6733,6 +6829,13 @@ function updateProps(dt) {
   for (i = 0; i < props.length; i++) {
     p = props[i];
     if (!p.broken && !p.d.tip) p.g.position.set(p.x, p.y + (p.lay ? p.d.lie[2] : 0), p.z);
+    /* esconde objetos longe do gatinho (menos pecas desenhadas e menos sombras). O raio e sempre PROP_CULL (17 m), com histerese de 0,5 m (volta a aparecer a 16,5 m) para nao piscar na borda.
+       Vale para todos (altos, no ar, em movimento, na boca de outro jogador). So nao mexe nos quebrados (ja ficam ocultos) e no que o proprio gatinho carrega (sempre perto) */
+    if (!p.broken) {
+      var _cdx = p.x - cat.x, _cdz = p.z - cat.z, _cd2 = _cdx * _cdx + _cdz * _cdz, _cr = (p === SOC.ball || p.d.balloon || p.isLamp) ? FAUNA_CULL : PROP_CULL;   /* bola do campo, bexigas e abajures: 20 m (como a fauna), os demais objetos 17 m */
+      if (p.far) { if (_cd2 < (_cr - 0.5) * (_cr - 0.5)) p.far = false; } else if (_cd2 > _cr * _cr) p.far = true;
+      p.g.visible = !p.far || !!p.carried;   /* !! obrigatorio: p.carried nasce undefined e o three.js so esconde com visible === false (undefined = continua desenhado) */
+    }
     if (p.d.balloon && !p.broken) { var bw = performance.now() / 1000; p.g.rotation.z = p.air ? Math.sin(bw * 2.4 + i) * 0.2 : 0; p.g.rotation.x = p.air ? Math.cos(bw * 1.9 + i) * 0.15 : 0; }
   }
   for (i = shards.length - 1; i >= 0; i--) {
@@ -10232,6 +10335,7 @@ function animateModel(t, dt, moving) {
     m.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir.normalize());
     m.castShadow = true; scene.add(m); return m;
   }
+  var zcP = zcBegin();
   (function () {
     var cx = POOL.cx, cz = POOL.cz, W = POOL.w, D = POOL.d, T = 0.3, i, k;
     /* ----- piscina ----- */
@@ -10359,6 +10463,7 @@ function animateModel(t, dt, moving) {
       rg.rotation.x = -Math.PI / 2; rg.visible = false; scene.add(rg); ripples.push({ m: rg, age: 9 });
     }
   })();
+  zcEnd(zcP, 'far', function (o) { return FOUNT && FOUNT.shines.some(function (q) { return q.m === o; }); });   /* piscina e parquinho (o brilho da fonte tem corte proprio) */
   function splashSound(v) {   /* splash fofo: "plof" redondinho + bolhinhas que sobem + gotinhas em notas de sininho */
     v = v || 1;
     var a = audio(); if (!a || a.state !== 'running') return;
@@ -10461,6 +10566,7 @@ function animateModel(t, dt, moving) {
      O gatinho pula no degrau e depois na lona. Na lona: Espaco = pulo alto; segurando Espaco ao cair ele quica cada
      vez mais alto (ate TRAMP.max); soltando, o quique vai diminuindo ate parar. A lona afunda e volta como mola.
      ===================================================================================== */
+  var zcU = zcBegin();
   (function () {
     var cx = TRAMP.x, cz = TRAMP.z, r = TRAMP.r, top = TRAMP.top, i, a;
     var legM = M(0x3c4a5c), DS = { side: THREE.DoubleSide };
@@ -10495,6 +10601,7 @@ function animateModel(t, dt, moving) {
       colliders.push({ x1: cx - hw, x2: cx + hw, z1: cz + z0, z2: cz + z1, h: top });
     }
   })();
+  zcEnd(zcU, 'far');   /* pula-pula */
   /* "boing": tom que sobe rapido e desce com vibrato */
   function trampBoing(v) {
     var a = audio(); if (!a || a.state !== 'running') return;
@@ -10649,7 +10756,7 @@ function animateModel(t, dt, moving) {
      de matrizes; PQ.rain reduz o numero de gotas. Fora disso nao faz nada (as malhas ja nao sao desenhadas: tem esfera de corte propria). */
   function updFountain(t) {
     var F = FOUNT, i, d, u, tt, y, a, ring, o, arr, n, s2, sh;
-    if (!F || t - F.last < 0.033) return;
+    if (!F || F.far || t - F.last < 0.033) return;
     if (Math.hypot(cat.x - F.x, cat.z - F.z) > 30) return;
     F.fm.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse); F.fr.setFromProjectionMatrix(F.fm);
     if (!F.fr.intersectsSphere(F.sph)) return;
@@ -10674,6 +10781,46 @@ function animateModel(t, dt, moving) {
       ring = F.rings[i]; u = (t / ring.per + ring.ph) % 1;
       ring.m.scale.setScalar((ring.r0 + ring.dr * u) / 0.97);
       ring.m.material.opacity = 0.4 * (1 - u) * Math.min(1, u * 8);
+    }
+  }
+  /* ---------- corte por distancia (PROP_CULL = 17 m para objetos, liquidos e cacos; FAUNA_CULL = 20 m para o resto, passarinhos incluidos): bichos que ele caca e flores dos canteiros nao sao desenhados quando longe (so ganho de FPS; a logica deles continua rodando) ----------
+     Histerese de 0,5 m para dentro: objetos/liquidos/cacos: some a mais de 17 m e volta a menos de 16,5 m; bichos, flores, fonte e restos: 20 m e 19,5 m. Passarinhos, borboletas e morcegos tem a visibilidade reposta a cada quadro pelas proprias
+     rotinas, entao aqui so escondemos; ratinhos e coelhos so mudam a visibilidade ao sumir/reaparecer, entao aqui tambem voltamos a mostrar (menos o ratinho que esta 'gone'). */
+  function farOf(o, x, z, R) {   /* R opcional: padrao FAUNA_CULL (20 m); liquidos e cacos passam PROP_CULL (17 m) */
+    var dx = x - cat.x, dz = z - cat.z, d2 = dx * dx + dz * dz; R = R || FAUNA_CULL;
+    if (o.far) { if (d2 < (R - 0.5) * (R - 0.5)) o.far = false; } else if (d2 > R * R) o.far = true;
+    return o.far;
+  }
+  function cullFaunaFar() {
+    var i, o;
+    for (i = 0; i < birds.length; i++) { o = birds[i]; if (farOf(o, o.x, o.z)) o.g.visible = false; }
+    for (i = 0; i < flies.length; i++) { o = flies[i]; if (farOf(o, o.x, o.z)) o.g.visible = false; }
+    for (i = 0; i < bats.length; i++) { o = bats[i]; if (farOf(o, o.x, o.z)) o.g.visible = false; }
+    for (i = 0; i < mice.length; i++) { o = mice[i]; if (o.st === 'gone') continue; o.g.visible = !farOf(o, o.x, o.z); }
+    for (i = 0; i < rabbits.length; i++) { o = rabbits[i]; o.g.visible = !farOf(o, o.x, o.z); }
+    var v;   /* liquidos derramados, restos que se esparramam no chao e cacos soltos: a visibilidade so e mexida aqui */
+    for (i = 0; i < stains.length; i++) { o = stains[i]; v = !farOf(o, o.m.position.x, o.m.position.z, PROP_CULL); if (o.m.visible !== v) o.m.visible = v; }
+    for (i = 0; i < mess.length; i++) { o = mess[i]; v = !farOf(o, o.m.position.x, o.m.position.z); if (o.m.visible !== v) o.m.visible = v; }
+    for (i = 0; i < shards.length; i++) { o = shards[i]; v = !farOf(o, o.m.position.x, o.m.position.z, PROP_CULL); if (o.m.visible !== v) o.m.visible = v; }
+    cullFountain();
+  }
+  function cullFountain() {   /* fonte inteira (pedra, agua, brilhos, gotas, ondas): some a mais de FAUNA_CULL m da borda da bacia (raio ~2,7 m do piso) */
+    var F = FOUNT, was, v, i;
+    if (!F) return;
+    was = F.far;
+    farOf(F, cat.x + Math.max(0, Math.hypot(cat.x - F.x, cat.z - F.z) - 2.7), cat.z);
+    if (F.far === was && F.shinesN === F.shines.length) return;
+    v = !F.far; F.shinesN = F.shines.length;
+    for (i = 0; i < F.parts.length; i++) F.parts[i].visible = v;
+    for (i = 0; i < F.shines.length; i++) F.shines[i].m.visible = v;
+  }
+  function updFlowerCull() {
+    if (!FLI) return;
+    for (var i = 0; i < FLB.length; i++) {
+      var g = FLB[i], hx = g.v ? 0.55 : 1.6, hz = g.v ? 1.6 : 0.55,
+          dx = Math.max(Math.abs(cat.x - g.bx) - hx, 0), dz = Math.max(Math.abs(cat.z - g.bz) - hz, 0), was = g.far;
+      farOf(g, cat.x + dx, cat.z + dz);   /* so importa o tamanho (dx, dz): distancia do gatinho ate a borda do canteiro */
+      if (g.far !== was) { var S = FLI[i], v = !g.far; S.stem.visible = S.leaf.visible = S.petal.visible = S.ctr.visible = v; }
     }
   }
   function updFlowers() {
@@ -10703,7 +10850,8 @@ function animateModel(t, dt, moving) {
       for (j = 0; j < n; j++) { o = (base + j) * 16; if (on) arr.set(org.subarray(o, o + 16), o); else arr.set(FL_ZERO, o); }
       im.instanceMatrix.needsUpdate = true;
     }
-    put(FLI.stem, f.fi, 1); put(FLI.leaf, f.fi * 2, 2); put(FLI.petal, f.fi * 7, 7); put(FLI.ctr, f.fi, 1);
+    var S = FLI[f.bi], li = f.fi - FLB[f.bi].s;   /* malhas do canteiro da flor e posicao dela dentro do canteiro */
+    put(S.stem, li, 1); put(S.leaf, li * 2, 2); put(S.petal, li * 7, 7); put(S.ctr, li, 1);
   }
   function breakFlower(f) {
     var ox = f.x - cat.x, oz = f.z - cat.z, ol = Math.hypot(ox, oz) || 1, k, an;
@@ -10814,7 +10962,7 @@ function animateModel(t, dt, moving) {
     ch.mesh = cm; scene.add(cm);
   }
   function mergeStaticHouse() {
-    smDone = true;
+    smDone = true; zcInit();
     if (!STATIC_MERGE) return;
     var groups = {}, order = [], HX = 10.2, HZ = 7.2, HY = WALL_H + 0.2, CELL = 4, i, m, mt, g, key, sg, n0 = 0, n1 = 0, kids = scene.children.slice();
     for (i = 0; i < kids.length; i++) {
@@ -10826,8 +10974,9 @@ function animateModel(t, dt, moving) {
       if (m.scale.x <= 0 || m.scale.y <= 0 || m.scale.z <= 0) continue;
       if (!mergeSet.has(m) && (Math.abs(m.position.x) > HX || Math.abs(m.position.z) > HZ || m.position.y > HY)) continue;   /* dentro da casa, ou marcada (cercas e muros) */
       sg = Object.keys(g.attributes).sort().join();
-      key = mt.uuid + '|' + (m.castShadow ? 1 : 0) + (m.receiveShadow ? 1 : 0) + '|' + sg + '|' + Math.floor((m.position.x + 10) / CELL) + ',' + Math.floor((m.position.z + 7) / CELL);
-      if (!groups[key]) { groups[key] = { recs: [], mat: mt, cast: m.castShadow, recv: m.receiveShadow, mesh: null }; order.push(key); }
+      key = mt.uuid + '|' + (m.castShadow ? 1 : 0) + (m.receiveShadow ? 1 : 0) + '|' + sg + '|' + Math.floor((m.position.x + 10) / CELL) + ',' + Math.floor((m.position.z + 7) / CELL) + '|z' + (ZC.tag.get(m) || 0);   /* zona no key: chunk nunca mistura zonas */
+      if (!groups[key]) { groups[key] = { recs: [], mat: mt, cast: m.castShadow, recv: m.receiveShadow, mesh: null, zst: null, zbox: null }; order.push(key); }
+      if (ZC.tag.get(m)) { sg = zcBox(m); if (sg) { groups[key].zbox = groups[key].zbox ? groups[key].zbox.union(sg) : sg; groups[key].zst = { R: ZC.tag.get(m), far: false }; } }
       m.updateMatrix();
       groups[key].recs.push({ m: m, mat: mt, ch: groups[key], dead: false, mx: m.matrix.clone(),
         px: m.position.x, py: m.position.y, pz: m.position.z, qx: m.quaternion.x, qy: m.quaternion.y, qz: m.quaternion.z, qw: m.quaternion.w, sx: m.scale.x, sy: m.scale.y, sz: m.scale.z });
@@ -10838,7 +10987,7 @@ function animateModel(t, dt, moving) {
       if (ch.recs.length < 2) return;   /* sozinha não ganha nada: fica como está */
       smBuild(ch); smChunks.push(ch); n1++;
       ch.recs.forEach(function (r) {
-        smRecs.push(r);
+        smRecs.push(r); ZC.rec.set(r.m, r);
         Object.defineProperty(r.m, 'visible', { configurable: true, enumerable: true, get: function () { return false; }, set: function (v) { smKill(r, v); } });   /* escondida; se o código mexer em `visible`, ela volta */
       });
     });
@@ -10898,6 +11047,7 @@ function animateModel(t, dt, moving) {
     updTramp(t, dt);
     updGirl(t, dt);
     updFlowers();
+    cullFaunaFar(); updFlowerCull(); cullZones();
     updFountain(t);
     updateBubble();
     smPoll();
