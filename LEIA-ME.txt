@@ -32,6 +32,24 @@ Requisito: Node.js 18 ou mais novo (https://nodejs.org). Nao precisa de npm inst
    - Para ajustar (bloquear em vez de ***, mudar limites, editar a lista de palavras): veja o topo do chat-guard.js.
    - Testes: node test-chat-guard.js
 
+   Mensagens privadas: seguem AS MESMAS regras do chat publico (limite de velocidade, 50 caracteres, palavrao vira ***, links/e-mails/telefones
+   bloqueiam, anti-repeticao, maiusculas, atalhos de emoji). Tudo e conferido no servidor (mesmo createChatGuard); nao ha caminho sem filtro.
+
+   Denunciar mensagens (chat publico E privadas):
+   - Clique numa mensagem de outro jogador (no chat, ou dentro da conversa privada em Menu > Friends > mensagem). Abre um menuzinho com
+     "Report message"; o 1o clique pede confirmacao ("Yes, report" / "Cancel") e o 2o envia. Nada e enviado sem confirmar.
+   - A denuncia vai para o MESMO webhook do Discord que ja registra as entradas (variavel de ambiente DISCORD_WEBHOOK no Render), como um
+     cartao vermelho com: denunciado, quem denunciou, sala (ou "privada"), texto da mensagem e horario. Sem DISCORD_WEBHOOK nao ha denuncia
+     (o jogador recebe "Reports are not available right now").
+   - Anti-fraude: o servidor assina cada mensagem entregue (HMAC). A denuncia so e aceita se a assinatura bater, entao ninguem consegue
+     inventar nem alterar o que o outro "disse", nem denunciar uma privada que nao recebeu. A chave deriva da URL do webhook; se quiser
+     outra, defina REPORT_SECRET no Render (trocar a chave invalida denuncias de mensagens antigas).
+   - Limites: rajada de 3 denuncias, depois 1 a cada 20 s por jogador; a mesma mensagem nao e enviada duas vezes ao Discord.
+   - Privacidade: o texto de uma mensagem privada so vai para o Discord se QUEM RECEBEU resolver denunciar. Nomes nao tem conta: "quem
+     denunciou" e "denunciado" sao os nomes digitados. Mensagens privadas antigas (de antes desta versao) nao tem assinatura e nao podem ser denunciadas.
+   - Precisa subir o server.js atualizado no Render E aumentar a versao (NOVA-VERSAO.bat) para o jogo atualizar nos .exe.
+   - Testes: node test-report.js  (servidor real + Discord falso local)
+
    Comandos do chat (em ingles; online valem para TODOS da sala, no modo solo so para voce):
      /day /afternoon /night /dawn   muda o horario (12h, 17h, 21h, 03h)
      /rain  /stoprain  /rain auto   chuva, sem chuva, clima natural

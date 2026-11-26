@@ -104,7 +104,8 @@ t('perfil: tipo errado ou vazio devolve vazio', () => { const g = createChatGuar
   const say = (w, n, x) => w.send(JSON.stringify({ t: 'emit', topic: 'chat', data: { n, t: x } }));
   t('e2e: mensagem normal chega ao outro jogador', () => {});
   say(A, 'Luna', 'oi gente 😺'); await sleep(100);
-  t('e2e: chegou limpa', () => assert.deepStrictEqual(chatOf(B), [{ n: 'Luna', t: 'oi gente 😺' }]));
+  t('e2e: chegou limpa', () => assert.deepStrictEqual(chatOf(B).map(d => ({ n: d.n, t: d.t })), [{ n: 'Luna', t: 'oi gente 😺' }]));
+  t('e2e: chegou assinada para denúncia (ts + sg, nada além disso)', () => { const d = chatOf(B)[0]; assert.deepStrictEqual(Object.keys(d).sort(), ['n', 'sg', 't', 'ts']); assert(/^[0-9a-f]{64}$/.test(d.sg) && typeof d.ts === 'number'); });
   say(A, 'Notice', 'ola p0rr4 www.golpe.com'); await sleep(50);
   t('e2e: contato bloqueado e aviso ao remetente', () => { assert.strictEqual(chatOf(B).length, 1); assert(noteOf(A).some(n => /links/.test(n))); });
   t('e2e: ack ok:false para a barrada', () => assert.strictEqual(A.got.filter(m => m.t === 'chatack').map(m => m.ok).join(), 'true,false'));
