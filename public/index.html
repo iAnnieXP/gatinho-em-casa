@@ -1493,6 +1493,7 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
   }
 
   var colliders = [];   // {x1,x2,z1,z2,h}: retângulos no plano, com altura do topo
+  var ceils = [];       // {x1,x2,z1,z2,y}: retângulos com um "teto" baixo (verga de janela/porta): o gatinho que pula por baixo bate a cabeça em y
   var propWalls = [];   // {x1,x2,z1,z2,h}: barreiras só para os objetos empurráveis (o gatinho não é afetado), ex.: cabeceira da cama
 var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, travesseiros) em que os objetos apoiam; não bloqueiam o gatinho
   var solids = [];      // tudo que a câmera não pode atravessar
@@ -1849,6 +1850,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     var hh = w[4] ? s : 99;
     var e1 = T / 2 + (w[4] || out < 0 ? 0.1 : 0), e2 = T / 2 + (w[4] || out > 0 ? 0.1 : 0);
     colliders.push(a ? { x1: c - hw, x2: c + hw, z1: fixed - e1, z2: fixed + e2, h: hh } : { x1: fixed - e1, x2: fixed + e2, z1: c - hw, z2: c + hw, h: hh });
+    if (w[4]) ceils.push(a ? { x1: c - hw, x2: c + hw, z1: fixed - e1, z2: fixed + e2, y: t } : { x1: fixed - e1, x2: fixed + e2, z1: c - hw, z2: c + hw, y: t });   /* a parede acima da janela (verga) segura o gatinho que pula do peitoril */
     [-1, 1].forEach(function (k) { wb(c + k * (W / 2 - 0.03), 0.06, s, H, T + 0.04, 0, 0xffffff, false); });
     wb(c, W, t - 0.06, 0.06, T + 0.04, 0, 0xffffff, false);
     if (!w[4]) {
@@ -1907,6 +1909,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     gaps.forEach(function (g) {
       var len = g[1] - g[0], c = (g[0] + g[1]) / 2;
       crown(axis, fixed, g[0], g[1], null, crownSides(color, fixed));
+      ceils.push(axis === 'x' ? { x1: g[0], x2: g[1], z1: fixed - T / 2, z2: fixed + T / 2, y: 2.1 } : { x1: fixed - T / 2, x2: fixed + T / 2, z1: g[0], z2: g[1], y: 2.1 });   /* verga da passagem */
       if (axis === 'x') box({ x: c, z: fixed, w: len, d: T + 0.06, h: 0.5, y: 2.1, color: 0xb98a5c, collide: false });
       else box({ x: fixed, z: c, w: T + 0.06, d: len, h: 0.5, y: 2.1, color: 0xb98a5c, collide: false });
     });
@@ -2390,6 +2393,8 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
   (function () {
     var tx = 5.8, tz = -3;
     tableTop(tx, tz, 2.2, 1.2, 0.68, 0.08, 0x6b4426, 0x9a6a42, 0.03);
+    colliders[colliders.length - 1].u = 0.68;   /* u: altura da parte de baixo do tampo; o gatinho (e objetos baixos) passam por baixo, só as pernas bloqueiam */
+    [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (s) { colliders.push({ x1: tx + s[0] * 0.97 - 0.05, x2: tx + s[0] * 0.97 + 0.05, z1: tz + s[1] * 0.5 - 0.05, z2: tz + s[1] * 0.5 + 0.05, h: 0.68 }); });
     [-1, 1].forEach(function (s) {
       box({ x: tx, z: tz + s * 0.52, w: 2.04, d: 0.035, h: 0.1, y: 0.58, color: 0x4a2f1a, collide: false, cast: false });
       box({ x: tx + s * 1.02, z: tz, w: 0.035, d: 0.99, h: 0.1, y: 0.58, color: 0x4a2f1a, collide: false, cast: false });
@@ -3512,7 +3517,13 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       });
       [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (c) { box({ x: b[0] + c[0] * 1.63, z: b[1] + c[1] * 0.58, w: 0.1, d: 0.1, h: 0.2, color: wdD, collide: false, cast: false }); });
       mergeOn = false;
-      pads.push({ x1: b[0] - 1.6, x2: b[0] + 1.6, z1: b[1] - 0.55, z2: b[1] + 0.55, h: 0.1 });   /* canteiro de flores */
+      /* bordas e pilarzinhos do canteiro: colisões baixas (como um meio-fio): o gatinho sobe na borda ao entrar em vez de atravessá-la */
+      [-1, 1].forEach(function (sd) {
+        colliders.push({ x1: b[0] - 1.67, x2: b[0] + 1.67, z1: b[1] + sd * 0.58 - 0.045, z2: b[1] + sd * 0.58 + 0.045, h: 0.17 });
+        colliders.push({ x1: b[0] + sd * 1.63 - 0.045, x2: b[0] + sd * 1.63 + 0.045, z1: b[1] - 0.56, z2: b[1] + 0.56, h: 0.17 });
+      });
+      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (c) { colliders.push({ x1: b[0] + c[0] * 1.63 - 0.05, x2: b[0] + c[0] * 1.63 + 0.05, z1: b[1] + c[1] * 0.58 - 0.05, z2: b[1] + c[1] * 0.58 + 0.05, h: 0.2 }); });
+      pads.push({ x1: b[0] - 1.6, x2: b[0] + 1.6, z1: b[1] - 0.55, z2: b[1] + 0.55, h: 0.115 });   /* canteiro de flores (a terra vai até 0,112: o gatinho apoia nela e não afunda) */
       for (var i = 0; i < BED_FL.length; i++) {   /* flowerBake e flowers.push andam juntos, entao fi continua batendo com as malhas instanciadas */
         var fx = b[0] + BED_FL[i][0], fz = b[1] + BED_FL[i][1], fcol = BED_FL[i][2];
         flowerBake(i, fx, fz, fcol);
@@ -3533,7 +3544,12 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       });
       [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (c) { bb(c[0] * 1.63, c[1] * 0.58, 0.1, 0.1, 0.2, 0, wdD); });
       mergeOn = false;
-      pads.push({ x1: b[0] - 0.55, x2: b[0] + 0.55, z1: b[1] - 1.6, z2: b[1] + 1.6, h: 0.1 });
+      [-1, 1].forEach(function (sd) {
+        colliders.push({ x1: b[0] + sd * 0.58 - 0.045, x2: b[0] + sd * 0.58 + 0.045, z1: b[1] - 1.67, z2: b[1] + 1.67, h: 0.17 });
+        colliders.push({ x1: b[0] - 0.56, x2: b[0] + 0.56, z1: b[1] + sd * 1.63 - 0.045, z2: b[1] + sd * 1.63 + 0.045, h: 0.17 });
+      });
+      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(function (c) { colliders.push({ x1: b[0] + c[1] * 0.58 - 0.05, x2: b[0] + c[1] * 0.58 + 0.05, z1: b[1] + c[0] * 1.63 - 0.05, z2: b[1] + c[0] * 1.63 + 0.05, h: 0.2 }); });
+      pads.push({ x1: b[0] - 0.55, x2: b[0] + 0.55, z1: b[1] - 1.6, z2: b[1] + 1.6, h: 0.115 });
       for (var i = 0; i < 12; i++) {
         var fx = b[0] + (i < 6 ? -0.25 : 0.25), fz = b[1] - 1.4 + (i % 6) * 0.56;
         var fcol = [0xffd23f, 0xf08fb0, 0xc79bf2, 0xffffff][(i + q) % 4];
@@ -3604,8 +3620,9 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
       box({ x: TX0, z: TZ0, w: 0.9, d: 0.1, h: 0.06, color: DK, tex: 'wood', collide: false });                               /* base em cruz */
       box({ x: TX0, z: TZ0, w: 0.1, d: 0.9, h: 0.06, color: DK, tex: 'wood', collide: false });
       [[0.8, 0.33], [0.33, 0.8], [0.58, 0.58]].forEach(function (q) {   /* tres retangulos cruzados aproximam o tampo redondo (os objetos nao flutuam na borda e o gato nao atravessa o tampo) */
-        colliders.push({ x1: TX0 - q[0], x2: TX0 + q[0], z1: TZ0 - q[1], z2: TZ0 + q[1], h: 0.75 });
+        colliders.push({ x1: TX0 - q[0], x2: TX0 + q[0], z1: TZ0 - q[1], z2: TZ0 + q[1], h: 0.75, u: 0.65 });   /* u: passa por baixo; só o pé central bloqueia */
       });
+      colliders.push({ x1: TX0 - 0.1, x2: TX0 + 0.1, z1: TZ0 - 0.1, z2: TZ0 + 0.1, h: 0.65 });
       [[0, 1.12, 0], [1.12, 0, 1], [0, -1.12, 2], [-1.12, 0, 3]].forEach(function (cd) {
         var ch = [TX0 + cd[0], TZ0 + cd[1], cd[2]], odd = ch[2] & 1;
         function cp(lx, lz, w, d, h, y, c) { var q = benchPt(ch, lx, lz); return box({ x: q[0], z: q[1], w: odd ? d : w, d: odd ? w : d, h: h, y: y, color: c, tex: 'wood', collide: false, cast: false }); }
@@ -3896,7 +3913,11 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     /* mesa de madeira (ao longo de z): tampo de 5 tabuas com tons levemente diferentes, travessas, quatro pernas finas com travessa lateral e trilho vermelho */
     var TX = CX - 2.8, TZ = CZ, WOODS = [0x8a5a38, 0x94623e, 0x80512f, 0x8f5d3a, 0x86573a];
     WOODS.forEach(function (c, k) { ob(TX - 0.4 + k * 0.2, TZ, 0.19, 1.9, 0.05, 0.7, c, undefined, 'wood'); });
-    colliders.push({ x1: TX - 0.5, x2: TX + 0.5, z1: TZ - 0.95, z2: TZ + 0.95, h: 0.76 });
+    colliders.push({ x1: TX - 0.5, x2: TX + 0.5, z1: TZ - 0.95, z2: TZ + 0.95, h: 0.76, u: 0.65 });   /* u: dá para passar por baixo do tampo */
+    [-1, 1].forEach(function (a) {   /* pernas e travessas baixas laterais continuam bloqueando */
+      [-1, 1].forEach(function (b) { colliders.push({ x1: TX + a * 0.4 - 0.04, x2: TX + a * 0.4 + 0.04, z1: TZ + b * 0.8 - 0.04, z2: TZ + b * 0.8 + 0.04, h: 0.65 }); });
+      colliders.push({ x1: TX + a * 0.4 - 0.025, x2: TX + a * 0.4 + 0.025, z1: TZ - 0.75, z2: TZ + 0.75, h: 0.26 });
+    });
     [-0.6, 0.6].forEach(function (dz) { ob(TX, TZ + dz, 0.86, 0.08, 0.05, 0.65, 0x5e3b20, undefined, 'wood'); });   /* travessas sob o tampo */
     ob(TX, TZ, 0.34, 1.5, 0.01, 0.75, 0xc2574a);
     [-1, 1].forEach(function (a) {
@@ -6821,6 +6842,39 @@ function propShadowLod(p) {
   on = p.shOn ? d < PROP_SHADOW_NEAR + 1 : d < PROP_SHADOW_NEAR;
   if (on !== p.shOn) { p.shOn = on; p.shMs.forEach(function (o) { o.castShadow = on; }); }
 }
+/* colisão "varrida": se o movimento de (ox,oz) até (p.x,p.z) cruza o retângulo (engordado pelo raio do objeto), o objeto para na face do obstáculo.
+   Sem isso, empurrões rápidos ou o gatinho encostado na parede/cerca (que é fina) faziam o objeto pular para o outro lado. */
+function sweepWall(p, ox, oz, c) {
+  var r = p.r, X1 = c.x1 - r, X2 = c.x2 + r, Z1 = c.z1 - r, Z2 = c.z2 + r;
+  if (ox > X1 && ox < X2 && oz > Z1 && oz < Z2) return false;   /* já começou dentro: a resolução por círculo cuida */
+  var dx = p.x - ox, dz = p.z - oz, t0 = 0, t1 = 1, nx = 0, nz = 0, a, b, tn, tf, hit = false;
+  if (Math.abs(dx) < 1e-9) { if (ox <= X1 || ox >= X2) return false; }
+  else {
+    a = (X1 - ox) / dx; b = (X2 - ox) / dx; tn = Math.min(a, b); tf = Math.max(a, b);
+    if (tn > t0) { t0 = tn; nx = dx > 0 ? -1 : 1; nz = 0; hit = true; }
+    if (tf < t1) t1 = tf;
+  }
+  if (Math.abs(dz) < 1e-9) { if (oz <= Z1 || oz >= Z2) return false; }
+  else {
+    a = (Z1 - oz) / dz; b = (Z2 - oz) / dz; tn = Math.min(a, b); tf = Math.max(a, b);
+    if (tn > t0) { t0 = tn; nz = dz > 0 ? -1 : 1; nx = 0; hit = true; }
+    if (tf < t1) t1 = tf;
+  }
+  if (!hit || t0 >= t1 || t0 >= 1) return false;
+  p.x = ox + dx * t0 + nx * 0.002; p.z = oz + dz * t0 + nz * 0.002;
+  var vn = p.vx * nx + p.vz * nz;
+  if (vn < 0) { p.vx -= 1.35 * vn * nx; p.vz -= 1.35 * vn * nz; }
+  return true;
+}
+function sweepProp(p, ox, oz) {
+  var j, c, n = colliders.length + propWalls.length;
+  for (j = 0; j < n; j++) {
+    c = j < colliders.length ? colliders[j] : propWalls[j - colliders.length];
+    if (c.h <= p.y + 0.05) continue;
+    if (c.u && p.y + p.h < c.u) continue;
+    sweepWall(p, ox, oz, c);
+  }
+}
 function updateProps(dt) {
   var i, j, p, q, c, CLN;
   for (i = 0; i < props.length; i++) {
@@ -6844,6 +6898,7 @@ function updateProps(dt) {
       updateTip(p, dt); continue;
     }
     // o gatinho empurra
+    var ox0 = p.x, oz0 = p.z;   /* posição no começo do quadro (para a colisão varrida) */
     var dx = p.x - cat.x, dz = p.z - cat.z, d = Math.hypot(dx, dz), md = R + p.r;
     if (d < md && reach(p)) {
       var nx = d > 1e-4 ? dx / d : Math.sin(cat.rot), nz = d > 1e-4 ? dz / d : Math.cos(cat.rot);
@@ -6870,8 +6925,16 @@ function updateProps(dt) {
     for (j = 0, CLN = colliders.length + propWalls.length; j < CLN; j++) {
       c = j < colliders.length ? colliders[j] : propWalls[j - colliders.length];
       if (c.h <= p.y + 0.05) continue;
+      if (c.u && p.y + p.h < c.u) continue;   /* passa por baixo da mesa */
+      if (p.x !== ox0 || p.z !== oz0) sweepWall(p, ox0, oz0, c);
       var cx = Math.max(c.x1, Math.min(p.x, c.x2)), cz = Math.max(c.z1, Math.min(p.z, c.z2));
       var ex = p.x - cx, ez = p.z - cz, e2 = ex * ex + ez * ez;
+      if (e2 < 1e-8 && cx === p.x && cz === p.z) {   /* centro DENTRO do obstáculo (ex.: empurrado ou solto contra a parede): sai pelo lado do gatinho em vez de sumir pelo outro lado */
+        var sx = cat.x - p.x, sz = cat.z - p.z;
+        if (Math.abs(sx) > Math.abs(sz)) { if (sx < 0) p.x = c.x1 - p.r; else p.x = c.x2 + p.r; }
+        else { if (sz < 0) p.z = c.z1 - p.r; else p.z = c.z2 + p.r; }
+        p.vx = 0; p.vz = 0; continue;
+      }
       if (e2 >= p.r * p.r || e2 < 1e-8) continue;
       var e = Math.sqrt(e2), qx = ex / e, qz = ez / e, vn = p.vx * qx + p.vz * qz;
       p.x += qx * (p.r - e); p.z += qz * (p.r - e);
@@ -7185,7 +7248,8 @@ function updateEat(dt) {
 function carryPos(p) {
   var off = 0.23 + Math.min(p.r, 0.09) * 0.7 + (p.d.coff || 0);   /* centro do brinquedo na altura e na frente da boca */
   p.x = cat.x + Math.sin(cat.rot) * off; p.z = cat.z + Math.cos(cat.rot) * off; p.y = cat.y + 0.2 - p.h * 0.5 + (p.d.cdy || 0);
-  p.x += mouthD.x; p.y += mouthD.y; p.z += mouthD.z;   /* mouthD: quanto a boca (osso Mouth) saiu da posição de repouso por causa da animação (balanço ao andar, pescoço, respiração) */
+  p.x += mouthD.x; p.y += mouthD.y; p.z += mouthD.z;
+  sweepProp(p, cat.x, cat.z);   /* se a boca está encostada na parede/cerca, o objeto fica na face dela em vez de entrar */   /* mouthD: quanto a boca (osso Mouth) saiu da posição de repouso por causa da animação (balanço ao andar, pescoço, respiração) */
   p.vx = p.vy = p.vz = 0; p.air = false; p.lay = false;
   p.g.rotation.x = 0; p.g.rotation.z = 0; if (!p.d.round) p.g.rotation.y = cat.rot + (p.d.cyaw || 0);   /* cyaw: gira o objeto para o eixo comprido apontar à frente */
 }
@@ -8310,6 +8374,7 @@ function animateModel(t, dt, moving) {
       for (var i = 0; i < colliders.length; i++) {
         var c = colliders[i];
         if (c.h <= cat.y + 0.2) continue;
+        if (c.u && cat.y + 0.33 < c.u) continue;   /* por baixo de uma mesa */
         var cx = Math.max(c.x1, Math.min(cat.x, c.x2)), cz = Math.max(c.z1, Math.min(cat.z, c.z2));
         var dx = cat.x - cx, dz = cat.z - cz, d2 = dx * dx + dz * dz;
         if (d2 >= R * R) continue;
@@ -8321,6 +8386,20 @@ function animateModel(t, dt, moving) {
           if (m === l) cat.x = c.x1 - R; else if (m === r) cat.x = c.x2 + R;
           else if (m === t) cat.z = c.z1 - R; else cat.z = c.z2 + R;
         }
+      }
+    }
+    if (held) {   /* o objeto na boca também colide: o gatinho para antes de enfiar a cabeça/o brinquedo na parede ou na cerca */
+      var hr = Math.min(held.r, 0.09), hoff = 0.23 + hr * 0.7 + (held.d.coff || 0), hy = cat.y + 0.2 - held.h * 0.5 + (held.d.cdy || 0);
+      for (var hj = 0; hj < colliders.length; hj++) {
+        var hc = colliders[hj];
+        if (hc.h <= hy + 0.05) continue;
+        if (hc.u && hy + held.h < hc.u) continue;   /* objeto na boca passa por baixo da mesa */
+        var hx = cat.x + Math.sin(cat.rot) * hoff, hz = cat.z + Math.cos(cat.rot) * hoff;
+        var hcx = Math.max(hc.x1, Math.min(hx, hc.x2)), hcz = Math.max(hc.z1, Math.min(hz, hc.z2));
+        var hdx = hx - hcx, hdz = hz - hcz, hd2 = hdx * hdx + hdz * hdz, hrr = held.r + 0.02;
+        if (hd2 >= hrr * hrr) continue;
+        if (hd2 > 1e-8) { var hd = Math.sqrt(hd2), hp = (hrr - hd) / hd; cat.x += hdx * hp; cat.z += hdz * hp; }
+        else { cat.x -= Math.sin(cat.rot) * 0.02; cat.z -= Math.cos(cat.rot) * 0.02; }   /* centro dentro do obstáculo: recua pelo lado de onde veio */
       }
     }
     cat.x = Math.max(-FX + 0.3, Math.min(FX - 0.3, cat.x));   /* limite de seguranca; a caixa do muro (raio do gato 0,18) para o gato antes, a ~0,24 do centro */
@@ -8374,7 +8453,23 @@ function animateModel(t, dt, moving) {
     var onT = support === TRAMP.top && Math.hypot(cat.x - TRAMP.x, cat.z - TRAMP.z) < TRAMP.r;   /* em cima do pula-pula */
     if (cat.grounded && jumpKey) { cat.vy = onT ? TRAMP.jump : JUMP; cat.grounded = false; if (onT) trampBounce(TRAMP.jump * 0.8, true); }
     cat.vy -= G * dt;
+    var yPrev = cat.y;
     cat.y += cat.vy * dt;
+    for (var ui = 0; ui < colliders.length; ui++) {   /* pulando por baixo de uma mesa: bate a cabeça no tampo em vez de atravessar */
+      var uc = colliders[ui]; if (!uc.u || yPrev + 0.33 >= uc.u || cat.y + 0.33 < uc.u) continue;
+      var ucx = Math.max(uc.x1, Math.min(cat.x, uc.x2)), ucz = Math.max(uc.z1, Math.min(cat.z, uc.z2));
+      if ((cat.x - ucx) * (cat.x - ucx) + (cat.z - ucz) * (cat.z - ucz) >= R * R) continue;
+      cat.y = Math.max(yPrev, uc.u - 0.34); if (cat.vy > 0) cat.vy = 0;
+    }
+    /* teto da casa (laje a WALL_H sobre toda a planta) e vergas de janelas/passagens: o gatinho em cima da geladeira ou do peitoril não atravessa ao pular */
+    var capY = 1e9;
+    if (Math.abs(cat.x) < 10.15 && Math.abs(cat.z) < 7.15 && yPrev + 0.33 <= WALL_H + 0.01) capY = WALL_H;
+    for (var ci = 0; ci < ceils.length; ci++) {
+      var cc = ceils[ci]; if (yPrev + 0.33 > cc.y + 0.01 || cc.y >= capY) continue;
+      var ccx = Math.max(cc.x1, Math.min(cat.x, cc.x2)), ccz = Math.max(cc.z1, Math.min(cat.z, cc.z2));
+      if ((cat.x - ccx) * (cat.x - ccx) + (cat.z - ccz) * (cat.z - ccz) < R * R * 0.5) capY = cc.y;
+    }
+    if (cat.y + 0.33 > capY) { cat.y = Math.max(yPrev, capY - 0.33); if (cat.vy > 0) cat.vy = 0; }
     if (cat.y <= support && cat.vy <= 0) {
       var imp = -cat.vy;
       cat.y = support; cat.vy = 0; cat.grounded = true;
@@ -10779,16 +10874,19 @@ function animateModel(t, dt, moving) {
     var PG0 = scene.children.length, PC0 = colliders.length;   /* tudo o que for criado daqui ate o fim do parquinho e empurrado para o canto nordeste (PDX, PDZ) */
     box({ x: 17.4, z: -12.3, w: 7.2, d: 5.6, h: 0.04, color: 0xe6d3a3, tex: 'sand', collide: false, cast: false });
     box({ x: 17.4, z: -12.3, w: 6.5, d: 4.9, h: 0.045, color: 0xd9bf88, tex: 'sand', collide: false, cast: false });   /* miolo um tom mais escuro (areia úmida): dá profundidade à caixa */
-    /* moldura de madeira: tábuas com tampa clara por cima e quatro pilarzinhos nos cantos (sem colisão: o gatinho continua entrando de qualquer lado) */
+    /* moldura de madeira: tábuas com tampa clara por cima e quatro pilarzinhos nos cantos (o gatinho entra de qualquer lado, subindo na borda) */
     [[17.4, -15.1, 7.2, 0.14], [17.4, -9.5, 7.2, 0.14]].forEach(function (b) {
+      colliders.push({ x1: b[0] - b[2] / 2, x2: b[0] + b[2] / 2, z1: b[1] - 0.1, z2: b[1] + 0.1, h: 0.17 });   /* borda baixa (meio-fio): o gatinho sobe nela em vez de atravessar */
       box({ x: b[0], z: b[1], w: b[2], d: b[3], h: 0.14, color: 0x9a6a42, collide: false, cast: false });
       box({ x: b[0], z: b[1], w: b[2], d: b[3] + 0.06, h: 0.03, y: 0.14, color: 0xb88950, collide: false, cast: false });
     });
     [[13.8, -12.3], [21, -12.3]].forEach(function (b) {
+      colliders.push({ x1: b[0] - 0.1, x2: b[0] + 0.1, z1: b[1] - 2.8, z2: b[1] + 2.8, h: 0.17 });
       box({ x: b[0], z: b[1], w: 0.14, d: 5.6, h: 0.14, color: 0x9a6a42, collide: false, cast: false });
       box({ x: b[0], z: b[1], w: 0.2, d: 5.6, h: 0.03, y: 0.14, color: 0xb88950, collide: false, cast: false });
     });
     [[13.8, -15.1], [21, -15.1], [13.8, -9.5], [21, -9.5]].forEach(function (c) {
+      colliders.push({ x1: c[0] - 0.135, x2: c[0] + 0.135, z1: c[1] - 0.135, z2: c[1] + 0.135, h: 0.23 });
       box({ x: c[0], z: c[1], w: 0.22, d: 0.22, h: 0.2, color: 0x7a5233, collide: false, cast: false });   /* 0,22 (e nao 0,20): as tampas das tabuas tem 0,20 e ficariam no mesmo plano do pilar (z-fighting) */
       box({ x: c[0], z: c[1], w: 0.27, d: 0.27, h: 0.03, y: 0.2, color: 0xb88950, collide: false, cast: false });
     });
@@ -10809,7 +10907,8 @@ function animateModel(t, dt, moving) {
     });
     /* escorregador */
     for (i = 0; i < 4; i++) cyl({ x: i % 2 ? 20.6 : 19.8, z: i < 2 ? -14.5 : -13.7, r: 0.04, h: 1.8, color: bl, tex: 'paint', collide: false });
-    colliders.push({ x1: 19.72, x2: 20.68, z1: -14.58, z2: -13.62, h: 1.2 });
+    colliders.push({ x1: 19.72, x2: 20.68, z1: -14.58, z2: -13.62, h: 1.2, u: 1.15 });   /* plataforma: dá para passar por baixo (u = parte de baixo); só os 4 postes bloqueiam */
+    [19.8, 20.6].forEach(function (px) { [-14.5, -13.7].forEach(function (pz) { colliders.push({ x1: px - 0.05, x2: px + 0.05, z1: pz - 0.05, z2: pz + 0.05, h: 1.2 }); }); });
     box({ x: 20.2, z: -14.1, w: 1.0, d: 1.0, h: 0.08, y: 1.15, color: 0xb5834f, tex: 'wood', collide: false });
     var roof = new THREE.Mesh(new THREE.ConeGeometry(0.85, 0.55, 4), M(0xe0463f, undefined, 'paint')); TEXLIB.uvCyl(roof.geometry, 0.85, 0.55, 'paint'); roof.rotation.y = Math.PI / 4; roof.position.set(20.2, 2.075, -14.1); roof.castShadow = true; scene.add(roof);
     var th = Math.atan2(1.03, 2.7), sl = Math.hypot(1.03, 2.7);
@@ -10822,7 +10921,7 @@ function animateModel(t, dt, moving) {
     var NS = 27, sdz = 2.7 / NS;
     for (var si = 0; si < NS; si++) {
       var zA = -13.6 + si * sdz, zm = zA + sdz / 2;
-      colliders.push({ x1: 19.88, x2: 20.52, z1: zA, z2: zA + sdz, h: 0.66 + (-12.25 - zm) / 2.7 * 1.03, ramp: true });
+      colliders.push({ x1: 19.88, x2: 20.52, z1: zA, z2: zA + sdz, h: 0.66 + (-12.25 - zm) / 2.7 * 1.03, ramp: true, u: 0.66 + (-12.25 - zm) / 2.7 * 1.03 - 0.06 });   /* u: parte de baixo da rampa; onde sobra altura (a parte alta) o gatinho passa por baixo */
     }
     for (k = 1; k <= 4; k++) { var u = k / 5; bar(19.35 + 0.37 * u, 0.04 + 1.16 * u, -14.3, 19.35 + 0.37 * u, 0.04 + 1.16 * u, -13.9, 0.015, 0xc8cfd6); }
     /* gangorra */
