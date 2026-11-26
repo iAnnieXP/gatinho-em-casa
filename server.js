@@ -118,7 +118,7 @@ function cleanProfile(p, guard) {
 
 function cleanPresence(o) {
   const out = {}; if (!o || typeof o !== 'object') return out;
-  Object.keys(o).slice(0, 10).forEach(k => {
+  Object.keys(o).slice(0, 12).forEach(k => {
     const v = o[k]; if (!/^[a-z][a-z0-9_]{0,11}$/.test(k)) return;
     if (typeof v === 'number' && isFinite(v)) out[k] = v; else if (typeof v === 'string') out[k] = v.slice(0, 24);
   });
@@ -164,6 +164,12 @@ server.on('upgrade', (req, socket) => {
     if (tokens < 1) return; tokens--;
     let m; try { m = JSON.parse(txt); } catch (e) { return; }
     if (m.t === 'pres') { const patch = cleanPresence(m.patch); if (typeof patch.n === 'string') patch.n = chat.name(patch.n); Object.assign(me.pres, patch); if (patch.n) logOnce(patch.n); others({ t: 'pres', peer: id, patch }); }
+    else if (m.t === 'find') {   // seguir amigo: procura um jogador pelo nome em TODAS as salas e devolve em qual ele está (here = a sua própria sala)
+      const q = typeof m.name === 'string' ? chat.name(m.name).toLowerCase() : '';
+      let hit = null;   // ho = escondeu o status online (aparece como offline); nf = não deixa ser seguido
+      if (q) rooms.forEach((mem, rn) => { if (hit && hit.here) return; mem.forEach((x, k) => { if (k !== id && typeof x.pres.n === 'string' && x.pres.n.toLowerCase() === q && x.pres.ho !== 1 && !(hit && hit.here)) hit = { room: rn, here: mem === members, full: mem.size >= MAX, n: x.pres.n, nf: x.pres.nf === 1 }; }); });
+      send(socket, hit && hit.nf && !hit.here ? { t: 'found', ok: true, blocked: true, q: m.q } : hit ? { t: 'found', ok: true, q: m.q, room: hit.room, here: hit.here, full: hit.full, n: hit.n } : { t: 'found', ok: false, q: m.q });
+    }
     else if (m.t === 'ping') send(socket, { t: 'pong', c: m.c });   // mostrador de ping do cliente
     else if (m.t === 'cmd') {   // comandos do chat: /day /afternoon /night /dawn /rain /stoprain /redmoon
       if (now - lastCmd < 2000) return send(socket, { t: 'notice', msg: 'Slow down! Wait a moment before using another command.' });
