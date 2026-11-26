@@ -5961,7 +5961,7 @@ var SPAWN = [
   ['patinho', 6.3, .29, 6.2], ['perfume', 4.51, .86, 6.5],
   ['abajurPe', -9.3, 0, -6.3], ['abajurQ', -9.3, .55, 6.4], ['abajurMesa', 1.45, .8, 6.6],
   ['pote', 8.5, 0, -5.1], ['poteAgua', 8.5, 0, -4.5], ['caixa', 9.1, 0, 4.3, 0],
-  ['vaso', YARD.bench.x + 0.6, .45, YARD.bench.z], ['bola', 14.5, 0, 3.5, 0, 0x6aa86a],
+  ['vasoPlanta', YARD.bench.x - 0.3, .45, YARD.bench.z, 0, 0xffd23f], ['bola', 13.9, 0, 2.2, 0, 0x6aa86a],
   /* plantas: vasos grandes da sala e do escritório (tombam e o vaso quebra) e o vasinho no rack da TV */
   ['plantaGrande', .2, 0, -6.3, 0, 1], ['plantaGrande', -1.3, 0, 6.3, 0, 2], ['plantinha', -9.55, .54, -2.45, 0, 1],
   /* garrafas */
@@ -5971,7 +5971,6 @@ var SPAWN = [
   ['novelo', -6.5, 0, 1.6, 0, 0xe86a50], ['ratinho', -5.2, 0, 2.4, .6, 0x9aa3ad], ['bolaGuizo', .3, 0, 2.8, 0, 0xd9b24a], ['peixeBrinq', 1.2, 0, 3.2, 2.2, 0xf2994a],
   ['ratinho', -7.4, .55, 5.6, 1.2, 0xd9c8b0], ['varinha', 15, 0, -4, .4, 0xf08fb0], ['novelo', 17, 0, .5, 0, 0x6a8caf],
   ['varinha', -12.5, 0, -6, 1.2, 0xc79bf2],
-  ['vasoPlanta', YARD.bench.x - 0.6, .45, YARD.bench.z, 0, 0xffd23f],
   ['vasoPlanta', YARD.tabs[0][0], .7, YARD.tabs[0][1], 0, 0xffd23f],
   ['vasoPlanta', YARD.tabs[1][0], .7, YARD.tabs[1][1], 0, 0xf08fb0], ['vasoPlanta', YARD.tabs[2][0], .7, YARD.tabs[2][1], 0, 0xc79bf2], ['vasoPlanta', YARD.tabs[3][0], .7, YARD.tabs[3][1], 0, 0xf08fb0],
   ['bolaParque', 19.2, 0, -9.8, 0, 0x4aa3ff],
@@ -5981,7 +5980,7 @@ var SPAWN = [
   /* bexigas: dentro de casa e no quintal */
   ['bexiga', -3.6, 0, -0.6, 0, 0xe94b6b], ['bexiga', 3.0, 0, -1.2, 0, 0xf2c230], ['bexiga', -4.2, 0, 3.0, 0, 0x4aa3ff],
   ['bexiga', 0.2, 0, 3.9, 0, 0x6ac46a], ['bexiga', 6.0, 0, 1.6, 0, 0xb084e8],
-  ['bexiga', 15.5, 0, -2.0, 0, 0xff8a3d], ['bexiga', 12.4, 0, 8.6, 0, 0xe94b6b], ['bexiga', -14.4, 0, 0.5, 0, 0x4aa3ff], ['bexiga', 17.0, .04, -10.2, 0, 0xf2c230],
+  ['bexiga', 15.5, 0, -2.0, 0, 0xff8a3d], ['bexiga', -14.4, 0, 0.5, 0, 0x4aa3ff], ['bexiga', 17.0, .04, -10.2, 0, 0xf2c230],
   ['balde', 20.0, .04, -9.5, 0, 0xff6b6b],   /* balde na areia do parquinho */
   ['travesseiro', -7.6, .55, 6.3, .04, 0xfaf7f2], ['travesseiro', -6.4, .55, 6.3, -.04, 0xfaf7f2], ['almofada', -7, .55, 5.88, .35, 0xd9894a],   /* travesseiros e almofada da cama */
   ['notebook', -0.1, .8, 6.45, 0], ['portaLapis', .45, .8, 6.3, 0],   /* notebook e porta-lápis da escrivaninha */
@@ -5994,7 +5993,6 @@ var SPAWN = [
   ['garrafa', 23.75, .91, 14.98], ['garrafaVinho', 23.62, .91, 14.97], ['copo', 23.38, .91, 15.0],   /* bancada: bebidas ao lado da fornalha */
   ['maca', 23.65, .91, 15.55],   /* maca na bancada, ao lado da tabua de corte */
   ['almofada', 19.72, .47, 14.2, .3, 0xc2574a], ['almofada', 21.62, .47, 15.2, -.4, 0xf0b92e],      /* almofadas nos bancos (vermelho e amarelo, como a toalha e o ombrelone) */
-  ['vasoPlanta', 23.4, 0, 11.9, 0, 0xc79bf2],   /* vaso no canto norte (os dois junto ao portinho foram removidos) */
   ['balde', 22.55, 0, 15.45],                                                                         /* balde ao lado da bancada */
   /* mesas redondas do gramado oeste (tampo a 0,75): a da esquerda do print serve cha (bule, dois pratos com xicaras e um pudim), a outra tem lanche (bule verde, vasinho de flores, copos, garrafa de suco e um prato com maca) */
   ['bule', -19.25, .75, .9, -.8, 0x9fd3c0], ['vaso', -19.7, .75, 1.25], ['prato', -19.4, .75, .55], ['maca', -19.4, .77, .55], ['copo', -18.95, .75, 1.15], ['copo', -19.8, .75, .8], ['garrafa', -18.95, .75, 1.45],
@@ -6603,6 +6601,7 @@ function pawZoneCol(x, z) {
   if (x > SANDBOX.x1 && x < SANDBOX.x2 && z > SANDBOX.z1 && z < SANDBOX.z2) return 0xc9ad72;
   return 0;
 }
+function inFountWater() { return !!FOUNT && cat.y < FOUNT.wy + 0.18 && Math.hypot(cat.x - FOUNT.x, cat.z - FOUNT.z) < 1.6; }   /* mesmo criterio de "dentro da agua" da fonte (beber/respingos) */
 var prints = [], pawTexC = {}, pawWet = { t: 0, col: 0 }, pawDist = 0, pawSide = 1, pawLastX = 0, pawLastZ = 0, pawInit = false, PAW_WET = 10;
 function pawTex(col) {
   if (pawTexC[col]) return pawTexC[col];
@@ -6624,11 +6623,12 @@ function updatePaws(dt) {
     }
   }
   if (cat.grounded && cat.y < 0.1) { var zc = pawZoneCol(cat.x, cat.z); if (zc) { pawWet.t = PAW_WET; pawWet.col = zc; } }
+  if (cat.grounded && inFountWater()) { pawWet.t = PAW_WET; pawWet.col = 0x3a9ec8; }   /* dentro da bacia do chafariz: patas molhadas como na piscina */
   if (!pawInit) { pawInit = true; pawLastX = cat.x; pawLastZ = cat.z; }
   if (pawWet.t > 0) {
     pawWet.t -= dt;
     var inSand = cat.grounded && cat.y < 0.1 && inSandbox(cat.x, cat.z);   /* dentro da caixa de areia também deixa pegadas (mais escuras, afundadas) */
-    if (cat.grounded && (inSand || !pawZoneCol(cat.x, cat.z))) {
+    if (cat.grounded && (inSand || (!pawZoneCol(cat.x, cat.z) && !inFountWater()))) {
       pawDist += Math.hypot(cat.x - pawLastX, cat.z - pawLastZ);
       if (pawDist > 0.2) {   /* uma pegada a cada passo, alternando esquerda/direita */
         pawDist = 0; pawSide = -pawSide;
@@ -6636,7 +6636,7 @@ function updatePaws(dt) {
         var m = new THREE.Mesh(stainG, new THREE.MeshBasicMaterial({ map: pawTex(inSand ? SAND_PRINT : pawWet.col), transparent: true, opacity: 0, depthWrite: false, polygonOffset: true, polygonOffsetFactor: -4, polygonOffsetUnits: -4 }));
         m.rotation.set(-HP, 0, cat.rot + Math.PI); m.position.set(px, cat.y + 0.009 + (cat.y < 0.05 ? onRug(px, pz) : 0), pz); m.scale.setScalar(0.13);
         scene.add(m); prints.push({ m: m, a: inSand ? 0.7 : Math.min(1, pawWet.t / 4) * 0.85, t: 0 });
-        while (prints.length > 500) rmPrint(prints.shift());
+        while (prints.length > 250) rmPrint(prints.shift());
       }
     }
   }
@@ -10413,7 +10413,7 @@ function animateModel(t, dt, moving) {
   });
 
   /* ---------- passarinhos (dia) ---------- */
-  var birdFade = new Fader(), birds = [], BIRD_N = 7;
+  var birdFade = new Fader(), birds = [], BIRD_N = 5;
   var BIRD_COL = [[0x6f97d6, 0xf3efe4, 0x46699f], [0xd0473c, 0xefd3b0, 0x93302a], [0xf3c846, 0xfff2a8, 0xc99a22], [0x9a7650, 0xe9ddc9, 0x6e5236]];
   var bBeak = birdFade.add(lam(0xf0a030)), bLeg = birdFade.add(lam(0x8a5a38)), bEye = birdFade.add(new THREE.MeshBasicMaterial({ color: 0x151515 }));
   var bMats = BIRD_COL.map(function (c) { return { body: birdFade.add(lam(c[0])), belly: birdFade.add(lam(c[1])), wing: birdFade.add(lam(c[2])) }; });
@@ -10537,7 +10537,7 @@ function animateModel(t, dt, moving) {
   }
 
   /* ---------- borboletas (dia) ---------- */
-  var flyFade = new Fader(), flies = [], FLY_N = 8;
+  var flyFade = new Fader(), flies = [], FLY_N = 5;
   var wingG = new THREE.CircleGeometry(1, 14); wingG.rotateX(-Math.PI / 2);
   var BF_COL = [[0xf28a2e, 0x2a1a10], [0x5aa7ff, 0x1a2a55], [0xffe14a, 0x6b4a10], [0xf49ac2, 0xffffff]];
   var bfBody = flyFade.add(lam(0x2a1c14));
@@ -10986,7 +10986,7 @@ function animateModel(t, dt, moving) {
      MORCEGOS (noite): voam pelo quintal, às vezes mergulham baixo sobre o gatinho; ele pega encostando (pule!).
      Na noite de lua vermelha aparecem mais, de olhos vermelhos. Somem quando chove. Locais, como os passarinhos.
      ===================================================================================== */
-  var bats = [], batsCaught = 0, BAT_N = 6, BAT_RED_N = 6;
+  var bats = [], batsCaught = 0, BAT_N = 4, BAT_RED_N = 4;
   var batWingG = (function () {
     var g = new THREE.BufferGeometry();
     /* asa direita (a esquerda é espelhada): ombro A, cotovelo B, ponta C, borda de trás D, E, F */
