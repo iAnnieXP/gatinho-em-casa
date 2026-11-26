@@ -3790,7 +3790,11 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
         wHw = Math.sqrt(Math.max(1.5 * 1.5 - wzc * wzc, 0.01));
         colliders.push({ x1: CX - wHw, x2: CX + wHw, z1: CZ + wz0, z2: CZ + wz1, h: wFloor });
       }
-      [[0.86, 0.34], [0.34, 0.86], [0.6, 0.6]].forEach(function (q4) { colliders.push({ x1: CX - q4[0], x2: CX + q4[0], z1: CZ - q4[1], z2: CZ + q4[1], h: 1.6 }); });   /* pedestal + taca de cima: topo da colisao a 1,6 m (a borda da taca fica a 1,65 m; pulo maximo do gatinho 1,36 m, entao da para pular do aro da bacia, a 0,754 m, e ficar em cima da taca) */
+      /* pedestal: a base baixa (r 0,6, topo a 0,416) e a coluna (r 0,26) bloqueiam só no tamanho real, para o gatinho chegar bem perto do pilar; a taça de cima (topo da colisão a 1,6 m, borda a 1,65 m)
+         tem a parte de baixo a 1,2 m (u), então o gatinho passa por baixo dela dentro da bacia e ainda dá para pular do aro e ficar em cima dela (pulo máximo 1,36 m) */
+      colliders.push({ x1: CX - 0.5, x2: CX + 0.5, z1: CZ - 0.5, z2: CZ + 0.5, h: 0.416 });
+      colliders.push({ x1: CX - 0.24, x2: CX + 0.24, z1: CZ - 0.24, z2: CZ + 0.24, h: 1.6 });
+      [[0.86, 0.34], [0.34, 0.86], [0.6, 0.6]].forEach(function (q4) { colliders.push({ x1: CX - q4[0], x2: CX + q4[0], z1: CZ - q4[1], z2: CZ + q4[1], h: 1.6, u: 1.2 }); });
       return { x: CX, z: CZ, parts: scene.children.slice(sc0), far: false, drops: drops, dm: dm, rings: rings, wms: wms, wy: WL, shines: [], sph: new THREE.Sphere(new THREE.Vector3(CX, 1.1, CZ), 3.2), fr: new THREE.Frustum(), fm: new THREE.Matrix4(), last: -1, vis: false,
         jetY: 1.885, jetV: 2.7, jetT: 0.663, jetLo: WU + 0.005, shR: 0.81, shY: 1.62, shT: 0.456, shLo: WL + 0.005 };
     })();
@@ -4439,7 +4443,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
   zcEnd(zcK, 'far');   /* divisoria de cerca da casinha */
 
   /* ---------- ciclo de dia e noite: 10 min reais = 24 h do jogo; a hora vem do relógio do servidor, igual para todos ---------- */
-  var dayK = 1, nightK = 0, DAY_MS = 600000, clockOff = 0, lampK = 1, sunOff = { x: 5, y: 15, z: 7 }, clockTxt = '';
+  var dayK = 1, nightK = 0, DAY_MS = 600000, clockOff = 0, lampK = 1, sunOff = { x: 5, y: 15, z: 7 }, clockTxt = '', SUN_SHADOW_MS = 500, sunShadowT = -1e9;   /* SUN_SHADOW_MS: de quantos em quantos ms a direção do sol (e, com ela, as sombras) é atualizada; maior = sombras andam mais devagar/em saltos menos frequentes */
   var cNight = new THREE.Color(0x1b1a3c), cDay = new THREE.Color(0xb4cadd), cWarm = new THREE.Color(0xf0a284), skyCol = new THREE.Color();
   var cSunD = new THREE.Color(0xffe4bd), cSunW = new THREE.Color(0xff9a58), cMoon = new THREE.Color(0xa9a8f0), cHN = new THREE.Color(0x6a5f98), cHD = new THREE.Color(0xfff0dc);
   var cBulbOff = new THREE.Color(0x77736a), cBulbOn = new THREE.Color(0xffd48a), skyV = new THREE.Vector3();
@@ -4741,8 +4745,10 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
     scene.background.copy(skyCol); scene.fog.color.copy(skyCol);
     if (SIL) SIL.update(night, rainK);
     scene.fog.near = 16 - 9.6 * rainK - 4.8 * redK; scene.fog.far = 40 - 20.8 * rainK - 12 * redK;
-    if (e >= 0) { sun.color.copy(cSunD).lerp(cSunW, warm); sun.intensity = 0.62 * smooth(0, 0.25, e); sunOff.x = c * 14; sunOff.y = Math.max(3, e * 15); sunOff.z = 7; }
-    else { sun.color.copy(cMoon); sun.intensity = 0.3 * smooth(0, 0.25, -e); sunOff.x = -c * 14; sunOff.y = Math.max(3, -e * 15); sunOff.z = -7; }
+    var sunNow = Date.now(), sunStep = sunNow - sunShadowT >= SUN_SHADOW_MS || sunNow < sunShadowT;   /* a direção do sol só muda a cada SUN_SHADOW_MS: as sombras se movem em intervalos, não a cada frame */
+    if (sunStep) sunShadowT = sunNow;
+    if (e >= 0) { sun.color.copy(cSunD).lerp(cSunW, warm); sun.intensity = 0.62 * smooth(0, 0.25, e); if (sunStep) { sunOff.x = c * 14; sunOff.y = Math.max(3, e * 15); sunOff.z = 7; } }
+    else { sun.color.copy(cMoon); sun.intensity = 0.3 * smooth(0, 0.25, -e); if (sunStep) { sunOff.x = -c * 14; sunOff.y = Math.max(3, -e * 15); sunOff.z = -7; } }
     hemi.intensity = 0.22 + 0.56 * day; hemi.color.copy(cHN).lerp(cHD, day);
     if (redK > 0.001) { hemi.color.lerp(cHRed, redK * 0.8); if (e < 0) { sun.color.lerp(cMoonRed, redK); sun.intensity *= 1 + 0.4 * redK; } }
     sun.intensity *= 1 - 0.6 * rainK; hemi.intensity *= 1 - 0.3 * rainK;
@@ -5122,6 +5128,7 @@ var pads = [];        // {x1,x2,z1,z2,h}: superfícies só visuais (colcha, trav
 
   /* ---------- estado do jogo ---------- */
   var R = 0.18, G = 18, JUMP = 7;
+  var HEAD_OFF = 0.2, HEAD_R = 0.07;   /* sonda da cabeça: distância à frente do centro e raio */
   var cat = { x: -5, z: -1.5, y: 0, vy: 0, rot: Math.PI, grounded: true };
   var yaw = 0, pitch = 0.34, dist = 1.1, camDist = 1.1, lastDrag = 0, fwdInput = 0, sideInput = 0;
   var camT = { x: cat.x, y: 0.5, z: cat.z };
@@ -8388,6 +8395,18 @@ function animateModel(t, dt, moving) {
         }
       }
     }
+    for (var hit = 0; hit < 2; hit++) {   /* a cabeça também colide: o círculo do corpo (R) fica no centro e a cabeça sai ~0,3 à frente, então sem isto ela entrava na parede */
+      var kx = cat.x + Math.sin(cat.rot) * HEAD_OFF, kz = cat.z + Math.cos(cat.rot) * HEAD_OFF, kh = cat.y + 0.3;
+      for (var kj = 0; kj < colliders.length; kj++) {
+        var kc = colliders[kj];
+        if (kc.h <= kh || kc.u) continue;   /* baixo demais (a cabeça passa por cima) ou mesa (a cabeça passa por baixo) */
+        var kcx = Math.max(kc.x1, Math.min(kx, kc.x2)), kcz = Math.max(kc.z1, Math.min(kz, kc.z2));
+        var kdx = kx - kcx, kdz = kz - kcz, kd2 = kdx * kdx + kdz * kdz;
+        if (kd2 >= HEAD_R * HEAD_R) continue;
+        if (kd2 > 1e-8) { var kd = Math.sqrt(kd2), kp = (HEAD_R - kd) / kd; cat.x += kdx * kp; cat.z += kdz * kp; kx = cat.x + Math.sin(cat.rot) * HEAD_OFF; kz = cat.z + Math.cos(cat.rot) * HEAD_OFF; }
+        else { cat.x -= Math.sin(cat.rot) * 0.03; cat.z -= Math.cos(cat.rot) * 0.03; kx = cat.x + Math.sin(cat.rot) * HEAD_OFF; kz = cat.z + Math.cos(cat.rot) * HEAD_OFF; }
+      }
+    }
     if (held) {   /* o objeto na boca também colide: o gatinho para antes de enfiar a cabeça/o brinquedo na parede ou na cerca */
       var hr = Math.min(held.r, 0.09), hoff = 0.23 + hr * 0.7 + (held.d.coff || 0), hy = cat.y + 0.2 - held.h * 0.5 + (held.d.cdy || 0);
       for (var hj = 0; hj < colliders.length; hj++) {
@@ -10603,26 +10622,36 @@ function animateModel(t, dt, moving) {
      Andando você não alcança (eles correm um pouco mais que a caminhada): corra com Shift,
      ou encurrale-os num canto. Pegou, o ratinho some e volta mais tarde em outro lugar.
      ===================================================================================== */
-  var mice = [], miceCaught = 0, MICE_N = 5, MR = 0.07;
+  var mice = [], miceCaught = 0, MICE_N = 4, MR = 0.1;
+  /* colisão do rato em 3 pontos (o corpo é comprido): centro (folga MR), focinho e ponta da cauda, na direção em que ele está virado (yaw).
+     O modelo (escala 1,3) vai de ~0,18 m à frente do centro (focinho) a ~0,35 m atrás (cauda). As folgas _M cobrem também o rodapé (sai 2,5 cm da parede) e frisos dos móveis. */
+  var MOUSE_NOSE = 0.18, MOUSE_NOSE_M = 0.06, MOUSE_TAIL = 0.25, MOUSE_TAIL_M = 0.03;
   var miceCols = [0x9a9a9f, 0x8a6a50, 0xe8e4dc, 0x7d7d84, 0xb08a64];
   var mEarM = lam(0xf2a0b0), mTailM = lam(0xe8a0aa), mNoseM = lam(0xf08aa0), mEyeM = new THREE.MeshBasicMaterial({ color: 0x111111 });
-  function mouseBlocked(x, z) {
+  function mouseBlocked(x, z, r) {
+    if (r === undefined) r = MR;
     if (x < -10 || x > 10 || z < -6.9 || z > 6.9) return true;
     for (var i = 0; i < colliders.length; i++) {
       var c = colliders[i];
-      if (c.h > 0.12 && x > c.x1 - MR && x < c.x2 + MR && z > c.z1 - MR && z < c.z2 + MR) return true;
+      if (c.h > 0.12 && x > c.x1 - r && x < c.x2 + r && z > c.z1 - r && z < c.z2 + r) return true;
     }
     return false;
+  }
+  function mouseOK(x, z, yaw) {   /* posição + direção válidas: centro, focinho e cauda fora de paredes e móveis */
+    var sx = Math.sin(yaw), cz = Math.cos(yaw);
+    return !mouseBlocked(x, z, MR) && !mouseBlocked(x + sx * MOUSE_NOSE, z + cz * MOUSE_NOSE, MOUSE_NOSE_M) && !mouseBlocked(x - sx * MOUSE_TAIL, z - cz * MOUSE_TAIL, MOUSE_TAIL_M);
   }
   function mouseClear(m, ang) {
     var sx = Math.sin(ang), cz = Math.cos(ang);
     for (var d = 0.2; d <= 1.6; d += 0.2) if (mouseBlocked(m.x + sx * d, m.z + cz * d)) return d - 0.2;
     return 1.6;
   }
+  function mouseFree(m, x, z, bad) { return bad ? !mouseBlocked(x, z) : mouseOK(x, z, m.yaw); }   /* bad: o rato já está numa posição inválida (móvel empurrado sobre ele): só vale a regra antiga do centro, para ele poder sair */
   function moveMouse(m, dx, dz) {
-    if (!mouseBlocked(m.x + dx, m.z + dz)) { m.x += dx; m.z += dz; return true; }
-    if (dx && !mouseBlocked(m.x + dx, m.z)) { m.x += dx; return true; }
-    if (dz && !mouseBlocked(m.x, m.z + dz)) { m.z += dz; return true; }
+    var bad = !mouseOK(m.x, m.z, m.yaw);
+    if (mouseFree(m, m.x + dx, m.z + dz, bad)) { m.x += dx; m.z += dz; return true; }
+    if (dx && mouseFree(m, m.x + dx, m.z, bad)) { m.x += dx; return true; }
+    if (dz && mouseFree(m, m.x, m.z + dz, bad)) { m.z += dz; return true; }
     return false;
   }
   function makeMouse(ci) {
@@ -10641,14 +10670,15 @@ function animateModel(t, dt, moving) {
   function pickWaypoint(m) {
     for (var i = 0; i < 10; i++) {
       var a = rnd(0, 6.28), d = rnd(2, 5), x = m.x + Math.sin(a) * d, z = m.z + Math.cos(a) * d;
-      if (!mouseBlocked(x, z)) { m.tx = x; m.tz = z; return; }
+      if (!mouseBlocked(x, z, 0.3)) { m.tx = x; m.tz = z; return; }
     }
     m.tx = m.x; m.tz = m.z;
   }
   function spawnMouse(m) {
     for (var i = 0; i < 80; i++) {
       var x = rnd(-9.5, 9.5), z = rnd(-6.4, 6.4);
-      if (!mouseBlocked(x, z) && Math.hypot(x - cat.x, z - cat.z) > 4) { m.x = x; m.z = z; break; }
+      var yw = rnd(0, 6.28);
+      if (mouseOK(x, z, yw) && Math.hypot(x - cat.x, z - cat.z) > 4) { m.x = x; m.z = z; m.yaw = yw; m.h = yw; break; }
     }
     m.st = 'sniff'; m.t = rnd(0.5, 2); m.stuck = 0; m.lin = 0; m.g.visible = true; m.g.position.set(m.x, 0, m.z);
   }
@@ -11357,11 +11387,21 @@ function animateModel(t, dt, moving) {
     burst(f.x, 0.3, f.z, f.col);
   }
   function resetFlowers() { flowersLost = 0; flowers.forEach(function (f) { if (!f.alive) flowerShow(f, true); f.alive = true; }); }
+  /* pausa da lógica dos ratos (economia de CPU): rato a mais de MICE_FAR m do gatinho, ou fora do campo da câmera há mais de MICE_OFF_S s, fica congelado onde está
+     (não anda, não foge, não anima). Volta a se mexer assim que entra de novo nos 20 m ou na tela. MICE_NEAR: dentro desse raio o rato nunca pausa, para não
+     ficar parado e fácil de pegar atrás da câmera (0 = desliga essa exceção). */
+  var MICE_FAR = 20, MICE_OFF_S = 2, MICE_NEAR = 5, miceFr = new THREE.Frustum(), miceMat = new THREE.Matrix4(), miceSph = new THREE.Sphere();
   function updMice(t, dt) {
+    camera.updateMatrixWorld();
+    miceMat.multiplyMatrices(camera.projectionMatrix, camera.matrixWorldInverse.copy(camera.matrixWorld).invert());
+    miceFr.setFromProjectionMatrix(miceMat);
     mice.forEach(function (m) {
       if (m.st === 'gone') { m.t -= dt; if (m.t <= 0) spawnMouse(m); return; }
       var dx = m.x - cat.x, dz = m.z - cat.z, dc = Math.hypot(dx, dz), run = spd > 4;
       if (dc < 0.5 && cat.y < 0.45) { catchMouse(m); return; }
+      miceSph.center.set(m.x, 0.06, m.z); miceSph.radius = 0.5;
+      if (miceFr.intersectsSphere(miceSph)) m.offT = 0; else m.offT = (m.offT || 0) + dt;
+      if (dc > MICE_FAR || (dc > MICE_NEAR && m.offT > MICE_OFF_S)) return;   /* pausado */
       m.sq -= dt;
       var alarm = dc < (run ? 5 : 3.4);
       if (alarm) {
@@ -11391,7 +11431,8 @@ function animateModel(t, dt, moving) {
       if (speed > 0) {
         moved = moveMouse(m, Math.sin(m.h) * speed * dt, Math.cos(m.h) * speed * dt);
         m.stuck = moved ? 0 : m.stuck + dt;
-        m.yaw = turnTo(m.yaw, m.h, Math.min(1, dt * 14));
+        var ny = turnTo(m.yaw, m.h, Math.min(1, dt * 14));
+        if (mouseOK(m.x, m.z, ny) || !mouseOK(m.x, m.z, m.yaw)) m.yaw = ny;   /* não gira se o focinho ou a cauda fossem entrar na parede */
       }
       var fast = m.st === 'flee' && moved, sw = fast ? 20 : 6;
       m.g.position.set(m.x, fast ? Math.abs(Math.sin(t * 26 + m.ph)) * 0.014 : 0, m.z);
@@ -11576,6 +11617,9 @@ function animateModel(t, dt, moving) {
   }
 
   var last = performance.now(), fpsN = 0, fpsT = last, fpsEl = $('fpsBox');
+  /* mapa de sombra atualizado só a cada SHADOW_EVERY quadros (1 = todo quadro, como antes; 2 ou 3 = mais leve, mas a sombra de quem se move pode ficar levemente atrasada).
+     O pré-aquecimento (warmUp) já terminou quando o loop começa, então aqui o autoUpdate pode ficar desligado: o three.js desenha o mapa uma vez quando needsUpdate = true e zera o flag sozinho. */
+  var SHADOW_EVERY = 2, shadowN = 0;
   function frame(now) {
     if (FPSCAP && now - last < 1000 / FPSCAP - 2) { requestAnimationFrame(frame); return; }   /* limite de FPS: pula o quadro até dar o intervalo */
     fpsN++; if (now - fpsT >= 500) { if (!fpsEl.hidden) fpsEl.textContent = Math.round(fpsN * 1000 / (now - fpsT)) + ' FPS'; fpsN = 0; fpsT = now; }
@@ -11622,6 +11666,8 @@ function animateModel(t, dt, moving) {
     updFountain(t);
     updateBubble();
     smPoll();
+    if (SHADOW_EVERY > 1) { renderer.shadowMap.autoUpdate = false; if (shadowN++ % SHADOW_EVERY === 0) renderer.shadowMap.needsUpdate = true; }
+    else renderer.shadowMap.autoUpdate = true;
     fgRender();
     updatePrompts();
     updateTv();
