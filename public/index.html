@@ -9379,6 +9379,16 @@ function animateModel(t, dt, moving) {
   }
   /* conexão WebSocket com o servidor (mesma interface usada pelo restante do multiplayer) */
   var ITCH_SERVER = 'gatinho-em-casa.onrender.com';   /* no itch.io o jogo roda num iframe de outro dominio: usa o servidor do Render */
+  /* ID deste dispositivo (salvo no aparelho): o servidor usa para derrubar a conexão antiga se o mesmo computador entrar de novo */
+  function devId() {
+    var d = '';
+    try { d = localStorage.getItem('luna_dev') || ''; } catch (e) {}
+    if (!/^[a-z0-9]{8,32}$/.test(d)) {
+      d = ''; for (var i = 0; i < 20; i++) d += Math.floor(Math.random() * 36).toString(36);
+      try { localStorage.setItem('luna_dev', d); } catch (e) {}
+    }
+    return d;
+  }
   function wsBase() {
     var s = window.GATINHO_APP ? ($('srv').value || '').trim() : '';
     if (!s && /(^|\.)itch\.(io|zone)$/.test(location.hostname)) s = ITCH_SERVER;
@@ -9391,8 +9401,8 @@ function animateModel(t, dt, moving) {
   if (/(^|\.)itch\.(io|zone)$/.test(location.hostname)) { try { fetch('https://gatinho-em-casa.onrender.com/?w=' + Date.now(), { mode: 'no-cors', cache: 'no-store' }).catch(function () {}); } catch (e) {} }
   function wsJoin(code) {
     return new Promise(function (resolve, reject) {
-      var ws = new WebSocket(wsBase() + '/ws?room=' + encodeURIComponent(code));
-      var me = null, peers = {}, subs = {}, pl = [], pres = {}, ready = false, full = false;
+      var ws = new WebSocket(wsBase() + '/ws?room=' + encodeURIComponent(code) + '&dev=' + devId());
+      var me = null, peers = {}, subs = {}, pl = [], pres = {}, ready = false, full = false, kicked = false;
       /* ping: a cada 2 s manda um 'ping' pelo WebSocket e mede o tempo ate o 'pong' (media suavizada). Se o servidor for antigo e nao responder,
          mede o tempo de uma requisicao HEAD ao mesmo servidor. */
       var pingT = null, gotPong = false, pingN = 0, pingAvg = 0;
@@ -9424,6 +9434,7 @@ function animateModel(t, dt, moving) {
       };
       ws.onmessage = function (ev) {
         var m; try { m = JSON.parse(ev.data); } catch (e) { return; }
+        if (m.t === 'kicked') { kicked = true; return; }   /* este computador entrou de novo em outra janela: esta conexão foi encerrada */
         if (m.t === 'full') { full = true; reject(new Error('full')); return; }
         else if (m.t === 'hello') { if (typeof m.now === 'number') clockOff = m.now - Date.now(); me = m.peer; if (m.env) { rainForce = m.env.rain === undefined ? null : m.env.rain; redForceNid = m.env.red === undefined ? null : m.env.red; } peers = m.peers || {}; peers[me] = pres; ready = true; resolve(api); setTimeout(fire, 0); if (!pingT) { pingT = setInterval(doPing, 2000); doPing(); } }
         else if (m.t === 'pong') { if (typeof m.c === 'number') { gotPong = true; pingShow(performance.now() - m.c); } }
@@ -9437,7 +9448,7 @@ function animateModel(t, dt, moving) {
           (subs[m.topic] || []).forEach(function (f) { f({ topic: m.topic, data: m.data, peer: m.peer, isMe: false, kind: 'viewer' }); }); }
       };
       ws.onerror = function () { if (!ready) reject(new Error('ws')); };
-      ws.onclose = function () { if (!ready) reject(new Error(full ? 'full' : 'ws')); else { clearInterval(pingT); pingShow(null); peers = {}; peers[me] = pres; fire(); say('Connection lost: reload the page', 4000); } };
+      ws.onclose = function () { if (!ready) reject(new Error(full ? 'full' : 'ws')); else { clearInterval(pingT); pingShow(null); peers = {}; peers[me] = pres; fire(); if (kicked) say('Disconnected: this computer joined from another window.', 15000); else say('Connection lost: reload the page', 4000); } };
     });
   }
   /* chat: T abre, Enter envia, Esc fecha */
