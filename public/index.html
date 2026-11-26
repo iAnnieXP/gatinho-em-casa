@@ -447,11 +447,55 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
 #pause .frst { font-size: 0.7rem; font-weight: 700; color: var(--muted); }
 #pause .frbtn { flex: none; width: 2.25rem; height: 2.25rem; display: grid; place-items: center; padding: 0; border-radius: 0.625rem; background: rgba(255, 238, 214, 0.08); color: var(--ink); border: 1px solid var(--line); cursor: pointer; }
 #pause .frbtn svg { width: 1.15rem; height: 1.15rem; }
+#dmEmojiBtn { font-size: 1.2rem; line-height: 1; }
+#dmEmojis { display: grid; grid-template-columns: repeat(8, 1fr); gap: 0.125rem; padding: 0.375rem; margin-top: 0.5rem; background: rgba(255, 238, 214, 0.09); border: 1px solid var(--line); border-radius: 0.75rem; }
+#dmEmojis[hidden] { display: none; }
+#dmEmojis button { font-size: 1.3rem; line-height: 1.3; background: none; border: 0; border-radius: 0.5rem; cursor: pointer; padding: 0.125rem; }
+#dmEmojis button:hover { background: rgba(255, 244, 226, 0.14); }
 #pause .frbtn:hover { filter: brightness(1.2); }
 #pause .frbtn.sel { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; filter: brightness(1.2); border-radius: 0.625rem; }
 #pause .frempty { margin: 1rem 0 0; color: var(--muted); font-size: 0.85rem; line-height: 1.4; }
 /* perfil do jogador: cartão (foto, emoji, nome, título e descrição) e a tela de edição */
 #pause .dialog.prof { max-width: 26rem; }
+#pause .dialog.fr { max-width: 30rem; }
+.dmlog { display: flex; flex-direction: column; gap: 0.5rem; margin-top: 1rem; height: min(38vh, 14rem); overflow-y: auto; padding: 0.5rem; border: 1px solid var(--line); border-radius: 0.875rem; background: rgba(255, 238, 214, 0.05); text-align: left; }
+.dmlog, #pause .frlist { scrollbar-width: thin; scrollbar-color: rgba(255, 179, 71, 0.7) transparent; }
+.dmlog::-webkit-scrollbar, #pause .frlist::-webkit-scrollbar { width: 0.5rem; }
+.dmlog::-webkit-scrollbar-track, #pause .frlist::-webkit-scrollbar-track { background: transparent; margin: 0.375rem 0; }
+.dmlog::-webkit-scrollbar-thumb, #pause .frlist::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #ffc866, #ff9a5a); border-radius: 62.4375rem; border: 0.125rem solid transparent; background-clip: padding-box; min-height: 2rem; opacity: 0.8; }
+.dmlog::-webkit-scrollbar-thumb:hover, #pause .frlist::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #ffd88a, #ffab6e); background-clip: padding-box; }
+.dmrow { display: flex; align-items: flex-end; gap: 0.4375rem; max-width: 94%; align-self: flex-start; }
+.dmrow.me { align-self: flex-end; flex-direction: row-reverse; }
+.dmav { flex: none; width: 2rem; height: 2rem; border-radius: 50%; display: grid; place-items: center; overflow: hidden; font-size: 1.1rem; line-height: 1; border: 0.125rem solid rgba(255, 255, 255, 0.6); box-shadow: 0 0.125rem 0.375rem rgba(0, 0, 0, 0.35); }
+.dmav img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.dmmsg { min-width: 0; padding: 0.375rem 0.625rem; border-radius: 0.75rem; font-weight: 700; font-size: 0.9rem; line-height: 1.3; overflow-wrap: anywhere; background: rgba(255, 238, 214, 0.12); color: var(--ink); border-bottom-left-radius: 0.25rem; }
+.dmmsg.me { border-bottom-left-radius: 0.75rem; border-bottom-right-radius: 0.25rem; align-self: flex-end; background: linear-gradient(160deg, #ffc866, #ff9a5a); color: var(--accent-ink); }
+.dmmsg { cursor: default; }
+#dmTime { position: fixed; z-index: 97; left: 0; top: 0; pointer-events: none; width: max-content; max-width: calc(100vw - 8px); padding: 0.3125rem 0.625rem; border-radius: 0.625rem; text-align: center; background: linear-gradient(160deg, rgba(58, 42, 78, 0.97), rgba(34, 26, 52, 0.97)); border: 1px solid rgba(255, 179, 71, 0.6); color: var(--ink); font: 700 0.78rem/1.25 var(--font-body); box-shadow: 0 0.375rem 1rem rgba(0, 0, 0, 0.45); white-space: nowrap; animation: dmtin 0.15s ease-out; }
+#dmTime[hidden] { display: none; }
+#dmTime .dmth { margin-top: 0.125rem; font-size: 0.68rem; font-weight: 600; color: var(--muted); }
+.dmempty { margin: auto; color: var(--muted); font-size: 0.85rem; font-weight: 700; text-align: center; }
+#dmToast { position: fixed; z-index: 95; top: 4.5rem; left: 50%; transform: translateX(-50%); display: grid; gap: 0.375rem; justify-items: center; pointer-events: none; width: max-content; max-width: calc(100vw - 1.5rem); }
+#dmToast .dmt { display: flex; align-items: center; gap: 0.5rem; padding: 0.4375rem 0.875rem 0.4375rem 0.625rem; border-radius: 999px; background: linear-gradient(160deg, rgba(58, 42, 78, 0.97), rgba(34, 26, 52, 0.97)); border: 1px solid rgba(255, 179, 71, 0.6); color: var(--ink); font: 700 0.85rem/1.2 var(--font-body); box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.45); animation: dmtin 0.25s ease-out; }
+#dmToast .dmt b { color: #ffe08a; font-weight: 800; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 9rem; }
+#dmToast .dmti { display: grid; place-items: center; width: 1.5rem; height: 1.5rem; border-radius: 50%; background: linear-gradient(160deg, #ffc866, #ff9a5a); color: var(--accent-ink); flex: none; }
+#dmToast .dmti svg { width: 0.95rem; height: 0.95rem; }
+@keyframes dmtin { from { opacity: 0; transform: translateY(-0.5rem); } to { opacity: 1; transform: none; } }
+p.dmnote.info { color: var(--muted); }
+.dmnote { margin: 0.5rem 0 0; color: #ff9aa8; font-size: 0.8rem; font-weight: 800; text-align: left; }
+.dmbar { display: flex; gap: 0.5rem; margin-top: 0.625rem; align-items: center; }
+.dmbar input { flex: 1; min-width: 0; font: inherit; font-weight: 700; font-size: 0.95rem; color: var(--ink); border-radius: 0.75rem; padding: 0.5625rem 0.75rem; background: rgba(255, 238, 214, 0.09); border: 1px solid var(--line); user-select: text; -webkit-user-select: text; }
+.dmbar input:focus, .dmbar input.sel { outline: none; border-color: var(--accent); box-shadow: 0 0 0 0.1875rem rgba(255, 179, 71, 0.25); }
+#pause .frbtn, #pause .psq { position: relative; }
+#pause .unread::after { content: ''; position: absolute; top: -0.2rem; right: -0.2rem; width: 0.7rem; height: 0.7rem; border-radius: 50%; background: #ff5a6e; border: 2px solid #2a2040; }
+#ftip { position: fixed; z-index: 90; left: 0; top: 0; max-width: 16rem; padding: 0.4375rem 0.75rem; border-radius: 0.75rem; background: linear-gradient(160deg, rgba(58, 42, 78, 0.97), rgba(34, 26, 52, 0.97)); border: 1px solid rgba(255, 179, 71, 0.55); color: var(--ink); font: 800 0.8rem/1.25 var(--font-body); text-align: center; box-shadow: 0 0.5rem 1.25rem rgba(0, 0, 0, 0.45), 0 0 0.75rem rgba(255, 179, 71, 0.18); pointer-events: none; opacity: 0; transform: translateY(0.25rem); transition: opacity 0.12s, transform 0.12s; }
+#ftip.on { opacity: 1; transform: none; }
+#ftip::after { content: ''; position: absolute; left: var(--ax, 50%); bottom: -0.3125rem; width: 0.5rem; height: 0.5rem; margin-left: -0.25rem; background: rgba(34, 26, 52, 0.97); border-right: 1px solid rgba(255, 179, 71, 0.55); border-bottom: 1px solid rgba(255, 179, 71, 0.55); transform: rotate(45deg); }
+#ftip.below::after { bottom: auto; top: -0.3125rem; transform: rotate(225deg); }
+#frMsg { z-index: 5; display: grid; place-items: center; }
+#frMsg[hidden] { display: none; }
+#frMsg .dialog { max-width: 20rem; text-align: center; }
+#frMsg p { margin: 0.75rem 0 0; line-height: 1.4; color: var(--ink); font-weight: 700; }
 #pause .pfcard { margin-top: 0.875rem; padding: 1.25rem 1rem 1.125rem; border-radius: 1.25rem; border: 1px solid rgba(255, 255, 255, 0.22); display: grid; justify-items: center; gap: 0.3rem; background-color: #d9ccf2; background-image: linear-gradient(160deg, rgba(255, 255, 255, 0.16), rgba(0, 0, 0, 0.16)); box-shadow: 0 0.5rem 1.25rem rgba(8, 4, 20, 0.35); }
 #pause .pfav { position: relative; width: 5.5rem; height: 5.5rem; margin-bottom: 0.35rem; border-radius: 50%; display: grid; place-items: center; font-size: 2.9rem; line-height: 1; background: rgba(0, 0, 0, 0.2); border: 0.1875rem solid rgba(255, 255, 255, 0.6); box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.3); }
 #pause .pfavw { position: relative; margin-bottom: 0.35rem; }
@@ -555,6 +599,34 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
 #pmenu .ptitle[hidden] { display: none; }
 #pmenu .phint { font-size: 0.7rem; opacity: 0.7; padding: 0.25rem 0.5rem 0.125rem; white-space: nowrap; }
 #pmenu .phint[hidden] { display: none; }
+/* clicar numa mensagem de outro jogador (chat ou privada) abre o menu da mensagem (denunciar) */
+#chatlog div.pl { pointer-events: auto; cursor: pointer; }
+#chatlog div.pl.old { pointer-events: none; }
+#chatlog div.pl:hover { border-color: rgba(255, 208, 96, 0.55); }
+.dmmsg.rp { cursor: pointer; }
+.dmmsg.rp:hover { background: rgba(255, 238, 214, 0.2); }
+#rmenu { position: fixed; z-index: 96; width: max-content; max-width: min(17rem, calc(100vw - 8px)); padding: 0.25rem; background: rgba(26, 22, 36, 0.45); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); border: 1px solid var(--line); border-radius: 0.75rem; box-shadow: 0 0.375rem 1.25rem rgba(8, 4, 20, 0.45); }
+#rmenu[hidden] { display: none; }
+#rmenu .ptitle { font-weight: 800; font-size: 0.95rem; color: #ffe08a; text-align: center; padding: 0.375rem 0.875rem 0.4375rem; border-bottom: 1px solid var(--line); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+#rmenu .rmtext { padding: 0.5rem 0.875rem; font-size: 0.85rem; font-weight: 700; line-height: 1.3; color: var(--ink); overflow-wrap: anywhere; max-height: 5.5rem; overflow-y: auto; }
+#rmenu .rmhint { padding: 0 0.875rem 0.5rem; font-size: 0.74rem; line-height: 1.3; color: var(--muted); }
+#rmenu .rmhint[hidden] { display: none; }
+#rmenu input.rmwhy { display: block; box-sizing: border-box; width: calc(100% - 1.25rem); margin: 0 0.625rem 0.5rem; font: inherit; font-weight: 600; font-size: 0.85rem; color: var(--ink); background: rgba(255, 238, 214, 0.1); border: 1px solid var(--line); border-radius: 0.5rem; padding: 0.4375rem 0.625rem; outline: none; }
+#rmenu input.rmwhy:focus { border-color: rgba(255, 208, 96, 0.8); }
+#rmenu input.rmwhy[hidden] { display: none; }
+#rmenu button:disabled { opacity: 0.5; cursor: default; background: transparent; }
+#rmenu button { display: flex; align-items: center; gap: 0.625rem; width: 100%; text-align: left; font: inherit; font-weight: 700; font-size: 0.9rem; color: var(--ink); background: transparent; border: 0; padding: 0.5rem 0.875rem; border-radius: 0.5rem; cursor: pointer; white-space: nowrap; }
+#rmenu button:hover { background: rgba(255, 238, 214, 0.14); }
+#rmenu button svg { width: 1.1rem; height: 1.1rem; flex: none; }
+#rmenu button.danger { color: #ff9aa8; }
+#rmenu button[hidden] { display: none; }
+#pastemenu { position: fixed; z-index: 96; width: max-content; padding: 0.25rem; background: rgba(26, 22, 36, 0.45); -webkit-backdrop-filter: blur(3px); backdrop-filter: blur(3px); border: 1px solid var(--line); border-radius: 0.75rem; box-shadow: 0 0.375rem 1.25rem rgba(8, 4, 20, 0.45); }
+#pastemenu[hidden] { display: none; }
+#pastemenu button { display: flex; align-items: center; gap: 0.625rem; width: 100%; text-align: left; font: inherit; font-weight: 700; font-size: 0.9rem; color: var(--ink); background: transparent; border: 0; padding: 0.5rem 0.875rem; border-radius: 0.5rem; cursor: pointer; white-space: nowrap; }
+#pastemenu button:hover { background: rgba(255, 238, 214, 0.14); }
+#pastemenu button svg { width: 1.1rem; height: 1.1rem; flex: none; }
+#rmenu .rmbtns { display: flex; flex-direction: row; align-items: center; gap: 0.25rem; }
+#rmenu .rmbtns button { width: auto; flex: 1 1 auto; justify-content: center; padding: 0.5rem 0.625rem; gap: 0.4rem; }
 #chatlog div.pl b { pointer-events: auto; cursor: context-menu; }
 #chatlog div.old b { pointer-events: none; }
 #chatlog div.fr { border-color: rgba(255, 208, 96, 0.7); border-left: 0.25rem solid #ffd060; background: linear-gradient(90deg, rgba(120, 78, 20, 0.5), var(--panel) 70%); }   /* mensagem de amigo */
@@ -590,14 +662,14 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
 @keyframes spPulse { 50% { box-shadow: 0 0 0 0.3125rem rgba(255, 200, 102, 0.12), 0 0.375rem 1.125rem rgba(255, 140, 80, 0.5); } }
 @media (prefers-reduced-motion: reduce) { .sp-save.dirty { animation: none; } }
 /* barras de rolagem do menu: finas, arredondadas e na cor do jogo (sem as setinhas) */
-.sp-body, #pause .help, .dialog { scrollbar-width: thin; scrollbar-color: rgba(255, 179, 71, 0.65) rgba(255, 238, 214, 0.06); }
-.sp-body::-webkit-scrollbar, #pause .help::-webkit-scrollbar, .dialog::-webkit-scrollbar { width: 0.625rem; height: 0.625rem; }
-.sp-body::-webkit-scrollbar-track, #pause .help::-webkit-scrollbar-track, .dialog::-webkit-scrollbar-track { background: rgba(255, 238, 214, 0.06); border-radius: 62.4375rem; margin: 0.25rem 0; }
-.sp-body::-webkit-scrollbar-thumb, #pause .help::-webkit-scrollbar-thumb, .dialog::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #ffc866, #ff9a5a); border-radius: 62.4375rem; border: 0.125rem solid transparent; background-clip: padding-box; min-height: 2rem; }
-.sp-body::-webkit-scrollbar-thumb:hover, #pause .help::-webkit-scrollbar-thumb:hover, .dialog::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #ffd88a, #ffab6e); background-clip: padding-box; border: 0.0625rem solid transparent; }
-.sp-body::-webkit-scrollbar-button, #pause .help::-webkit-scrollbar-button, .dialog::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
+.sp-body, #pause .help, .dialog, .dd-list { scrollbar-width: thin; scrollbar-color: rgba(255, 179, 71, 0.65) rgba(255, 238, 214, 0.06); }
+.sp-body::-webkit-scrollbar, #pause .help::-webkit-scrollbar, .dialog::-webkit-scrollbar, .dd-list::-webkit-scrollbar { width: 0.625rem; height: 0.625rem; }
+.sp-body::-webkit-scrollbar-track, #pause .help::-webkit-scrollbar-track, .dialog::-webkit-scrollbar-track, .dd-list::-webkit-scrollbar-track { background: rgba(255, 238, 214, 0.06); border-radius: 62.4375rem; margin: 0.25rem 0; }
+.sp-body::-webkit-scrollbar-thumb, #pause .help::-webkit-scrollbar-thumb, .dialog::-webkit-scrollbar-thumb, .dd-list::-webkit-scrollbar-thumb { background: linear-gradient(180deg, #ffc866, #ff9a5a); border-radius: 62.4375rem; border: 0.125rem solid transparent; background-clip: padding-box; min-height: 2rem; }
+.sp-body::-webkit-scrollbar-thumb:hover, #pause .help::-webkit-scrollbar-thumb:hover, .dialog::-webkit-scrollbar-thumb:hover, .dd-list::-webkit-scrollbar-thumb:hover { background: linear-gradient(180deg, #ffd88a, #ffab6e); background-clip: padding-box; border: 0.0625rem solid transparent; }
+.sp-body::-webkit-scrollbar-button, #pause .help::-webkit-scrollbar-button, .dialog::-webkit-scrollbar-button, .dd-list::-webkit-scrollbar-button { display: none; width: 0; height: 0; }
 .sp-body::-webkit-scrollbar-corner, #pause .help::-webkit-scrollbar-corner { background: transparent; }
-@supports selector(::-webkit-scrollbar) { .sp-body, #pause .help, .dialog { scrollbar-width: auto; scrollbar-color: auto; } }
+@supports selector(::-webkit-scrollbar) { .sp-body, #pause .help, .dialog, .dd-list { scrollbar-width: auto; scrollbar-color: auto; } }
 #fpsBox { position: fixed; left: 50%; transform: translateX(-50%); top: 0.25rem; z-index: 25; font: 700 0.78rem/1 ui-monospace, Menlo, Consolas, monospace; color: #b6ffb0; background: rgba(0, 0, 0, 0.55); padding: 0.3125rem 0.5rem; border-radius: 0.5rem; pointer-events: none; }
 #fpsBox[hidden] { display: none; }
 
@@ -915,6 +987,7 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
     </div>
   </div>
   <div id="pause" class="overlay" hidden role="dialog" aria-modal="true" aria-label="Pause menu">
+    <div id="frMsg" class="overlay" hidden role="alertdialog" aria-modal="true" aria-label="Same room"><div class="dialog frmsg"><h2 id="frMsgTitle">Same room 🐾</h2><p id="frMsgTxt"></p><div class="pmenu"><button id="frMsgOk" class="go" type="button">OK</button></div></div></div>
     <div id="pfPicker" class="pfpicker" role="dialog" aria-label="Custom color" hidden></div>
     <div class="dialog">
       <div id="pauseMain">
@@ -939,7 +1012,15 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
         <h2 id="pFrTitle">Friends</h2>
         <div id="pFrList" class="frlist"></div>
         <p id="pFrEmpty" class="frempty" hidden>No friends yet. Right-click a player's name (or press P near a cat) and choose Add friend.</p>
-        <div class="pmenu"><button id="pFrSet" class="go" type="button">Friend settings</button><button id="pFrBack" class="go" type="button">Back</button></div>
+        <div class="pfoot"><button id="pFrBack" class="pic" type="button" aria-label="Back" title="Back"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M11 6l-6 6 6 6"/></svg></button><button id="pFrSet" class="pic" type="button" aria-label="Friend settings" title="Friend settings"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="3.2"/><path d="M19.4 15a1.7 1.7 0 0 0 .34 1.87l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.7 1.7 0 0 0-1.87-.34 1.7 1.7 0 0 0-1.03 1.56V21a2 2 0 1 1-4 0v-.09a1.7 1.7 0 0 0-1.11-1.56 1.7 1.7 0 0 0-1.87.34l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-1.56-1.03H3a2 2 0 1 1 0-4h.09A1.7 1.7 0 0 0 4.65 8.9a1.7 1.7 0 0 0-.34-1.87l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.7 1.7 0 0 0 1.87.34h0A1.7 1.7 0 0 0 10 3.09V3a2 2 0 1 1 4 0v.09a1.7 1.7 0 0 0 1.03 1.56h0a1.7 1.7 0 0 0 1.87-.34l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.7 1.7 0 0 0-.34 1.87v0A1.7 1.7 0 0 0 20.91 10H21a2 2 0 1 1 0 4h-.09a1.7 1.7 0 0 0-1.56 1.03z"/></svg></button></div>
+      </div>
+      <div id="pauseDM" hidden>
+        <h2 id="dmTitle">Private message</h2>
+        <div id="dmLog" class="dmlog" aria-live="polite"></div>
+        <p id="dmNote" class="dmnote" hidden></p>
+        <div id="dmEmojis" class="dmemojis" hidden></div>
+        <div class="dmbar"><input id="dmIn" type="text" maxlength="50" placeholder="Write a message…" autocomplete="off"><button id="dmEmojiBtn" class="frbtn" type="button" aria-label="Emojis" title="Emojis">😺</button><button id="dmSend" class="frbtn" type="button" aria-label="Send" title="Send"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 2L11 13"/><path d="M22 2l-7 20-4-9-9-4 20-7z"/></svg></button></div>
+        <div class="pfoot"><button id="dmBack" class="pic" type="button" aria-label="Back" title="Back"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M11 6l-6 6 6 6"/></svg></button><button id="dmFollow" class="pic" type="button" aria-label="Follow to their room" title="Follow to their room"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/><path d="M3 5v14"/></svg></button></div>
       </div>
       <div id="pauseFrSet" hidden>
         <h2>Friend settings</h2>
@@ -948,7 +1029,7 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
           <div class="sp-tg"><span>Show my online status</span><button type="button" class="sp-sw" role="switch" id="frsOnline" aria-label="Show my online status"></button></div>
           <p class="frempty" id="frsNote"></p>
         </div>
-        <div class="pmenu"><button id="pFrsBack" class="go" type="button">Back</button></div>
+        <div class="pfoot"><button id="pFrsBack" class="pic" type="button" aria-label="Back" title="Back"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M11 6l-6 6 6 6"/></svg></button></div>
       </div>
       <div id="pauseProfile" hidden>
         <h2>Profile</h2>
@@ -965,7 +1046,7 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
         <h2>Profile</h2>
         <div id="pvCard" class="pfcard"></div>
         <p id="pvNote" class="pfmsg" hidden></p>
-        <div class="pmenu"><button id="pvBack" class="go" type="button">Back</button></div>
+        <div class="pfoot"><button id="pvBack" class="pic" type="button" aria-label="Back" title="Back"><svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 12H5"/><path d="M11 6l-6 6 6 6"/></svg></button></div>
       </div>
       <div id="pauseHelp" hidden>
         <h2>Controls</h2>
@@ -7591,7 +7672,7 @@ function animateModel(t, dt, moving) {
 
   /* ---------- menu de pausa (Esc / Start do controle): Resume, Controls (teclas), Settings (volume) e Quit Game ---------- */
   var pauseOpen = false, pauseClosedAt = 0, padNavT = 0, padAxisY = 0;
-  function pauseBox() { return !$('pauseProfile').hidden ? $('pauseProfile') : !$('pauseProfView').hidden ? $('pauseProfView') : !$('pauseFriends').hidden ? $('pauseFriends') : !$('pauseFrSet').hidden ? $('pauseFrSet') : !$('pauseSet').hidden ? $('pauseSet') : !$('pauseHelp').hidden ? $('pauseHelp') : $('pauseMain'); }
+  function pauseBox() { return !$('frMsg').hidden ? $('frMsg') : !$('pauseDM').hidden ? $('pauseDM') : !$('pauseProfile').hidden ? $('pauseProfile') : !$('pauseProfView').hidden ? $('pauseProfView') : !$('pauseFriends').hidden ? $('pauseFriends') : !$('pauseFrSet').hidden ? $('pauseFrSet') : !$('pauseSet').hidden ? $('pauseSet') : !$('pauseHelp').hidden ? $('pauseHelp') : $('pauseMain'); }
   function pauseItems() {
     var it = spItems(pauseBox());
     if (!$('pauseProfile').hidden && !$('pfPicker').hidden) {   /* a janela de cor fica fora do menu no HTML, mas na navegação vem logo depois do botão de cor */
@@ -7644,13 +7725,14 @@ function animateModel(t, dt, moving) {
   $('pause').addEventListener('focusin', function (e) { var i = pauseItems().indexOf(e.target); if (i >= 0) pauseMark(i); });
   function pauseShow(view) {   /* view: false = menu principal, true = Settings, 'help' = Controls */
     spDiscard();   /* gráficos não salvos não valem: sair/entrar nas configurações começa limpo */
-    $('pauseMain').hidden = view !== false; $('pauseSet').hidden = view !== true; $('pauseHelp').hidden = view !== 'help'; $('pauseFriends').hidden = view !== 'friends'; $('pauseFrSet').hidden = view !== 'frset';
+    $('pauseMain').hidden = view !== false; $('pauseSet').hidden = view !== true; $('pauseHelp').hidden = view !== 'help'; $('pauseFriends').hidden = view !== 'friends'; $('pauseFrSet').hidden = view !== 'frset'; $('pauseDM').hidden = view !== 'dm';
     $('pauseProfile').hidden = view !== 'profile'; $('pauseProfView').hidden = view !== 'pview'; if (view !== 'profile') pfPkClose();
-    if (view === 'friends') renderFriends();
+    if (view === 'friends') { frPoll(); renderFriends(); }
     if (view === 'frset') frsRender();
+    if (view === 'dm') dmRender();
     if (view === 'profile') pfEdit();
     if (view === 'pview') renderPView();
-    $('pause').querySelector('.dialog').classList.toggle('wide', view === 'help'); $('pause').querySelector('.dialog').classList.toggle('prof', view === 'profile' || view === 'pview'); $('pause').querySelector('.dialog').classList.toggle('sp-on', view === true);
+    $('pause').querySelector('.dialog').classList.toggle('wide', view === 'help'); $('pause').querySelector('.dialog').classList.toggle('fr', view === 'friends' || view === 'frset' || view === 'dm'); $('pause').querySelector('.dialog').classList.toggle('prof', view === 'profile' || view === 'pview'); $('pause').querySelector('.dialog').classList.toggle('sp-on', view === true);
     spRefresh(); pauseSel(0);
   }
   function openPause() {
@@ -7662,11 +7744,11 @@ function animateModel(t, dt, moving) {
   function closePause() {
     if (!pauseOpen) return;
     if (!$('pauseProfile').hidden) pfCommit();   /* fechou o menu com o perfil aberto: o que foi editado fica salvo */
-    pfPkClose(); spDiscard();
+    pfPkClose(); spDiscard(); if (typeof ftipHide === 'function') ftipHide();
     pauseOpen = false; pauseClosedAt = performance.now(); keys = {};
     $('pause').hidden = true; if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
   }
-  function pauseBack() { if (!$('pfPicker').hidden) { pfPkClose(); var ci = pauseItems().indexOf($('pfCol')); if (ci >= 0) pauseSel(ci); return; } if (!$('pauseProfile').hidden) { pfLeave(); return; } if (!$('pauseProfView').hidden) { pvBack(); return; } if (!$('pauseFrSet').hidden) { pauseShow('friends'); pauseSel(pauseItems().indexOf($('pFrSet'))); return; } if (!$('pauseFriends').hidden) { pauseShow(false); pauseSel(pauseItems().indexOf($('pFriends'))); } else if (!$('pauseSet').hidden || !$('pauseHelp').hidden) pauseShow(false); else closePause(); }
+  function pauseBack() { if (!$('frMsg').hidden) { frMsgClose(); return; } if (!$('pfPicker').hidden) { pfPkClose(); var ci = pauseItems().indexOf($('pfCol')); if (ci >= 0) pauseSel(ci); return; } if (!$('pauseProfile').hidden) { pfLeave(); return; } if (!$('pauseProfView').hidden) { pvBack(); return; } if (!$('pauseDM').hidden) { var df = dmState && dmState.from; if (df === 'game') closePause(); else pauseShow(df === 'pview' ? 'pview' : 'friends'); return; } if (!$('pauseFrSet').hidden) { pauseShow('friends'); pauseSel(pauseItems().indexOf($('pFrSet'))); return; } if (!$('pauseFriends').hidden) { pauseShow(false); pauseSel(pauseItems().indexOf($('pFriends'))); } else if (!$('pauseSet').hidden || !$('pauseHelp').hidden) pauseShow(false); else closePause(); }
   function setVolume(v) {
     v = Math.max(0, Math.min(1, v)); if (window.UISfx) UISfx.setVolume(v);
     if (actxMaster && actx) actxMaster.gain.setTargetAtTime(v * v, actx.currentTime, 0.02);
@@ -7736,7 +7818,7 @@ function animateModel(t, dt, moving) {
   function spItems(box) {
     return Array.prototype.slice.call(box.querySelectorAll('button, input, textarea')).filter(function (e) {
       if (e.offsetParent === null || e.classList.contains('sp-tab')) return false;
-      var g = e.parentNode && e.parentNode.classList; if (g && (g.contains('sp-opts') || g.contains('seg')) && !e.classList.contains('on')) return false;
+      var g = e.parentNode && e.parentNode.classList; if (g && g.contains('dmemojis')) return false; if (g && (g.contains('sp-opts') || g.contains('seg')) && !e.classList.contains('on')) return false;
       return true;
     });
   }
@@ -7872,29 +7954,37 @@ function animateModel(t, dt, moving) {
   $('menuBtn').addEventListener('click', openPause);
   $('pResume').addEventListener('click', closePause);
   /* ---------- lista de amigos (menu de pausa): bolinha verde = na sala agora; convidar para o pega-pega e remover ---------- */
-  var frLast = '';
+  var frLast = '', frOnl = {}, frPollT = 0, frPollBusy = false;   /* frOnl: amigos online em QUALQUER sala (o servidor já tira quem escondeu o status) */
+  function frPoll() {
+    if (!mp.room || frPollBusy || !Object.keys(friendNames).length) return;
+    frPollBusy = true; frPollT = performance.now();
+    mp.room.who(Object.keys(friendNames)).then(function (on) {
+      frPollBusy = false; if (!on) return;
+      var n = {}; on.forEach(function (k) { n[k] = 1; }); frOnl = n;
+    });
+  }
   function frList() {
     return Object.keys(friendNames).map(function (k) {
       var nm = friendNames[k], id = mp.room ? idByName(nm) : null; if (id && mp.remotes[id] && mp.remotes[id].ho) id = null;   /* amigo escondeu o status online */
-      return { name: nm, id: id, on: !!id, busy: !!(id && mp.remotes[id] && mp.remotes[id].tg) };
+      return { name: nm, id: id, on: !!id || !!frOnl[k], busy: !!(id && mp.remotes[id] && mp.remotes[id].tg) };
     }).sort(function (a, b) { return (b.on - a.on) || a.name.toLowerCase().localeCompare(b.name.toLowerCase()); });
   }
-  function frSig(l) { return l.map(function (f) { return f.name + ':' + (f.on ? 1 : 0) + (f.busy ? 1 : 0); }).join('|'); }
+  function frSig(l) { return l.map(function (f) { return f.name + ':' + (f.on ? 1 : 0) + (f.busy ? 1 : 0) + ((dms[f.name.toLowerCase()] || {}).unread || 0); }).join('|'); }
   function frBtn(icon, title, fn) {
     var b = document.createElement('button'); b.type = 'button'; b.className = 'frbtn'; b.title = title; b.setAttribute('aria-label', title); b.innerHTML = PI[icon]; b.addEventListener('click', fn); return b;
   }
   function renderFriends() {
     var host = $('pFrList'), list = frList();
-    frLast = frSig(list); host.textContent = '';
-    $('pFrTitle').textContent = 'Friends' + (list.length ? ' (' + list.length + ')' : ''); $('pFrEmpty').hidden = list.length > 0;
+    frLast = frSig(list); host.textContent = ''; if (typeof ftipHide === 'function') ftipHide();
+    $('pFrTitle').textContent = 'Friends' + (list.length ? ' (' + list.length + '/10)' : ''); $('pFrEmpty').hidden = list.length > 0;
     list.forEach(function (f) {
       var row = document.createElement('div'), dot = document.createElement('i'), info = document.createElement('div'), nm = document.createElement('span'), st = document.createElement('span');
       row.className = 'frrow' + (f.on ? ' on' : ''); dot.className = 'frdot'; info.className = 'frinfo'; nm.className = 'frname'; st.className = 'frst';
       nm.textContent = f.name; st.textContent = f.busy ? 'Playing tag' : f.on ? 'Online' : 'Offline';
       info.appendChild(nm); info.appendChild(st); row.appendChild(dot); row.appendChild(info);
       row.appendChild(frBtn('user', 'View ' + f.name + "'s profile", function () { pvOpen(f.on ? f.id : null, f.name, 'friends'); }));
-      row.appendChild(frBtn('follow', 'Follow ' + f.name + ' to their room', function () { followFriend(f.name); }));
-      if (f.on && !f.busy) row.appendChild(frBtn('paw', 'Invite ' + f.name + ' to tag', function () { var id = f.id; closePause(); tagInvite(id); }));
+      var mb = frBtn('chat', 'Private message to ' + f.name, function () { dmOpen(f.name, 'friends'); }); if (dms[f.name.toLowerCase()] && dms[f.name.toLowerCase()].unread) mb.classList.add('unread'); row.appendChild(mb);
+      if (f.id && !f.busy) row.appendChild(frBtn('paw', 'Invite ' + f.name + ' to tag', function () { var id = f.id; closePause(); tagInvite(id); }));
       row.appendChild(frBtn('del', 'Remove ' + f.name + ' from friends', function () {
         friendCommand('removefriend', f.name, function (m) { chatAdd('Notice', m, false); });
         var i = pauseIdx; renderFriends(); pauseSel(i);
@@ -7902,6 +7992,92 @@ function animateModel(t, dt, moving) {
       host.appendChild(row);
     });
   }
+  /* MENSAGENS PRIVADAS: conversa 1 a 1 por nome, em qualquer sala (o servidor entrega). Só dura enquanto o jogo está aberto. */
+  var dms = {}, dmState = null, dmBusy = false, DM_CAP = 25;
+  try { var dm0 = JSON.parse(localStorage.getItem('luna_dms') || '{}'); Object.keys(dm0).forEach(function (k) { var c = dm0[k]; if (c && typeof c.name === 'string' && Array.isArray(c.log)) dms[k] = { name: c.name, log: c.log.filter(function (m) { return m && typeof m.t === 'string'; }).slice(-DM_CAP).map(function (m) { var o = { me: !!m.me, t: Array.from(m.t).slice(0, 50).join('') }; if (typeof m.at === 'number' && isFinite(m.at)) o.at = m.at; if (!o.me && typeof m.sg === 'string' && /^[0-9a-f]{64}$/.test(m.sg) && typeof m.ts === 'number' && typeof m.f === 'string') { o.sg = m.sg; o.ts = m.ts; o.f = m.f.slice(0, 40); } return o; }), unread: Math.max(0, c.unread | 0) }; }); } catch (e) {}
+  function dmSave() { try { localStorage.setItem('luna_dms', JSON.stringify(dms)); } catch (e) {} }
+  function dmPush(c, me, t, x) { c.log.push(x ? { me: me, t: t, at: x.ts || Date.now(), ts: x.ts, sg: x.sg, f: x.f } : { me: me, t: t, at: Date.now() }); while (c.log.length > DM_CAP) c.log.shift(); dmSave(); }
+  function dmConv(name) { var k = String(name).toLowerCase(); return dms[k] || (dms[k] = { name: name, log: [], unread: 0 }); }
+  function dmUnreadTotal() { var n = 0; Object.keys(dms).forEach(function (k) { n += dms[k].unread; }); return n; }
+  function dmBadge() { $('pFriends').classList.toggle('unread', dmUnreadTotal() > 0); }
+  function dmOpen(name, from) {
+    if (!name) return;
+    dmState = { name: name, from: from }; dmConv(name).unread = 0; dmBadge(); dmSave(); $('dmEmojis').hidden = true;
+    if (!pauseOpen) openPause();
+    pauseShow('dm');
+  }
+  /* HORÁRIO DA MENSAGEM: ao passar o mouse numa mensagem, aparece data e hora de envio num retângulo arredondado */
+  var dmTipEl = document.createElement('div'); dmTipEl.id = 'dmTime'; dmTipEl.hidden = true; document.body.appendChild(dmTipEl);
+  function dmTipHide() { dmTipEl.hidden = true; }
+  function dmTipFmt(ts) { var d = new Date(ts), p = function (n) { return (n < 10 ? '0' : '') + n; }; var h = d.getHours(); return p(d.getMonth() + 1) + '/' + p(d.getDate()) + '/' + d.getFullYear() + ' · ' + (h % 12 || 12) + ':' + p(d.getMinutes()) + ' ' + (h < 12 ? 'AM' : 'PM'); }
+  function dmTipShow(el, ts, hint) {
+    dmTipEl.textContent = '';
+    var a = document.createElement('div'); a.textContent = dmTipFmt(ts); dmTipEl.appendChild(a);
+    if (hint) { var h = document.createElement('div'); h.className = 'dmth'; h.textContent = 'Right-click to report'; dmTipEl.appendChild(h); }
+    dmTipEl.hidden = false;
+    var r = el.getBoundingClientRect(), w = dmTipEl.offsetWidth, hh = dmTipEl.offsetHeight, x = r.left + r.width / 2 - w / 2, y = r.top - hh - 6;
+    if (y < 4) y = r.bottom + 6;
+    x = Math.max(4, Math.min(x, window.innerWidth - w - 4));
+    dmTipEl.style.left = x + 'px'; dmTipEl.style.top = y + 'px';
+  }
+  document.addEventListener('mouseover', function (ev) { if (!dmTipEl.hidden && !(ev.target.closest && ev.target.closest('.dmmsg'))) dmTipHide(); });   /* some se o mouse sai da mensagem (ou a tela fecha) */
+  function dmRender() {
+    if (!dmState) return;
+    dmTipHide();
+    var c = dmConv(dmState.name), log = $('dmLog'); if (c.unread) { c.unread = 0; dmSave(); } dmBadge();
+    $('dmTitle').textContent = dmState.name; $('dmNote').hidden = true; log.textContent = '';
+    if (!c.log.length) { var e = document.createElement('div'); e.className = 'dmempty'; e.textContent = 'No messages yet. Say hi! 🐾'; log.appendChild(e); }
+    var op = pfFor(idByName(dmState.name), dmState.name) || PF_DEF, mine = (typeof myProf === 'object' && myProf) || PF_DEF;
+    c.log.forEach(function (m) {
+      var row = document.createElement('div'), d = document.createElement('div'), p = m.me ? mine : op, av = document.createElement('div');
+      row.className = 'dmrow' + (m.me ? ' me' : ''); d.className = 'dmmsg' + (m.me ? ' me' : ''); d.textContent = m.t;
+      av.className = 'dmav'; av.style.background = p.bg || PF_DEF.bg;
+      if (p.ph) { var im = document.createElement('img'); im.alt = ''; im.src = p.ph; av.appendChild(im); } else av.textContent = p.e || PF_DEF.e;
+      var rpt = !m.me && !!m.sg, hasAt = typeof m.at === 'number';
+      if (hasAt) { d.addEventListener('mouseenter', function () { dmTipShow(d, m.at, rpt); }); d.addEventListener('mouseleave', dmTipHide); }
+      if (rpt) { d.className += ' rp'; if (!hasAt) d.title = 'Right-click to report this message'; d.addEventListener('contextmenu', function (ev) { ev.preventDefault(); rmenuOpen({ k: 'dm', from: m.f || dmState.name, text: m.t, ts: m.ts, sg: m.sg }, ev.clientX + 6, ev.clientY + 6, 'dm'); }); }
+      row.appendChild(av); row.appendChild(d); log.appendChild(row);
+    });
+    log.scrollTop = log.scrollHeight; log.onscroll = dmTipHide;
+  }
+  function dmNote(t, info) { $('dmNote').textContent = t; $('dmNote').hidden = !t; $('dmNote').classList.toggle('info', !!info); }
+  function dmSend() {
+    if (!dmState || dmBusy) return;
+    var t = $('dmIn').value.replace(/\s+/g, ' ').trim(); if (!t) return;
+    SHORT.forEach(function (s) { t = t.split(s[0]).join(s[1]); }); t = t.slice(0, 50);   /* mesmos atalhos do chat (:) <3 :gato:...) */
+    if (!mp.room) { dmNote('Join an online room to send messages.'); return; }
+    var name = dmState.name; dmBusy = true; dmNote('');
+    mp.room.dm(name, t).then(function (r) {
+      dmBusy = false;
+      if (r && r.ok) { dmPush(dmConv(name), true, r.tx || t); $('dmIn').value = ''; if (dmState && dmState.name === name && !$('pauseDM').hidden) dmRender(); if (window.UISfx) UISfx.play('send', 80); if (r.note) dmNote(r.note); }   /* sem aviso de "may be offline" quando a mensagem fica na fila */
+      else if (r && r.why === 'timeout') dmNote('Could not reach the server. Try again.');
+      else dmNote((r && r.note) || 'Message not sent.');
+    });
+  }
+  /* aviso de mensagem privada: cartãozinho com ícone de mensagem + nome de quem enviou (vários ao entrar = um por pessoa, com contador) */
+  var dmToasts = {}, dmToastT = null, dmToastSnd = 0, dmToastEl = document.createElement('div'); dmToastEl.id = 'dmToast'; dmToastEl.setAttribute('aria-live', 'polite'); document.body.appendChild(dmToastEl);
+  function dmToast(name) {
+    var k = name.toLowerCase(); dmToasts[k] = { name: name, n: ((dmToasts[k] || {}).n || 0) + 1 };
+    dmToastEl.textContent = '';
+    Object.keys(dmToasts).slice(-4).forEach(function (kk) {
+      var t = dmToasts[kk], d = document.createElement('div'), ic = document.createElement('span'), nm = document.createElement('b'), tx = document.createElement('span');
+      d.className = 'dmt'; ic.className = 'dmti'; ic.innerHTML = PI.chat; nm.textContent = t.name; tx.textContent = t.n > 1 ? 'sent you ' + t.n + ' private messages' : 'sent you a private message';
+      d.appendChild(ic); d.appendChild(nm); d.appendChild(tx); dmToastEl.appendChild(d);
+    });
+    var now = performance.now(); if (now - dmToastSnd > 800) { dmToastSnd = now; try { ping([659, 880], 0.14, 0.25); } catch (e) {} }
+    clearTimeout(dmToastT); dmToastT = setTimeout(function () { dmToasts = {}; dmToastEl.textContent = ''; }, 7000);
+  }
+  function dmReceive(m) {
+    var from = m && typeof m.from === 'string' ? m.from : '', txt = m && typeof m.text === 'string' ? Array.from(m.text).slice(0, 50).join('') : '';
+    if (!from || !txt || isMuted(idByName(from) || '', from)) return;   /* silenciado: ignora */
+    var c = dmConv(from); dmPush(c, false, txt, typeof m.sg === 'string' && typeof m.ts === 'number' ? { ts: m.ts, sg: m.sg, f: from } : null);
+    if (pauseOpen && !$('pauseDM').hidden && dmState && dmState.name.toLowerCase() === from.toLowerCase()) { dmRender(); }
+    else { c.unread++; dmSave(); dmBadge(); dmToast(from); }
+  }
+  $('dmSend').addEventListener('click', dmSend);
+  $('dmBack').addEventListener('click', function () { pauseBack(); });
+  $('dmFollow').addEventListener('click', function () { if (dmState) followFriend(dmState.name); });
+
   /* CONFIGURAÇÕES DE AMIGOS: (1) deixar os amigos te seguirem; (2) mostrar seu status online. Salvas neste aparelho e enviadas aos outros pela presença (nf / ho);
      o servidor também respeita: quem esconde o status aparece como offline na busca, e quem bloqueia seguidores recebe "blocked". */
   var frSet = { follow: true, online: true };
@@ -7918,24 +8094,49 @@ function animateModel(t, dt, moving) {
 
   /* SEGUIR AMIGO: pergunta ao servidor em qual sala o amigo está. Mesma sala = só avisa; outra sala = vai para ela (recarrega o jogo e entra sozinho). */
   var followBusy = false;
+  /* dicas dos botões do menu de pausa: caixinha própria no lugar do tooltip do navegador (aparece no mouse e no foco do teclado/controle) */
+  var ftip = document.createElement('div'); ftip.id = 'ftip'; ftip.setAttribute('role', 'tooltip'); document.body.appendChild(ftip);
+  function ftipShow(b) {
+    var t = b.getAttribute('data-tip'); if (!t) { t = b.getAttribute('title'); if (!t) return; b.setAttribute('data-tip', t); b.removeAttribute('title'); }
+    ftip.textContent = t; ftip.classList.add('on'); ftip.classList.remove('below');
+    var r = b.getBoundingClientRect(), w = ftip.offsetWidth, h = ftip.offsetHeight, x = r.left + r.width / 2 - w / 2, y = r.top - h - 10;
+    x = Math.max(8, Math.min(innerWidth - w - 8, x)); if (y < 8) { y = r.bottom + 10; ftip.classList.add('below'); }
+    ftip.style.left = x + 'px'; ftip.style.top = y + 'px'; ftip.style.setProperty('--ax', (r.left + r.width / 2 - x) + 'px');
+  }
+  function ftipHide() { ftip.classList.remove('on'); }
+  $('pause').addEventListener('mouseover', function (e) { var b = e.target.closest && e.target.closest('.frbtn, .pic, .psq'); if (b) ftipShow(b); else ftipHide(); });
+  $('pause').addEventListener('mouseleave', ftipHide);
+  $('pause').addEventListener('focusin', function (e) { var b = e.target.closest && e.target.closest('.frbtn, .pic, .psq'); if (b) ftipShow(b); else ftipHide(); });
+  $('pause').addEventListener('focusout', ftipHide);
+  $('pause').addEventListener('click', ftipHide);
+  var frMsgFrom = 0;
+  function frMsgOpen(txt, title) { frMsgFrom = pauseIdx; $('frMsgTitle').textContent = title || 'Same room 🐾'; $('frMsgTxt').textContent = txt; $('frMsg').hidden = false; pauseSel(0); }
+  function frMsgClose() {
+    if ($('frMsg').hidden) return;
+    $('frMsg').hidden = true; $('frMsgOk').classList.remove('sel');
+    pauseSel(frMsgFrom);   /* volta ao botão Follow que abriu o aviso */
+  }
+  $('frMsgOk').addEventListener('click', frMsgClose);
+  function frSame(name) { frMsgOpen('You and ' + name + ' are already in the same room.'); }
   function followFriend(name) {
     if (followBusy) return;
-    if (!mp.room) { say('Join an online room first to follow a friend', 3000); return; }
+    if (!mp.room) { frMsgOpen('Join an online room first to follow a friend.', 'Offline mode'); return; }
     var sid = mp.room && idByName(name); if (sid && mp.remotes[sid] && mp.remotes[sid].ho) sid = null;
-    if (sid) { say('You and ' + name + ' are already in the same room 🐾', 3200); chatAdd('Notice', 'You and ' + name + ' are already in the same room.', false); return; }
-    followBusy = true; say('Looking for ' + name + '…', 5000);
+    if (sid) { frSame(name); return; }
+    followBusy = true;
     mp.room.find(name).then(function (r) {
       followBusy = false;
-      if (r && r.ok && r.blocked) { say(name + " doesn't allow followers 🔒", 3800); return; }
-      if (!r || !r.ok) { say(r && r.timeout ? 'Could not reach the server, try again' : name + ' is offline right now 😿', 3500); return; }
-      if (r.here || r.room === mp.code) { say('You and ' + name + ' are already in the same room 🐾', 3200); chatAdd('Notice', 'You and ' + name + ' are already in the same room.', false); return; }
-      if (r.full) { say(name + "'s room is full (max 10 players)", 4000); return; }
-      try { sessionStorage.setItem('luna_follow', JSON.stringify({ nick: mp.nick, code: r.room, srv: window.GATINHO_APP ? ($('srv').value || '') : '' })); } catch (e) { say('Could not follow: browser storage is blocked', 4000); return; }
+      if (r && r.ok && r.blocked) { frMsgOpen(name + " doesn't allow followers.", 'Follow blocked 🔒'); return; }
+      if (!r || !r.ok) { if (r && r.timeout) frMsgOpen('Could not reach the server. Try again in a moment.', 'No answer'); else frMsgOpen(name + ' is offline right now, so you can\'t follow them.', 'Friend offline 😿'); return; }
+      if (r.here || r.room === mp.code) { frSame(name); return; }
+      if (r.full) { frMsgOpen(name + "'s room is full (max 10 players).", 'Room full'); return; }
+      try { sessionStorage.setItem('luna_follow', JSON.stringify({ nick: mp.nick, code: r.room, srv: window.GATINHO_APP ? ($('srv').value || '') : '' })); } catch (e) { frMsgOpen('Your browser is blocking storage, so the game can\'t switch rooms.', 'Could not follow'); return; }
       say('Teleporting to ' + (r.n || name) + '… 🐾', 4000);
       setTimeout(function () { location.reload(); }, 400);
     });
   }
   setInterval(function () {   /* a lista acompanha quem entra e sai da sala enquanto está aberta */
+    if (pauseOpen && !$('pauseFriends').hidden && performance.now() - frPollT > 3000) frPoll();
     if (!pauseOpen || $('pauseFriends').hidden || frSig(frList()) === frLast) return;
     var i = pauseIdx; renderFriends(); pauseSel(i);
   }, 1500);
@@ -8192,10 +8393,12 @@ function animateModel(t, dt, moving) {
   $('pTitle').addEventListener('click', function () { location.reload(); });   /* volta à tela de título (reinicia a partida e sai da sala online) */
   window.addEventListener('keydown', function (e) {   /* com o menu aberto, o teclado só mexe no menu (fase de captura) */
     if (!pauseOpen) return;
+    if (e.target && e.target.id === 'rmWhy') return;   /* digitando o motivo da denúncia: o menu de pausa não mexe */
     e.stopPropagation();
     if (e.code === 'Escape') { e.preventDefault(); if (!e.repeat) pauseBack(); }
     else if (e.code === 'ArrowUp' || e.code === 'ArrowDown') { e.preventDefault(); if (!$('pauseHelp').hidden) $('pauseHelpList').scrollBy(0, e.code === 'ArrowDown' ? 60 : -60); else if (pauseSpatial()) pauseNav(0, e.code === 'ArrowDown' ? 1 : -1); else pauseMove(e.code === 'ArrowDown' ? 1 : -1); }
     else if ((!$('pauseMain').hidden || !$('pauseFriends').hidden) && (e.code === 'ArrowLeft' || e.code === 'ArrowRight')) { e.preventDefault(); pauseNav(e.code === 'ArrowRight' ? 1 : -1, 0); }
+    else if (!$('pauseDM').hidden && e.code === 'Enter' && e.target && e.target.id === 'dmIn') { e.preventDefault(); if (!e.repeat) dmSend(); }
     else if (!$('pauseProfile').hidden && e.code === 'Enter' && e.target && (e.target.id === 'pfDescIn' || e.target.id === 'pfNameIn' || e.target.id === 'pfHex')) { e.preventDefault(); pauseMove(1); }   /* Enter na descrição: segue para o próximo item */
     else if (!$('pauseProfile').hidden && (e.code === 'ArrowLeft' || e.code === 'ArrowRight') && !(e.target && (e.target.id === 'pfDescIn' || e.target.id === 'pfNameIn' || e.target.id === 'pfHex' || (e.target.classList && e.target.classList.contains('pfrng'))))) { e.preventDefault(); if (pauseSpatial()) pauseNav(e.code === 'ArrowRight' ? 1 : -1, 0); else pauseMove(e.code === 'ArrowRight' ? 1 : -1); }   /* emojis e cores ficam em linha: esquerda/direita andam entre eles */
     else if (!$('pauseSet').hidden) {
@@ -8224,6 +8427,7 @@ function animateModel(t, dt, moving) {
   }
   window.addEventListener('keydown', function (e) {
     if (!(e.target && /INPUT|SELECT/.test(e.target.tagName)) && (e.code === 'Space' || e.code.indexOf('Arrow') === 0)) e.preventDefault();
+    if (e.target && e.target.id === 'rmWhy') return;   /* digitando o motivo da denúncia: nada vira comando do jogo */
     if (e.target && e.target.id === 'chatin') { if (e.code === 'Enter') chatSend(); else if (e.code === 'Escape') chatClose(); return; }
     if (!started && setWinOpen()) {
       if (e.code === 'Escape' || (e.code === 'Enter' && !(e.target && e.target.tagName === 'BUTTON'))) { e.preventDefault(); closeSet(); }
@@ -9530,6 +9734,30 @@ function animateModel(t, dt, moving) {
       var api = {
         emit: function (t, d) { return send({ t: 'emit', topic: t, data: d }); },
         cmd: function (c, a) { return send({ t: 'cmd', c: c, a: a }); },   /* comandos do chat: o servidor aplica e avisa todos */
+        dm: function (to, text) {   /* mensagem privada -> { ok, why: 'offline'|'blocked'|'timeout', note, tx } */
+          return new Promise(function (res) {
+            var q = ++findSeq, to2 = setTimeout(function () { delete findWait[q]; res({ ok: false, why: 'timeout' }); }, 5000);
+            findWait[q] = function (r) { clearTimeout(to2); res(r); };
+            if (ws.readyState !== 1) { clearTimeout(to2); delete findWait[q]; res({ ok: false, why: 'timeout' }); return; }
+            ws.send(JSON.stringify({ t: 'dm', to: to, text: text, q: q }));
+          });
+        },
+        report: function (o) {   /* denunciar uma mensagem recebida (chat ou privada) -> { ok, why: 'slow'|'invalid'|'unavailable'|'timeout' }; o servidor confere a assinatura e manda ao Discord */
+          return new Promise(function (res) {
+            var q = ++findSeq, to2 = setTimeout(function () { delete findWait[q]; res({ ok: false, why: 'timeout' }); }, 8000);
+            findWait[q] = function (r) { clearTimeout(to2); res(r); };
+            if (ws.readyState !== 1) { clearTimeout(to2); delete findWait[q]; res({ ok: false, why: 'timeout' }); return; }
+            ws.send(JSON.stringify({ t: 'report', k: o.k, from: o.from, text: o.text, ts: o.ts, sg: o.sg, room: o.room, why: o.why, q: q }));
+          });
+        },
+        who: function (names) {   /* quais destes amigos estão online em qualquer sala? -> array de nomes em minúsculas (ou null se falhar) */
+          return new Promise(function (res) {
+            var q = ++findSeq, to = setTimeout(function () { delete findWait[q]; res(null); }, 5000);
+            findWait[q] = function (r) { clearTimeout(to); res(r && r.on || []); };
+            if (ws.readyState !== 1) { clearTimeout(to); delete findWait[q]; res(null); return; }
+            ws.send(JSON.stringify({ t: 'who', names: names, q: q }));
+          });
+        },
         find: function (name) {   /* em qual sala está este jogador? (seguir amigo) -> { ok, room, here, full } ; sem resposta em 5 s = ok:false */
           return new Promise(function (res) {
             var q = ++findSeq, to = setTimeout(function () { delete findWait[q]; res({ ok: false, timeout: true }); }, 5000);
@@ -9547,6 +9775,10 @@ function animateModel(t, dt, moving) {
         if (m.t === 'kicked') { kicked = true; return; }   /* este computador entrou de novo em outra janela: esta conexão foi encerrada */
         if (m.t === 'full') { full = true; reject(new Error('full')); return; }
         else if (m.t === 'hello') { if (typeof m.now === 'number') clockOff = m.now - Date.now(); me = m.peer; if (m.env) { rainForce = m.env.rain === undefined ? null : m.env.rain; redForceNid = m.env.red === undefined ? null : m.env.red; } peers = m.peers || {}; peers[me] = pres; ready = true; resolve(api); setTimeout(fire, 0); if (!pingT) { pingT = setInterval(doPing, 2000); doPing(); } }
+        else if (m.t === 'dmack') { var da = findWait[m.q]; if (da) { delete findWait[m.q]; da(m); } }
+        else if (m.t === 'dm') { (subs.dm || []).forEach(function (f) { f({ from: m.from, text: m.text, ts: m.ts, sg: m.sg }); }); }
+        else if (m.t === 'reportack') { var rw = findWait[m.q]; if (rw) { delete findWait[m.q]; rw(m); } }
+        else if (m.t === 'whoR') { var ww = findWait[m.q]; if (ww) { delete findWait[m.q]; ww(m); } }
         else if (m.t === 'found') { var fw = findWait[m.q]; if (fw) { delete findWait[m.q]; fw(m); } }
         else if (m.t === 'pong') { if (typeof m.c === 'number') { gotPong = true; pingShow(performance.now() - m.c); } }
         else if (m.t === 'pres') { var o = peers[m.peer] || (peers[m.peer] = {}); Object.keys(m.patch || {}).forEach(function (k) { o[k] = m.patch[k]; }); fire(); }
@@ -9584,6 +9816,18 @@ function animateModel(t, dt, moving) {
   $('emojis').addEventListener('mousedown', function (e) { e.preventDefault(); });
   $('emojiBtn').addEventListener('mousedown', function (e) { e.preventDefault(); });
   $('emojiBtn').addEventListener('click', function () { $('emojis').hidden = !$('emojis').hidden; $('chatin').focus(); });
+  EMOJIS.forEach(function (e) {   /* emojis do chat privado: mesma lista do chat principal */
+    var b = document.createElement('button'); b.type = 'button'; b.textContent = e;
+    b.addEventListener('click', function () {
+      var i = $('dmIn'), v = i.value, a = i.selectionStart == null ? v.length : i.selectionStart, z = i.selectionEnd == null ? a : i.selectionEnd;
+      if (v.length - (z - a) + e.length <= i.maxLength) { i.value = v.slice(0, a) + e + v.slice(z); try { i.setSelectionRange(a + e.length, a + e.length); } catch (er) {} }
+      i.focus();
+    });
+    $('dmEmojis').appendChild(b);
+  });
+  $('dmEmojis').addEventListener('mousedown', function (e) { e.preventDefault(); });
+  $('dmEmojiBtn').addEventListener('mousedown', function (e) { e.preventDefault(); });
+  $('dmEmojiBtn').addEventListener('click', function () { $('dmEmojis').hidden = !$('dmEmojis').hidden; $('dmIn').focus(); });
   $('chatBtn').addEventListener('click', function () { if ($('chatbar').hidden) chatOpen(); else chatClose(); });
   function chatOpen() {
     if (!started) return;
@@ -9626,6 +9870,8 @@ function animateModel(t, dt, moving) {
   var friendNames = {};
   try { JSON.parse(localStorage.getItem('luna_friends') || '[]').forEach(function (n) { if (typeof n === 'string') friendNames[n.toLowerCase()] = n; }); } catch (e) {}
   function saveFriends() { try { localStorage.setItem('luna_friends', JSON.stringify(Object.keys(friendNames).map(function (k) { return friendNames[k]; }))); } catch (e) {} }
+  var FR_MAX = 10, FR_FULL = 'Your friends list is full (' + FR_MAX + '/' + FR_MAX + '). Remove a friend to add someone new.';   /* limite de amigos */
+  function frFull() { return Object.keys(friendNames).length >= FR_MAX; }
   function refreshFriendLabels() {
     Object.keys(mp.remotes).forEach(function (id) {
       var r = mp.remotes[id], u = r.root && r.root.userData, nm = remoteName(id); if (!u || !u.lab || !nm) return;
@@ -9641,6 +9887,7 @@ function animateModel(t, dt, moving) {
     var k = String(name || '').toLowerCase(), now = performance.now();
     if (!mp.room || !id || !mp.remotes[id]) { say('That player is not in the room anymore', 2600); return; }
     if (friendNames[k]) { frNote(friendNames[k] + ' is already your friend.'); return; }
+    if (frFull()) { frNote(FR_FULL); say('Friends list is full (' + FR_MAX + '/' + FR_MAX + ')', 2600); return; }
     if (frSent[id] && frSent[id] > now) { say('Friend request already sent to ' + name + '…', 2200); return; }
     frSent[id] = now + 30000;
     mp.room.emit('freq', { to: id }).catch(function () {});
@@ -9658,6 +9905,7 @@ function animateModel(t, dt, moving) {
     var r = mp.remotes[m.peer], name = r ? remoteName(m.peer) : '', now = performance.now(), i;
     if (!name || isMuted(m.peer, name) || (frBlock[m.peer] && frBlock[m.peer] > now)) return;   /* silenciado ou recusado ha pouco: ignora, sem aviso */
     if (friendNames[name.toLowerCase()]) { mp.room.emit('facc', { to: m.peer }).catch(function () {}); return; }   /* ja e seu amigo: confirma na hora para o outro lado tambem */
+    if (frFull()) return;   /* lista cheia: nao recebe novos pedidos */
     for (i = 0; i < frAsk.length; i++) if (frAsk[i].from === m.peer) { frAsk[i].until = now + 30000; return; }   /* ja tem um pedido dele na fila */
     if (frAsk.length >= 5) return;
     frAsk.push({ from: m.peer, name: name, until: now + 30000 });
@@ -9667,6 +9915,7 @@ function animateModel(t, dt, moving) {
     var a = frAsk.shift(); if (!a) return;
     if (mp.room) {
       if (!mp.remotes[a.from]) { say(a.name + ' left the room', 2400); }
+      else if (yes && frFull()) { frNote(FR_FULL); say('Friends list is full (' + FR_MAX + '/' + FR_MAX + ')', 2600); }
       else if (yes) {
         friendNames[a.name.toLowerCase()] = a.name; saveFriends(); refreshFriendLabels();
         mp.room.emit('facc', { to: a.from }).catch(function () {});
@@ -9683,7 +9932,7 @@ function animateModel(t, dt, moving) {
     var d = m.data; if (m.isMe || !d || d.to !== mp.me || !frSent[m.peer] || frSent[m.peer] < performance.now()) return;
     delete frSent[m.peer];
     var name = remoteName(m.peer); if (!name) return;
-    if (!friendNames[name.toLowerCase()]) { friendNames[name.toLowerCase()] = name; saveFriends(); refreshFriendLabels(); }
+    if (!friendNames[name.toLowerCase()]) { if (frFull()) { frNote(name + ' accepted your request, but ' + FR_FULL.charAt(0).toLowerCase() + FR_FULL.slice(1)); return; } friendNames[name.toLowerCase()] = name; saveFriends(); refreshFriendLabels(); }
     frNote(name + ' accepted your friend request! 💛'); say('💛 ' + name + ' is now your friend', 2800); ping([523, 784], 0.2, 0.3);
   }
   function frDecReceive(m) {
@@ -9700,6 +9949,7 @@ function animateModel(t, dt, moving) {
     if (k === String(mp.nick || '').toLowerCase()) { note("You can't add yourself as a friend."); return; }
     if (c === 'addfriend') {
       if (friendNames[k]) { note(friendNames[k] + ' is already your friend.'); return; }
+      if (frFull()) { note(FR_FULL); return; }
       friendNames[k] = name; saveFriends(); refreshFriendLabels(); note(name + ' is now your friend.');
     } else {   /* removefriend */
       if (!friendNames[k]) { note(name + ' is not in your friends list.'); return; }
@@ -9736,11 +9986,12 @@ function animateModel(t, dt, moving) {
     }
   }
   /* botão direito sobre o nome de um jogador (a plaquinha acima do gato ou o nome no chat): menu com Mute / Unmute, só para você */
-  var pmenuProfId = null, pmenu = document.createElement('div'), pmenuLeave = document.createElement('button'), pmenuHint = document.createElement('div'), pmenuTitle = document.createElement('div'), pmenuPad = false, pmenuSel = 0, pmenuTag = document.createElement('button'), pmenuTagId = null, pmenuFriend = document.createElement('button'), pmenuBtn = document.createElement('button'), pmenuName = '', pmenuV = new THREE.Vector3(), pmenuS = new THREE.Vector3();
-  var pmenuProf = document.createElement('button'); pmenuProf.type = 'button'; pmenu.id = 'pmenu'; pmenu.hidden = true; pmenuBtn.type = 'button'; pmenuFriend.type = 'button'; pmenuTag.type = 'button'; pmenuLeave.type = 'button'; pmenuHint.className = 'phint'; pmenuHint.textContent = '▲▼ choose · A confirm · B close'; pmenuTitle.className = 'ptitle'; pmenu.appendChild(pmenuTitle); pmenu.appendChild(pmenuLeave); pmenu.appendChild(pmenuProf); pmenu.appendChild(pmenuTag); pmenu.appendChild(pmenuFriend); pmenu.appendChild(pmenuBtn); pmenu.appendChild(pmenuHint); document.body.appendChild(pmenu);
+  var pmenuProfId = null, pmenu = document.createElement('div'), pmenuLeave = document.createElement('button'), pmenuHint = document.createElement('div'), pmenuTitle = document.createElement('div'), pmenuPad = false, pmenuSel = 0, pmenuTag = document.createElement('button'), pmenuTagId = null, pmenuFriend = document.createElement('button'), pmenuMsg = document.createElement('button'), pmenuBtn = document.createElement('button'), pmenuName = '', pmenuV = new THREE.Vector3(), pmenuS = new THREE.Vector3();
+  var pmenuProf = document.createElement('button'); pmenuProf.type = 'button'; pmenu.id = 'pmenu'; pmenu.hidden = true; pmenuBtn.type = 'button'; pmenuFriend.type = 'button'; pmenuMsg.type = 'button'; pmenuTag.type = 'button'; pmenuLeave.type = 'button'; pmenuHint.className = 'phint'; pmenuHint.textContent = '▲▼ choose · A confirm · B close'; pmenuTitle.className = 'ptitle'; pmenu.appendChild(pmenuTitle); pmenu.appendChild(pmenuLeave); pmenu.appendChild(pmenuProf); pmenu.appendChild(pmenuMsg); pmenu.appendChild(pmenuTag); pmenu.appendChild(pmenuFriend); pmenu.appendChild(pmenuBtn); pmenu.appendChild(pmenuHint); document.body.appendChild(pmenu);
   function pmenuClose() { pmenu.hidden = true; pmenuPad = false; }
   var PI_ST = 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"', PI_SPK = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>', PI = {
     user: '<svg viewBox="0 0 24 24" ' + PI_ST + '><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+    chat: '<svg viewBox="0 0 24 24" ' + PI_ST + '><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
     follow: '<svg viewBox="0 0 24 24" ' + PI_ST + '><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/><path d="M3 5v14"/></svg>',
     paw: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="11" r="2.2"/><circle cx="9.5" cy="6.2" r="2.2"/><circle cx="14.5" cy="6.2" r="2.2"/><circle cx="18.5" cy="11" r="2.2"/><path d="M12 12c-3.2 0-6 3-6 6 0 2.1 2 3 4 2.5 1-.3 1.4-.5 2-.5s1 .2 2 .5c2 .5 4-.4 4-2.5 0-3-2.8-6-6-6z"/></svg>',
     add: '<svg viewBox="0 0 24 24" ' + PI_ST + '><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>',
@@ -9750,8 +10001,8 @@ function animateModel(t, dt, moving) {
     leave: '<svg viewBox="0 0 24 24" ' + PI_ST + '><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
   };
   function pmenuSet(btn, icon, text) { btn.innerHTML = PI[icon]; var sp = document.createElement('span'); sp.textContent = text; btn.appendChild(sp); }   /* ícone + texto em cada opção */
-  function pmenuItems() { return [pmenuLeave, pmenuProf, pmenuTag, pmenuFriend, pmenuBtn].filter(function (b) { return !b.hidden && !b.disabled; }); }
-  function pmenuMark() { var its = pmenuItems(); [pmenuLeave, pmenuProf, pmenuTag, pmenuFriend, pmenuBtn].forEach(function (b) { b.classList.remove('sel'); }); if (pmenuPad && its.length) its[Math.max(0, Math.min(pmenuSel, its.length - 1))].classList.add('sel'); }
+  function pmenuItems() { return [pmenuLeave, pmenuProf, pmenuMsg, pmenuTag, pmenuFriend, pmenuBtn].filter(function (b) { return !b.hidden && !b.disabled; }); }
+  function pmenuMark() { var its = pmenuItems(); [pmenuLeave, pmenuProf, pmenuMsg, pmenuTag, pmenuFriend, pmenuBtn].forEach(function (b) { b.classList.remove('sel'); }); if (pmenuPad && its.length) its[Math.max(0, Math.min(pmenuSel, its.length - 1))].classList.add('sel'); }
   function pmenuPadNav(up, down, ok, back) {   /* controle: escolhe com o direcional, A confirma, B fecha */
     var its = pmenuItems();
     if (back) { pmenuClose(); pauseClosedAt = performance.now(); return; }
@@ -9794,6 +10045,7 @@ function animateModel(t, dt, moving) {
     pmenuTag.hidden = !pmenuTagId || !name;
     pmenuProf.hidden = !name; pmenuSet(pmenuProf, 'user', 'Profile'); pmenuProfId = pmenuTagId || idByName(name);   /* ver o perfil: fica logo acima de Invite to tag */
     if (pmenuTagId && name) { var busy = !!mp.remotes[pmenuTagId].tg; pmenuTag.disabled = busy; pmenuSet(pmenuTag, 'paw', busy ? 'Already playing tag' : 'Invite to tag'); }
+    pmenuMsg.hidden = !name || name.toLowerCase() === String(mp.nick || '').toLowerCase() || !mp.room; pmenuSet(pmenuMsg, 'chat', 'Private message');   /* mensagem privada: logo abaixo de Profile */
     var fr = !!friendNames[name.toLowerCase()];
     pmenuSet(pmenuFriend, fr ? 'del' : 'add', fr ? 'Remove friend' : 'Add friend'); pmenuFriend.setAttribute('data-rm', fr ? '1' : '');
     pmenuSet(pmenuBtn, on ? 'unmute' : 'mute', on ? 'Unmute' : 'Mute'); pmenuBtn.setAttribute('data-un', on ? '1' : '');
@@ -9807,6 +10059,7 @@ function animateModel(t, dt, moving) {
   pmenuLeave.addEventListener('click', function () { pmenuClose(); tagLeave(); });
   pmenuProf.addEventListener('click', function () { var id = pmenuProfId, nm = pmenuName; pmenuClose(); pauseClosedAt = performance.now(); pvOpen(id, nm, 'game'); });
   pmenuTag.addEventListener('click', function () { var id = pmenuTagId; pmenuClose(); if (id) tagInvite(id); });
+  pmenuMsg.addEventListener('click', function () { var nm = pmenuName; pmenuClose(); pauseClosedAt = performance.now(); dmOpen(nm, 'game'); });
   pmenuFriend.addEventListener('click', function () {
     var rm = !!pmenuFriend.getAttribute('data-rm'), fid = pmenuTagId, fnm = pmenuName; pmenuClose();
     if (!rm && fnm.toLowerCase() === String(mp.nick || '').toLowerCase()) { frNote("You can't add yourself as a friend."); return; }
@@ -9821,6 +10074,91 @@ function animateModel(t, dt, moving) {
   window.addEventListener('blur', pmenuClose);
   canvas.addEventListener('wheel', pmenuClose, { passive: true });
   window.addEventListener('keydown', function (e) { if (!pmenu.hidden && e.code === 'Escape') { e.preventDefault(); e.stopPropagation(); pmenuClose(); } }, true);   /* Esc fecha só o menu (não abre a pausa) */
+  /* MENU DA MENSAGEM: clicar com o botão direito numa mensagem recebida (chat público ou privada) abre este menuzinho com "Report message".
+     A denúncia leva a assinatura que o servidor pôs na mensagem; o servidor confere e manda ao Discord (webhook). Nada é enviado sem confirmar. */
+  var rmenu = document.createElement('div'), rmBtns = document.createElement('div'), rmTitle = document.createElement('div'), rmText = document.createElement('div'), rmHint = document.createElement('div'), rmWhy = document.createElement('input'), rmGo = document.createElement('button'), rmNo = document.createElement('button'), rmCur = null, rmBusy = false;
+  var RM_FLAG = '<svg viewBox="0 0 24 24" ' + PI_ST + '><path d="M4 22V4"/><path d="M4 4h12l-2 4 2 4H4"/></svg>';
+  var RM_ERR = { slow: 'Slow down! Wait a moment before sending another report.', invalid: "This message can't be reported.", unavailable: 'Reports are not available right now.', timeout: 'Could not reach the server. Try again.' };
+  rmenu.id = 'rmenu'; rmenu.hidden = true; rmTitle.className = 'ptitle'; rmText.className = 'rmtext'; rmHint.className = 'rmhint'; rmWhy.type = 'text'; rmWhy.className = 'rmwhy'; rmWhy.maxLength = 150; rmWhy.autocomplete = 'off'; rmWhy.spellcheck = false; rmWhy.placeholder = 'Why are you reporting this message?'; rmWhy.hidden = true; rmWhy.id = 'rmWhy'; rmGo.type = 'button'; rmNo.type = 'button'; rmNo.textContent = 'Cancel';
+  rmBtns.className = 'rmbtns'; rmBtns.appendChild(rmGo); rmBtns.appendChild(rmNo);
+  [rmTitle, rmText, rmHint, rmWhy, rmBtns].forEach(function (x) { rmenu.appendChild(x); }); document.body.appendChild(rmenu);
+  function rmSet(btn, html, txt) { btn.innerHTML = html; var sp = document.createElement('span'); sp.textContent = txt; btn.appendChild(sp); }
+  function rmRender() {
+    var c = !!(rmCur && rmCur.step === 1);
+    rmTitle.textContent = c ? 'Report this message?' : 'Message from ' + rmCur.rep.from; rmText.textContent = rmCur.rep.text; rmText.hidden = c;   /* na confirmação a mensagem não repete */
+    rmHint.hidden = !c; rmHint.textContent = 'Write the reason. It will be sent to the moderators.'; rmWhy.hidden = !c; rmNo.hidden = !c;
+    rmSet(rmGo, RM_FLAG, c ? 'Send report' : 'Report message'); rmGo.className = 'danger'; rmGo.disabled = c && !rmWhy.value.trim();   /* só envia com o motivo escrito */
+  }
+  function rmenuClose() { rmenu.hidden = true; rmCur = null; }
+  function rmenuOpen(rp, x, y, where) {
+    if (pmenu && !pmenu.hidden) pmenuClose();
+    rmCur = { rep: rp, where: where, step: 0 }; rmWhy.value = ''; rmRender(); rmenu.hidden = false;
+    var mw = rmenu.offsetWidth, mh = rmenu.offsetHeight;
+    if (x + mw > innerWidth - 4) x = x - 12 - mw; if (y + mh > innerHeight - 4) y = y - 12 - mh;
+    rmenu.style.left = Math.max(4, Math.min(x, innerWidth - mw - 4)) + 'px'; rmenu.style.top = Math.max(4, Math.min(y, innerHeight - mh - 4)) + 'px';
+  }
+  function rmNotify(where, txt, good) { if (where === 'dm') dmNote(txt, !!good); else chatAdd('Notice', txt, false); }
+  rmWhy.addEventListener('input', rmRender);
+  rmWhy.addEventListener('keydown', function (e) { if (e.code === 'Enter' || e.code === 'NumpadEnter') { e.preventDefault(); if (!e.repeat) rmGo.click(); } });
+  rmGo.addEventListener('click', function () {
+    if (!rmCur) return;
+    if (rmCur.step === 0) { rmCur.step = 1; rmWhy.value = ''; rmRender(); try { rmWhy.focus(); } catch (er) {} return; }   /* 1º clique abre o campo do motivo; o 2º envia */
+    var why = rmWhy.value.replace(/\s+/g, ' ').trim().slice(0, 150);
+    if (!why) { rmWhy.focus(); return; }
+    var cur = rmCur; cur.rep = Object.assign({}, cur.rep, { why: why }); rmenuClose();
+    if (rmBusy) return;
+    if (!mp.room || !mp.room.report) { rmNotify(cur.where, 'You are offline: reports need an online room.', false); return; }
+    rmBusy = true;
+    mp.room.report(cur.rep).then(function (r) {
+      rmBusy = false;
+      rmNotify(cur.where, r && r.ok ? 'Report sent to the moderators. Thank you! 🐾' : (RM_ERR[r && r.why] || "Couldn't send the report."), !!(r && r.ok));
+    });
+  });
+  rmNo.addEventListener('click', rmenuClose);
+  $('chatlog').addEventListener('contextmenu', function (e) {   /* botão direito sobre a MENSAGEM (no nome abre o menu do jogador) */
+    if (e.target && e.target.closest && e.target.closest('b[data-pl]')) return;
+    var d = e.target && e.target.closest ? e.target.closest('div.pl') : null;
+    if (!d || !d._rep) return;
+    e.preventDefault();
+    rmenuOpen(d._rep, e.clientX + 6, e.clientY + 6, 'chat');
+  });
+  document.addEventListener('pointerdown', function (e) { if (!rmenu.hidden && !rmenu.contains(e.target)) { rmenuClose(); if (e.target === canvas) pmenuSwallow = true; } }, true);
+  window.addEventListener('blur', rmenuClose);
+  canvas.addEventListener('wheel', rmenuClose, { passive: true });
+  window.addEventListener('keydown', function (e) { if (!rmenu.hidden && e.code === 'Escape') { e.preventDefault(); e.stopPropagation(); rmenuClose(); } }, true);
+  /* MENU DE COLAR: botão direito no campo de digitar do chat abre uma caixinha só com "Paste" (no lugar do menu padrão do navegador/Windows) */
+  var pasteMenu = document.createElement('div'), pasteBtn = document.createElement('button'), pasteSel = [0, 0];
+  var PM_ICON = '<svg viewBox="0 0 24 24" ' + PI_ST + '><rect x="8" y="2" width="8" height="4" rx="1"/><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/></svg>';
+  pasteMenu.id = 'pastemenu'; pasteMenu.hidden = true; pasteBtn.type = 'button'; pasteBtn.innerHTML = PM_ICON + '<span>Paste</span>';
+  pasteMenu.appendChild(pasteBtn); document.body.appendChild(pasteMenu);
+  function pasteMenuClose() { pasteMenu.hidden = true; }
+  function pasteInsert(txt) {
+    var i = $('chatin'); txt = String(txt || '').replace(/[\r\n\t]+/g, ' ');
+    var v = i.value, a = Math.min(pasteSel[0], pasteSel[1]), b = Math.max(pasteSel[0], pasteSel[1]), room = i.maxLength > 0 ? i.maxLength - (v.length - (b - a)) : txt.length;
+    if (room <= 0) return;
+    txt = txt.slice(0, room); i.value = v.slice(0, a) + txt + v.slice(b);
+    var pos = a + txt.length; try { i.setSelectionRange(pos, pos); } catch (er) {}
+    i.dispatchEvent(new Event('input', { bubbles: true }));
+  }
+  pasteMenu.addEventListener('mousedown', function (e) { e.preventDefault(); });   /* não tira o foco do campo */
+  pasteBtn.addEventListener('click', function () {
+    var i = $('chatin'); pasteMenuClose(); try { i.focus(); } catch (er) {}
+    if (navigator.clipboard && navigator.clipboard.readText) navigator.clipboard.readText().then(pasteInsert, function () { try { document.execCommand('paste'); } catch (er) {} });
+    else { try { document.execCommand('paste'); } catch (er) {} }
+  });
+  $('chatin').addEventListener('contextmenu', function (e) {
+    e.preventDefault(); e.stopPropagation();
+    var i = $('chatin'); pasteSel = [i.selectionStart || 0, i.selectionEnd || 0];
+    if (!rmenu.hidden) rmenuClose(); if (pmenu && !pmenu.hidden) pmenuClose();
+    pasteMenu.hidden = false;
+    var mw = pasteMenu.offsetWidth, mh = pasteMenu.offsetHeight, x = e.clientX + 6, y = e.clientY + 6;
+    if (x + mw > innerWidth - 4) x = x - 12 - mw; if (y + mh > innerHeight - 4) y = y - 12 - mh;
+    pasteMenu.style.left = Math.max(4, Math.min(x, innerWidth - mw - 4)) + 'px'; pasteMenu.style.top = Math.max(4, Math.min(y, innerHeight - mh - 4)) + 'px';
+  });
+  document.addEventListener('pointerdown', function (e) { if (!pasteMenu.hidden && !pasteMenu.contains(e.target)) pasteMenuClose(); }, true);
+  window.addEventListener('blur', pasteMenuClose);
+  window.addEventListener('keydown', function (e) { if (!pasteMenu.hidden && e.code === 'Escape') { e.preventDefault(); e.stopPropagation(); pasteMenuClose(); } }, true);
+  $('chatin').addEventListener('input', pasteMenuClose);
   function nameTagAt(cx, cy) {   /* id do jogador cuja plaquinha de nome está sob o mouse (o mais perto da câmera) */
     var rc = canvas.getBoundingClientRect(), best = null, bd = 1e9, f = rc.height / (2 * Math.tan(camera.fov * Math.PI / 360));
     Object.keys(mp.remotes).forEach(function (id) {
@@ -9988,13 +10326,14 @@ function animateModel(t, dt, moving) {
       room.on('props', mpApply, function () {});
       room.on('profile', pfIn, function () {});
       room.on('tidy', function (m) { if (!m.isMe) arrumar(true); }, function () {});
-      room.on('chat', function (m) { var d = m.data; if (!m.isMe && d && typeof d.t === 'string' && !isMuted(m.peer, d.n)) { var ce = chatAdd(typeof d.n === 'string' ? d.n : '?', d.t, false); if (ce && m.peer !== 'server' && typeof d.n === 'string') { ce.classList.add('pl'); ce.firstChild.setAttribute('data-pl', d.n); } if (window.UISfx) UISfx.play('recv', 80); var r = mp.remotes[m.peer]; if (r) mpBubble(r, d.t); } }, function () {});
+      room.on('chat', function (m) { var d = m.data; if (!m.isMe && d && typeof d.t === 'string' && !isMuted(m.peer, d.n)) { var ce = chatAdd(typeof d.n === 'string' ? d.n : '?', d.t, false); if (ce && m.peer !== 'server' && typeof d.n === 'string') { ce.classList.add('pl'); ce.firstChild.setAttribute('data-pl', d.n); if (typeof d.sg === 'string' && typeof d.ts === 'number') { ce._rep = { k: 'chat', from: d.n, text: d.t, ts: d.ts, sg: d.sg, room: mp.code }; ce.title = 'Right-click to report this message'; } } if (window.UISfx) UISfx.play('recv', 80); var r = mp.remotes[m.peer]; if (r) mpBubble(r, d.t); } }, function () {});
       room.on('meow', hearMeow, function () {});
       room.on('tag', tagReceive, function () {});
       room.on('tinv', tagInvReceive, function () {});
       room.on('tacc', tagAccReceive, function () {});
       room.on('tdec', tagDecReceive, function () {});
       room.on('freq', frReceive, function () {});
+      room.on('dm', dmReceive, function () {});
       room.on('facc', frAccReceive, function () {});
       room.on('fdec', frDecReceive, function () {});
       room.on('meal', mpMeal, function () {}); room.on('sip', mpSip, function () {}); room.on('eatk', mpEatK, function () {}); room.on('wst', mpWorldIn, function () {});
