@@ -4,6 +4,26 @@ const { createChatGuard } = require('./chat-guard.js');   // limite de velocidad
 const PORT = process.env.PORT || 3000, PUB = path.join(__dirname, 'public'), MAX = 10;
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.ico': 'image/x-icon' };
 const rooms = new Map(); // sala -> Map(id -> { socket, pres }) com .skew (ms que o relógio da sala adiantou dormindo)
+// Registro de jogadores no Discord: a cada conexão, manda nick + sala + hora para um canal via webhook (sem IP).
+// A URL vem SÓ da variável de ambiente DISCORD_WEBHOOK (nunca no código/config.json, pois o .exe embute este arquivo). Sem ela, não faz nada.
+const https = require('https');
+const WEBHOOK = process.env.DISCORD_WEBHOOK || '', hookQueue = []; let hookBusy = false;
+function hookPump() {   // 1 mensagem a cada 1,5 s (limite do Discord); fila de no máx. 100 para não acumular
+  if (hookBusy || !hookQueue.length) return; hookBusy = true;
+  let u; try { u = new URL(WEBHOOK); } catch (e) { hookQueue.length = 0; hookBusy = false; return; }
+  const body = JSON.stringify(hookQueue.shift());
+  const rq = https.request({ hostname: u.hostname, path: u.pathname + u.search, method: 'POST', headers: { 'Content-Type': 'application/json', 'Content-Length': Buffer.byteLength(body) } }, r => {
+    r.resume(); r.on('end', () => { const wait = r.statusCode === 429 ? Number(r.headers['retry-after'] || 2) * 1000 : 1500; setTimeout(() => { hookBusy = false; hookPump(); }, wait); });
+  });
+  rq.on('error', () => setTimeout(() => { hookBusy = false; hookPump(); }, 3000)); rq.setTimeout(8000, () => rq.destroy()); rq.end(body);
+}
+function logJoin(nick, room, online) {
+  if (!WEBHOOK || hookQueue.length >= 100) return;
+  const safe = String(nick).replace(/[`\\]/g, '').slice(0, 40) || '(sem nome)';   // sem crases/barras: não quebra a formatação nem faz @menção
+  hookQueue.push({ content: '\u{1F431} **' + safe.replace(/[*_~|>@#]/g, '') + '** entrou na sala `' + room + '` (' + online + ' online) \u2014 <t:' + Math.floor(Date.now() / 1000) + ':f>', allowed_mentions: { parse: [] } });
+  hookPump();
+}
+
 const DAY_MS = 600000;  // ciclo de 24 h do jogo = 10 min reais (igual ao cliente)
 const SLEEP_X = 24; // com TODOS da sala dormindo (presença sl = 1) o relógio do jogo corre 24x mais rápido
 
@@ -125,13 +145,16 @@ server.on('upgrade', (req, socket) => {
   send(socket, { t: 'hello', peer: id, peers, now: Date.now() + members.skew, env: members.env });
   others({ t: 'pres', peer: id, patch: {} });
 
+  let logged = false;   // registra a entrada uma vez por conexão (no 1º nick, ou depois de 5 s sem nick)
+  const logOnce = n => { if (logged) return; logged = true; logJoin(n, room, members.size); };
+  setTimeout(() => logOnce(''), 5000).unref();
   const chat = createChatGuard();   // estado do chat desta conexão (limite de velocidade, últimas mensagens)
   let tokens = 80, last = Date.now(), lastCmd = 0, profTok = 4, profLast = Date.now(), reqTok = 8, reqLast = Date.now();   // profTok: balde do envio de perfil (rajada de 4, depois 1 a cada 1,5 s); reqTok: balde dos pedidos de perfil
   function onMsg(txt) {
     const now = Date.now(); tokens = Math.min(80, tokens + (now - last) * 0.06); last = now;
     if (tokens < 1) return; tokens--;
     let m; try { m = JSON.parse(txt); } catch (e) { return; }
-    if (m.t === 'pres') { const patch = cleanPresence(m.patch); if (typeof patch.n === 'string') patch.n = chat.name(patch.n); Object.assign(me.pres, patch); others({ t: 'pres', peer: id, patch }); }
+    if (m.t === 'pres') { const patch = cleanPresence(m.patch); if (typeof patch.n === 'string') patch.n = chat.name(patch.n); Object.assign(me.pres, patch); if (patch.n) logOnce(patch.n); others({ t: 'pres', peer: id, patch }); }
     else if (m.t === 'ping') send(socket, { t: 'pong', c: m.c });   // mostrador de ping do cliente
     else if (m.t === 'cmd') {   // comandos do chat: /day /afternoon /night /dawn /rain /stoprain /redmoon
       if (now - lastCmd < 2000) return send(socket, { t: 'notice', msg: 'Slow down! Wait a moment before using another command.' });
