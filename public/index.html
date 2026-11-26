@@ -9747,7 +9747,7 @@ function animateModel(t, dt, moving) {
             var q = ++findSeq, to2 = setTimeout(function () { delete findWait[q]; res({ ok: false, why: 'timeout' }); }, 8000);
             findWait[q] = function (r) { clearTimeout(to2); res(r); };
             if (ws.readyState !== 1) { clearTimeout(to2); delete findWait[q]; res({ ok: false, why: 'timeout' }); return; }
-            ws.send(JSON.stringify({ t: 'report', k: o.k, from: o.from, text: o.text, ts: o.ts, sg: o.sg, room: o.room, why: o.why, q: q }));
+            ws.send(JSON.stringify({ t: 'report', k: o.k, from: o.from, text: o.text, ts: o.ts, sg: o.sg, room: o.room, why: o.why, sc: o.sc, q: q }));
           });
         },
         who: function (names) {   /* quais destes amigos estão online em qualquer sala? -> array de nomes em minúsculas (ou null se falhar) */
@@ -10076,17 +10076,20 @@ function animateModel(t, dt, moving) {
   window.addEventListener('keydown', function (e) { if (!pmenu.hidden && e.code === 'Escape') { e.preventDefault(); e.stopPropagation(); pmenuClose(); } }, true);   /* Esc fecha só o menu (não abre a pausa) */
   /* MENU DA MENSAGEM: clicar com o botão direito numa mensagem recebida (chat público ou privada) abre este menuzinho com "Report message".
      A denúncia leva a assinatura que o servidor pôs na mensagem; o servidor confere e manda ao Discord (webhook). Nada é enviado sem confirmar. */
-  var rmenu = document.createElement('div'), rmBtns = document.createElement('div'), rmTitle = document.createElement('div'), rmText = document.createElement('div'), rmHint = document.createElement('div'), rmWhy = document.createElement('input'), rmGo = document.createElement('button'), rmNo = document.createElement('button'), rmCur = null, rmBusy = false;
+  var rmenu = document.createElement('div'), rmBtns = document.createElement('div'), rmTitle = document.createElement('div'), rmText = document.createElement('div'), rmHint = document.createElement('div'), rmWhy = document.createElement('input'), rmGo = document.createElement('button'), rmNo = document.createElement('button'), rmPl = document.createElement('button'), rmPlRow = document.createElement('div'), rmCur = null, rmBusy = false;
   var RM_FLAG = '<svg viewBox="0 0 24 24" ' + PI_ST + '><path d="M4 22V4"/><path d="M4 4h12l-2 4 2 4H4"/></svg>';
   var RM_ERR = { slow: 'Slow down! Wait a moment before sending another report.', invalid: "This message can't be reported.", unavailable: 'Reports are not available right now.', timeout: 'Could not reach the server. Try again.' };
   rmenu.id = 'rmenu'; rmenu.hidden = true; rmTitle.className = 'ptitle'; rmText.className = 'rmtext'; rmHint.className = 'rmhint'; rmWhy.type = 'text'; rmWhy.className = 'rmwhy'; rmWhy.maxLength = 150; rmWhy.autocomplete = 'off'; rmWhy.spellcheck = false; rmWhy.placeholder = 'Why are you reporting this message?'; rmWhy.hidden = true; rmWhy.id = 'rmWhy'; rmGo.type = 'button'; rmNo.type = 'button'; rmNo.textContent = 'Cancel';
   rmBtns.className = 'rmbtns'; rmBtns.appendChild(rmGo); rmBtns.appendChild(rmNo);
-  [rmTitle, rmText, rmHint, rmWhy, rmBtns].forEach(function (x) { rmenu.appendChild(x); }); document.body.appendChild(rmenu);
+  rmPl.type = 'button'; rmPl.className = 'danger'; rmPlRow.className = 'rmbtns'; rmPlRow.appendChild(rmPl);   /* "Report player": linha própria, acima de "Report message" */
+  [rmTitle, rmHint, rmWhy, rmPlRow, rmBtns].forEach(function (x) { rmenu.appendChild(x); }); document.body.appendChild(rmenu);
   function rmSet(btn, html, txt) { btn.innerHTML = html; var sp = document.createElement('span'); sp.textContent = txt; btn.appendChild(sp); }
   function rmRender() {
-    var c = !!(rmCur && rmCur.step === 1);
-    rmTitle.textContent = c ? 'Report this message?' : 'Message from ' + rmCur.rep.from; rmText.textContent = rmCur.rep.text; rmText.hidden = c;   /* na confirmação a mensagem não repete */
-    rmHint.hidden = !c; rmHint.textContent = 'Write the reason. It will be sent to the moderators.'; rmWhy.hidden = !c; rmNo.hidden = !c;
+    var c = !!(rmCur && rmCur.step === 1), pl = !!(c && rmCur.what === 'player');
+    rmTitle.textContent = c ? (pl ? 'Report this player?' : 'Report this message?') : 'Message from ' + rmCur.rep.from;   /* o texto da mensagem não aparece aqui: o botão já diz o que fazer */
+    rmWhy.placeholder = pl ? 'Why are you reporting this player?' : 'Why are you reporting this message?';
+    rmHint.hidden = !c; rmHint.textContent = 'Write the reason. It will be sent to the moderators.'; rmWhy.hidden = !c; rmNo.hidden = !c; rmPlRow.hidden = c;
+    rmSet(rmPl, PI.user, 'Report player');
     rmSet(rmGo, RM_FLAG, c ? 'Send report' : 'Report message'); rmGo.className = 'danger'; rmGo.disabled = c && !rmWhy.value.trim();   /* só envia com o motivo escrito */
   }
   function rmenuClose() { rmenu.hidden = true; rmCur = null; }
@@ -10102,10 +10105,10 @@ function animateModel(t, dt, moving) {
   rmWhy.addEventListener('keydown', function (e) { if (e.code === 'Enter' || e.code === 'NumpadEnter') { e.preventDefault(); if (!e.repeat) rmGo.click(); } });
   rmGo.addEventListener('click', function () {
     if (!rmCur) return;
-    if (rmCur.step === 0) { rmCur.step = 1; rmWhy.value = ''; rmRender(); try { rmWhy.focus(); } catch (er) {} return; }   /* 1º clique abre o campo do motivo; o 2º envia */
+    if (rmCur.step === 0) { rmCur.step = 1; rmCur.what = 'message'; rmWhy.value = ''; rmRender(); try { rmWhy.focus(); } catch (er) {} return; }   /* 1º clique abre o campo do motivo; o 2º envia */
     var why = rmWhy.value.replace(/\s+/g, ' ').trim().slice(0, 150);
     if (!why) { rmWhy.focus(); return; }
-    var cur = rmCur; cur.rep = Object.assign({}, cur.rep, { why: why }); rmenuClose();
+    var cur = rmCur; cur.rep = Object.assign({}, cur.rep, { why: why, sc: cur.what === 'player' ? 'player' : 'message' }); rmenuClose();
     if (rmBusy) return;
     if (!mp.room || !mp.room.report) { rmNotify(cur.where, 'You are offline: reports need an online room.', false); return; }
     rmBusy = true;
@@ -10115,6 +10118,7 @@ function animateModel(t, dt, moving) {
     });
   });
   rmNo.addEventListener('click', rmenuClose);
+  rmPl.addEventListener('click', function () { if (!rmCur || rmCur.step !== 0) return; rmCur.step = 1; rmCur.what = 'player'; rmWhy.value = ''; rmRender(); try { rmWhy.focus(); } catch (er) {} });
   $('chatlog').addEventListener('contextmenu', function (e) {   /* botão direito sobre a MENSAGEM (no nome abre o menu do jogador) */
     if (e.target && e.target.closest && e.target.closest('b[data-pl]')) return;
     var d = e.target && e.target.closest ? e.target.closest('div.pl') : null;
