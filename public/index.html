@@ -9378,12 +9378,17 @@ function animateModel(t, dt, moving) {
     }
   }
   /* conexão WebSocket com o servidor (mesma interface usada pelo restante do multiplayer) */
+  var ITCH_SERVER = 'gatinho-em-casa.onrender.com';   /* no itch.io o jogo roda num iframe de outro dominio: usa o servidor do Render */
   function wsBase() {
     var s = window.GATINHO_APP ? ($('srv').value || '').trim() : '';
+    if (!s && /(^|\.)itch\.(io|zone)$/.test(location.hostname)) s = ITCH_SERVER;
     if (!s) return (location.protocol === 'https:' ? 'wss://' : 'ws://') + location.host;
     s = s.replace(/^(https?|wss?):\/\//, '').replace(/\/+$/, '');
     return (/^(localhost|[\d.]+)(:\d+)?$/.test(s) ? 'ws://' : 'wss://') + s;
   }
+
+  /* itch.io: acorda o servidor do Render (plano gratis dorme) assim que a pagina abre */
+  if (/(^|\.)itch\.(io|zone)$/.test(location.hostname)) { try { fetch('https://gatinho-em-casa.onrender.com/?w=' + Date.now(), { mode: 'no-cors', cache: 'no-store' }).catch(function () {}); } catch (e) {} }
   function wsJoin(code) {
     return new Promise(function (resolve, reject) {
       var ws = new WebSocket(wsBase() + '/ws?room=' + encodeURIComponent(code));
@@ -9781,9 +9786,9 @@ function animateModel(t, dt, moving) {
     try {
       var room = null;
       say('Connecting to the server\u2026', 60000);   /* fica na tela até conectar (servidor gratis pode demorar) */
-      for (var tr = 0; tr < 8 && !room; tr++) {
+      for (var tr = 0; tr < 14 && !room; tr++) {
         try { room = await wsJoin(code); }
-        catch (e) { if (e && e.message === 'full') { say('This room is full (max 10 players). Try another room name.', 7000); throw e; } if (tr === 7) throw e; say('Connecting to the server… (' + (tr + 1) + ')', 60000); await new Promise(function (r) { setTimeout(r, 5000); }); }
+        catch (e) { if (e && e.message === 'full') { say('This room is full (max 10 players). Try another room name.', 7000); throw e; } if (tr === 13) throw e; say('Connecting to the server… (' + (tr + 1) + ')', 60000); await new Promise(function (r) { setTimeout(r, 5000); }); }
       }
       mp.nick = nick; mp.code = code; mp.lastP = 0;
       try { mp.user = await claude.use('user'); } catch (e) { mp.user = null; }
