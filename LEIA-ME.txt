@@ -360,3 +360,14 @@ TEXTURAS DA CASA E DOS MOVEIS (versao 46, estilo minimalista: texturas suaves e 
        * divididas em celulas de 10-12 m: pedrinhas de borda e tufos de grama dos caminhos, franja cascalho->grama, casas e arvores do horizonte.
        Continuam sem corte (de proposito): gatinho (malha esqueletada), sprites, estrelas e vagalumes.
        Para comparar/testar, abra o jogo com ?fc=0 no endereco (desliga so esta parte).
+
+   - Versao 1.1.32 (so mudou o public/index.html):
+       * Objeto na boca: acompanha a animacao da cabeca (balanco ao andar, pescoco, respiracao) e a boca do gatinho fica aberta enquanto segura algo
+         (tambem no gatinho dos outros jogadores no online).
+       * Colisao dos objetos empurrados: nao atravessam mais paredes, cercas e moveis altos (colisao varrida; objeto com o centro dentro do obstaculo sai pelo lado do gatinho).
+       * Objeto na boca tambem colide: o gatinho para antes de enfiar o brinquedo/cabeca na parede.
+       * Mesas: o gatinho (e objetos baixos) passa por baixo da mesa da cozinha, da mesa de madeira da churrasqueira e das mesas redondas do gramado; so as pernas bloqueiam.
+         Pular por baixo bate no tampo. (campo "u" nos colliders = altura da parte de baixo do tampo)
+         Escorregador do parquinho: tambem da para passar por baixo da plataforma (so os 4 postes bloqueiam) e por baixo da parte alta da rampa.
+       * Bordas da caixa de areia e dos canteiros de flores agora tem colisao baixa (meio-fio): o gatinho sobe na borda ao entrar, em vez de atravessar.
+       * Teto: o gatinho em cima da geladeira/moveis altos nao atravessa mais o teto da casa ao pular; no peitoril da janela (e sob a verga das passagens) ele bate a cabeca na parede de cima.
