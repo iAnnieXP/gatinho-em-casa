@@ -57,7 +57,7 @@ Novidades:
               e borboletas (voam pelo quintal e pousam nos canteiros de flores).
        NOITE: coruja (pousa nos galhos, vira a cabeca para o gatinho e as vezes voa para outra arvore),
               gatos fantasmas (translucidos, atravessam paredes e somem se o gatinho chega perto) e vagalumes.
-   - Ratinhos: 5 ratinhos andam pela casa (nao atravessam paredes nem moveis) e FOGEM do gatinho. Andando
+   - Ratinhos: 4 ratinhos andam pela casa (nao atravessam paredes nem moveis) e FOGEM do gatinho. Andando
      normal voce quase nao os alcanca; corra (Shift) ou os encurrale num canto para pegar. O contador fica
      no topo. Depois de pegos eles voltam em outro lugar. Tambem sao locais (cada jogador ve os seus).
    - Passarinhos: de dia voce tambem pode caca-los! Chegue perto (corra para alcanca-los) e encoste para pegar.
