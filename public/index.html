@@ -290,6 +290,15 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
 #tinv .tinvbtn { border-radius: 62.4375rem; padding: 0.5rem 1.125rem; font-weight: 700; background: rgba(255, 255, 255, 0.92); color: #2b1a06; transition: transform 0.12s; }
 #tinv .tinvbtn:hover { transform: translateY(-1px); }
 #tinv #tinvYes { background: linear-gradient(160deg, #ffc866, #ff9a5a); }
+/* aviso de pedido de amizade (Accept / Decline): mesmo estilo do convite de pega-pega; desce se os dois aparecerem juntos */
+#finv { position: absolute; top: 11rem; left: 50%; transform: translateX(-50%); z-index: 6; font-family: var(--font-display); font-weight: 700; font-size: 1.05rem; color: var(--ink); text-align: center; max-width: 90%; padding: 0.625rem 1rem;
+  border-radius: 1.125rem; border: 0.125rem solid var(--accent2); box-shadow: 0 0.75rem 2rem rgba(8, 4, 20, 0.45); background: linear-gradient(160deg, rgba(56, 42, 72, 0.96), rgba(32, 25, 44, 0.96)); animation: popin 0.25s ease-out; }
+#finv[hidden] { display: none; }
+#tinv:not([hidden]) ~ #finv { top: 17.5rem; }
+#finv .tinvb { display: flex; gap: 0.5rem; justify-content: center; margin-top: 0.5rem; }
+#finv .tinvbtn { pointer-events: auto; cursor: pointer; font: inherit; font-size: 0.95rem; font-weight: 700; border: 1px solid var(--line); border-radius: 62.4375rem; padding: 0.5rem 1.125rem; background: rgba(255, 255, 255, 0.92); color: #2b1a06; transition: transform 0.12s; }
+#finv .tinvbtn:hover { transform: translateY(-1px); }
+#finv #finvYes { background: linear-gradient(160deg, #ffc866, #ff9a5a); border-color: transparent; }
 #chatlog div { border-radius: 0.75rem; box-shadow: 0 0.1875rem 0.625rem rgba(8, 4, 20, 0.25); }
 #chatin { border-radius: 62.4375rem; padding: 0.5625rem 1rem; }
 #emojiBtn { border-radius: 62.4375rem; }
@@ -335,7 +344,7 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
 @media (max-height: 560px) { .dialog .logo { display: none; } .dialog { padding-top: 1.125rem; } }
 @media (min-width: 561px) { .top { flex-wrap: nowrap; } .stats { max-width: 62%; } .statrow { justify-content: flex-end; } }
 @media (max-width: 560px) { .needs { width: 100%; } .leftcol { width: 100%; } .stats { width: 100%; align-items: flex-start; } .statrow { justify-content: flex-start; } }
-@media (prefers-reduced-motion: reduce) { .dialog, #tinv, .need.low .track i, .need.low .ni, .need.gain .track, .need.gain .nplus { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .dialog, #tinv, #finv, .need.low .track i, .need.low .ni, .need.gain .track, .need.gain .nplus { animation: none; } }
 
 /* ---------- tela de carregamento ---------- */
 #loading { position: fixed; inset: 0; z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.875rem; overflow: hidden; text-align: center;
@@ -814,6 +823,7 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
     <div id="mpnote" hidden></div>
     <div id="tagfx" hidden></div>
     <div id="tinv" hidden><span id="tinvTxt"></span><div class="tinvb"><button class="tinvbtn" id="tinvYes" type="button">Accept (P)</button><button class="tinvbtn" id="tinvNo" type="button">Decline (N)</button></div></div>
+    <div id="finv" hidden><span id="finvTxt"></span><div class="tinvb"><button class="tinvbtn" id="finvYes" type="button">Accept</button><button class="tinvbtn" id="finvNo" type="button">Decline</button></div></div>
 
     <footer class="bottom" id="bottomBar">
       <div class="chatrow"><button id="chatBtn" class="tidy" type="button">💬 Chat (T)</button><button id="menuBtn" class="tidy" type="button">⏸ Menu (Esc)</button><button id="tagBtn" class="tidy" type="button">🐾 Players (P)</button><div id="pingbox" hidden role="status" aria-live="off" title="Latency to the server"><i></i><span class="pl">ping</span><b id="pingVal">-- ms</b></div></div>
@@ -7009,21 +7019,28 @@ function updateProps(dt) {
 
 var swatSeq = 0;   /* conta as patadas: vai na presenca para os outros jogadores verem o movimento */
 /* somzinho fofo da patada: dois "pi-pi!" de bolinha subindo (sino agudinho) + um sopro bem leve do movimento da patinha */
-function swatSnd() {
+function swatSnd(vol, pan, muff) {   /* sem argumentos = a sua patada (volume cheio); com argumentos = patada de outro jogador (mais baixa e longe, com pan e abafada atras de paredes) */
   var a = audio(); if (!a) return;
+  var remote = vol !== undefined;
   function play() {
-    var t = a.currentTime;
+    var t = a.currentTime, out = a.destination;
+    if (remote) {
+      var og = a.createGain(); og.gain.value = vol; var tail = og;
+      if (muff) { var lp = a.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 500; tail.connect(lp); tail = lp; }
+      if (a.createStereoPanner) { var pn = a.createStereoPanner(); pn.pan.value = pan || 0; tail.connect(pn); tail = pn; }
+      tail.connect(out); out = og;
+    }
     [[880, 1320, 0, 0.09], [1175, 1760, 0.07, 0.12]].forEach(function (n) {
       var o = a.createOscillator(), g = a.createGain(), tt = t + n[2];
       o.type = 'sine'; o.frequency.setValueAtTime(n[0], tt); o.frequency.exponentialRampToValueAtTime(n[1], tt + n[3] * 0.7);
       g.gain.setValueAtTime(0.0001, tt); g.gain.exponentialRampToValueAtTime(0.13, tt + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, tt + n[3] + 0.05);
-      o.connect(g); g.connect(a.destination); o.start(tt); o.stop(tt + n[3] + 0.08);
+      o.connect(g); g.connect(out); o.start(tt); o.stop(tt + n[3] + 0.08);
     });
     var src = a.createBufferSource(), f = a.createBiquadFilter(), g2 = a.createGain();
     src.buffer = getNoise(a); f.type = 'bandpass'; f.Q.value = 1.5;
     f.frequency.setValueAtTime(900, t); f.frequency.exponentialRampToValueAtTime(2600, t + 0.12);
     g2.gain.setValueAtTime(0.0001, t); g2.gain.exponentialRampToValueAtTime(0.09, t + 0.04); g2.gain.exponentialRampToValueAtTime(0.0001, t + 0.14);
-    src.connect(f); f.connect(g2); g2.connect(a.destination); src.start(t, Math.random() * 0.3, 0.15);
+    src.connect(f); f.connect(g2); g2.connect(out); src.start(t, Math.random() * 0.3, 0.15);
   }
   if (a.state === 'running') play(); else if (a.resume) a.resume().then(play, function () {});
 }
@@ -8957,11 +8974,41 @@ function animateModel(t, dt, moving) {
     });
   }
   /* animação do modelo glTF de outro jogador (mesma lógica do animateModel, usando só o que vem pela rede: andando e dormindo) */
+  /* passos de outro jogador: o mesmo "pat-pat" dos seus passos, so que com volume pela distancia, pan e abafado atras de parede */
+  function mpFootstep(r) {
+    if (isMuted(r.id, r.nm)) return;
+    var dx = r.x - cat.x, dz = r.z - cat.z, d = Math.hypot(dx, dz), v = Math.max(0, 1 - d / 18); v *= v;
+    if (v < 0.02) return;
+    var a = audio(); if (!a || a.state !== 'running') return;
+    var vol = v * (r.y > 0.2 ? 0.55 : 1), pan = d > 0.5 ? Math.max(-1, Math.min(1, (dx * Math.cos(yaw) - dz * Math.sin(yaw)) / d)) : 0, muff = d > 0.5 && wallBetween(cat.x, cat.z, r.x, r.z);
+    var outdoor = Math.abs(r.x) > 10.1 || Math.abs(r.z) > 7.1, t = a.currentTime, lo = lofiOut(a);
+    var src = a.createBufferSource(), f = a.createBiquadFilter(), g = a.createGain(), dur, peak;
+    src.buffer = getNoise(a); src.playbackRate.value = 0.7 + Math.random() * 0.25;
+    if (outdoor) { f.type = 'bandpass'; f.frequency.value = 1500 + Math.random() * 500; f.Q.value = 0.5; dur = 0.11; peak = 0.1 * vol; }
+    else { f.type = 'lowpass'; f.frequency.value = 420 + Math.random() * 160; f.Q.value = 0.5; dur = 0.07; peak = 0.34 * vol; }
+    g.gain.setValueAtTime(0.0001, t); g.gain.exponentialRampToValueAtTime(Math.max(0.0002, peak), t + 0.012); g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+    src.connect(f); f.connect(g);
+    var og = a.createGain(), tail = og;   /* og recebe tudo (passo + "pit") e passa por abafador e pan antes da saida */
+    g.connect(og);
+    if (muff) { var lp = a.createBiquadFilter(); lp.type = 'lowpass'; lp.frequency.value = 500; tail.connect(lp); tail = lp; }
+    if (a.createStereoPanner) { var pn = a.createStereoPanner(); pn.pan.value = pan; tail.connect(pn); tail = pn; }
+    tail.connect(lo);
+    src.start(t, Math.random() * 0.3, dur + 0.05);
+    var o = a.createOscillator(), ogn = a.createGain(), pitch = (outdoor ? 300 : 230) + Math.random() * 50;
+    o.type = 'sine'; o.frequency.setValueAtTime(pitch, t); o.frequency.exponentialRampToValueAtTime(pitch * 0.55, t + 0.07);
+    ogn.gain.setValueAtTime(0.0001, t); ogn.gain.exponentialRampToValueAtTime(Math.max(0.0002, (outdoor ? 0.035 : 0.09) * vol), t + 0.01); ogn.gain.exponentialRampToValueAtTime(0.0001, t + 0.09);
+    o.connect(ogn); ogn.connect(og); o.start(t); o.stop(t + 0.1);
+  }
   function mpAnimModel(r, t, dt) {
     var u = r.root.userData, m = u.model, bn = u.bones, i, l;
     var mv = r.m && !r.sl, slK = r.slK || 0, sk = Math.min(1, slK * 1.2), k = Math.min(1, dt * 14);
     u.mv += ((mv ? 1 : 0) - u.mv) * Math.min(1, dt * 6);
     u.ph += (mv ? 3 * 3.4 : 0) * dt;
+    /* um passo a cada meio ciclo das patas (igual ao seu gatinho); so depois de 1,5 s na sala, para nao tocar tudo de uma vez ao entrar */
+    if (mv && started && mp.synced && performance.now() - mp.newT > 1500) {
+      var si = Math.floor(u.ph / Math.PI);
+      if (u.stI === undefined || si !== u.stI) { u.stI = si; try { mpFootstep(r); } catch (e) {} }
+    } else if (!mv) u.stI = undefined;
     function q(n, a, y) { var b = bn[n]; if (!b) return; b.quaternion.copy(b.userData.rq); if (y) b.quaternion.multiply(_qa.setFromAxisAngle(Yax, y)); b.quaternion.multiply(_qa.setFromAxisAngle(Zax, a)); }
     function qz(n, a) { var b = bn[n]; if (!b) return; b.quaternion.copy(b.userData.rq); b.quaternion.multiply(_qa.setFromAxisAngle(Zax, a)); }
     function qe(n, x, y, z) { var b = bn[n]; if (!b) return; b.quaternion.copy(b.userData.rq); b.quaternion.multiply(_qa.setFromEuler(_eu.set(x, y, z))); }
@@ -9027,7 +9074,15 @@ function animateModel(t, dt, moving) {
         }).catch(function () {});
       }
       r.x = fin(pr.x); r.y = fin(pr.y); r.z = fin(pr.z); r.r = fin(pr.r); r.m = pr.m ? 1 : 0; r.sl = pr.sl ? 1 : 0; r.tg = pr.tg | 0;
-      var swn = pr.sw | 0; if (r.swn !== undefined && swn !== r.swn) r.swT = 0.32; r.swn = swn;   /* contador mudou = o outro gato deu uma patada (a primeira leitura so marca a base) */
+      var swn = pr.sw | 0;
+      if (r.swn !== undefined && swn !== r.swn) {
+        r.swT = 0.32;
+        if (mp.synced && !isMuted(p.peer, r.nm)) {   /* som da patada do outro jogador: volume pela distancia, pan e abafado por parede (igual ao miau) */
+          var sdx = r.x - cat.x, sdz = r.z - cat.z, sd = Math.hypot(sdx, sdz), sv = Math.max(0, 1 - sd / 24);
+          if (sv > 0.02) { try { swatSnd(sv * sv, sd > 0.5 ? Math.max(-1, Math.min(1, (sdx * Math.cos(yaw) - sdz * Math.sin(yaw)) / sd)) : 0, sd > 0.5 && wallBetween(cat.x, cat.z, r.x, r.z)); } catch (e) {} }
+        }
+      }
+      r.swn = swn;   /* contador mudou = o outro gato deu uma patada (a primeira leitura so marca a base) */
       if (typeof pr.n === 'string' && pr.n && r.nm !== pr.n) { r.nm = pr.n; r.root.remove(r.root.userData.lab); r.root.userData.lab = mpLabel(pr.n); r.root.add(r.root.userData.lab); }
     });
     Object.keys(mp.remotes).forEach(function (id) { if (!seen[id]) { leftN++; leftNames.push(mp.remotes[id].nm || mp.remotes[id].dn || 'A kitten'); props.forEach(function (p) { if (p.rcBy === id) { p.rc = 0; p.rcBy = null; } }); pfStash(id); scene.remove(mp.remotes[id].root); mpDispose(mp.remotes[id].root); delete mp.remotes[id]; } });
@@ -9330,6 +9385,7 @@ function animateModel(t, dt, moving) {
     if (tagG.st === 2) tagG.sp.position.set(cat.x, cat.y + 0.62 + Math.sin(now / 200) * 0.03, cat.z);
     if (tagG.inv && tagG.inv.until < now) { tagG.inv = null; say('No reply to the invite', 2000); }
     if (tagG.ask && tagG.ask.until < now) tagAskClose();
+    if (frAsk.length && frAsk.some(function (a) { return a.until < now || !mp.remotes[a.from]; })) frShow(false);   /* pedido de amizade expirado ou de quem saiu */
     if (!tagG.st || !mp.room || !mp.me) { tagHud(''); return; }
     for (id in mp.remotes) { r = mp.remotes[id]; if (r.tg) { ids.push(id); if (r.tg === 2) itId = id; } }
     if (!ids.length) {
@@ -9522,6 +9578,66 @@ function animateModel(t, dt, moving) {
       u.lab = mpLabel(nm); r.root.add(u.lab);
     });
   }
+  /* PEDIDO DE AMIZADE: "Add friend" nao adiciona direto: manda um pedido (freq) e o outro jogador recebe um aviso com Accept / Decline.
+     Se aceitar (facc), os DOIS passam a ser amigos; se recusar (fdec), ninguem muda. Remover amigo continua sendo so do seu lado. */
+  var frSent = {}, frAsk = [], frBlock = {};   /* frSent: id -> ate quando espero resposta · frAsk: fila de pedidos recebidos · frBlock: id -> ate quando ignoro (recusei) */
+  function frNote(m) { chatAdd('Notice', m, false); }
+  function friendRequest(id, name) {
+    var k = String(name || '').toLowerCase(), now = performance.now();
+    if (!mp.room || !id || !mp.remotes[id]) { say('That player is not in the room anymore', 2600); return; }
+    if (friendNames[k]) { frNote(friendNames[k] + ' is already your friend.'); return; }
+    if (frSent[id] && frSent[id] > now) { say('Friend request already sent to ' + name + '…', 2200); return; }
+    frSent[id] = now + 30000;
+    mp.room.emit('freq', { to: id }).catch(function () {});
+    say('Friend request sent to ' + name + ' 🐾', 2600);
+  }
+  function frShow(snd) {   /* mostra o primeiro pedido da fila (e quantos mais esperam) */
+    var now = performance.now(), el = $('finv');
+    frAsk = frAsk.filter(function (a) { return a.until > now && mp.remotes[a.from]; });
+    if (!frAsk.length) { el.hidden = true; return; }
+    $('finvTxt').textContent = '💌 ' + frAsk[0].name + ' wants to be your friend!' + (frAsk.length > 1 ? '  (+' + (frAsk.length - 1) + ' more)' : '');
+    var was = el.hidden; el.hidden = false; if (snd && was) ping([587, 880], 0.2, 0.3);
+  }
+  function frReceive(m) {
+    var d = m.data; if (m.isMe || !d || d.to !== mp.me || !mp.room) return;
+    var r = mp.remotes[m.peer], name = r ? remoteName(m.peer) : '', now = performance.now(), i;
+    if (!name || isMuted(m.peer, name) || (frBlock[m.peer] && frBlock[m.peer] > now)) return;   /* silenciado ou recusado ha pouco: ignora, sem aviso */
+    if (friendNames[name.toLowerCase()]) { mp.room.emit('facc', { to: m.peer }).catch(function () {}); return; }   /* ja e seu amigo: confirma na hora para o outro lado tambem */
+    for (i = 0; i < frAsk.length; i++) if (frAsk[i].from === m.peer) { frAsk[i].until = now + 30000; return; }   /* ja tem um pedido dele na fila */
+    if (frAsk.length >= 5) return;
+    frAsk.push({ from: m.peer, name: name, until: now + 30000 });
+    frShow(true);
+  }
+  function frAnswer(yes) {
+    var a = frAsk.shift(); if (!a) return;
+    if (mp.room) {
+      if (!mp.remotes[a.from]) { say(a.name + ' left the room', 2400); }
+      else if (yes) {
+        friendNames[a.name.toLowerCase()] = a.name; saveFriends(); refreshFriendLabels();
+        mp.room.emit('facc', { to: a.from }).catch(function () {});
+        frNote(a.name + ' is now your friend.'); say('💛 ' + a.name + ' is now your friend', 2600);
+      } else {
+        frBlock[a.from] = performance.now() + 60000;   /* recusou: ignora novos pedidos dele por 1 minuto */
+        mp.room.emit('fdec', { to: a.from }).catch(function () {});
+        say('Friend request declined', 1800);
+      }
+    }
+    frShow(false);
+  }
+  function frAccReceive(m) {   /* aceitou o pedido que voce mandou: so vale para quem voce convidou */
+    var d = m.data; if (m.isMe || !d || d.to !== mp.me || !frSent[m.peer] || frSent[m.peer] < performance.now()) return;
+    delete frSent[m.peer];
+    var name = remoteName(m.peer); if (!name) return;
+    if (!friendNames[name.toLowerCase()]) { friendNames[name.toLowerCase()] = name; saveFriends(); refreshFriendLabels(); }
+    frNote(name + ' accepted your friend request! 💛'); say('💛 ' + name + ' is now your friend', 2800); ping([523, 784], 0.2, 0.3);
+  }
+  function frDecReceive(m) {
+    var d = m.data; if (m.isMe || !d || d.to !== mp.me || !frSent[m.peer] || frSent[m.peer] < performance.now()) return;
+    delete frSent[m.peer];
+    say((remoteName(m.peer) || 'That kitten') + ' declined your friend request 😿', 2800);
+  }
+  $('finvYes').addEventListener('click', function () { frAnswer(true); });
+  $('finvNo').addEventListener('click', function () { frAnswer(false); });
   function friendCommand(c, name, note) {
     var k = String(name || '').toLowerCase();
     if (c === 'friends') { var fl = Object.keys(friendNames).map(function (x) { return friendNames[x]; }); note(fl.length ? 'Friends: ' + fl.join(', ') + '.' : "You haven't added any friends yet."); return; }
@@ -9610,7 +9726,10 @@ function animateModel(t, dt, moving) {
     var q = String(name).toLowerCase(), ids = Object.keys(mp.remotes).filter(function (i) { return remoteName(i).toLowerCase() === q; });
     return ids.filter(function (i) { return !mp.remotes[i].tg; })[0] || ids[0] || null;
   }
-  function pmenuOpen(name, x, y, id, viaPad, off) {
+  function pmenuAtPoint(name, id, cx, cy) {   /* abre o menu do jogador junto do clique (nome no chat ou plaquinha de nome sobre o gato) */
+    pmenuOpen(name, cx + 6, cy + 6, (id && mp.remotes[id] && mp.room) ? id : undefined, false, 0, true);
+  }
+  function pmenuOpen(name, x, y, id, viaPad, off, at) {
     var on = !!mutedNames[name.toLowerCase()]; pmenuName = name;
     pmenuPad = !!viaPad; pmenuSel = 0; pmenuHint.hidden = !pmenuPad;
     pmenuLeave.hidden = !tagG.st; pmenuSet(pmenuLeave, 'leave', 'Leave tag');   /* sair do pega-pega fica no menu */
@@ -9626,14 +9745,17 @@ function animateModel(t, dt, moving) {
     pmenu.hidden = false; pmenuMark();
     var mw = pmenu.offsetWidth, mh = pmenu.offsetHeight;
     if (off) { x = (x + off + mw > innerWidth - 4) ? x - off - mw : x + off; y = y - mh / 2; }   /* ancorado no gato: ao lado dele, sem cobri-lo */
+    if (at) { if (x + mw > innerWidth - 4) x = x - 12 - mw; if (y + mh > innerHeight - 4) y = y - 12 - mh; }   /* junto do clique: sem espaço à direita/embaixo, abre para a esquerda/para cima do cursor */
     pmenu.style.left = Math.max(4, Math.min(x, innerWidth - mw - 4)) + 'px'; pmenu.style.top = Math.max(4, Math.min(y, innerHeight - mh - 4)) + 'px';
   }
   pmenuLeave.addEventListener('click', function () { pmenuClose(); tagLeave(); });
   pmenuProf.addEventListener('click', function () { var id = pmenuProfId, nm = pmenuName; pmenuClose(); pauseClosedAt = performance.now(); pvOpen(id, nm, 'game'); });
   pmenuTag.addEventListener('click', function () { var id = pmenuTagId; pmenuClose(); if (id) tagInvite(id); });
   pmenuFriend.addEventListener('click', function () {
-    var rm = !!pmenuFriend.getAttribute('data-rm'); pmenuClose();
-    friendCommand(rm ? 'removefriend' : 'addfriend', pmenuName, function (m) { chatAdd('Notice', m, false); });
+    var rm = !!pmenuFriend.getAttribute('data-rm'), fid = pmenuTagId, fnm = pmenuName; pmenuClose();
+    if (!rm && fnm.toLowerCase() === String(mp.nick || '').toLowerCase()) { frNote("You can't add yourself as a friend."); return; }
+    if (rm) friendCommand('removefriend', fnm, function (m) { chatAdd('Notice', m, false); });
+    else friendRequest(fid, fnm);   /* adicionar = pedido: o outro jogador precisa aceitar */
   });
   pmenuBtn.addEventListener('click', function () {
     var un = !!pmenuBtn.getAttribute('data-un'); pmenuClose();
@@ -9665,8 +9787,9 @@ function animateModel(t, dt, moving) {
     if (!name || name.toLowerCase() === String(mp.nick || '').toLowerCase()) return;
     e.preventDefault();
     id = id || idByName(name);   /* clicou no nome no chat: o menu também abre perto do gato desse jogador */
-    if (id && mp.remotes[id] && mp.room) pmenuAtCat(id, false); else pmenuOpen(name, e.clientX, e.clientY, undefined, false);
+    pmenuAtPoint(name, id, e.clientX, e.clientY);
   });
+
   function chatCommand(txt) {
     var parts = txt.slice(1).trim().toLowerCase().split(/\s+/), c = parts[0] || '', arg = parts[1] || '', tm = CMD_TIMES[c], who = mp.nick || 'Player';
     function note(m) { chatAdd('Notice', m, false); }
@@ -9814,6 +9937,9 @@ function animateModel(t, dt, moving) {
       room.on('tinv', tagInvReceive, function () {});
       room.on('tacc', tagAccReceive, function () {});
       room.on('tdec', tagDecReceive, function () {});
+      room.on('freq', frReceive, function () {});
+      room.on('facc', frAccReceive, function () {});
+      room.on('fdec', frDecReceive, function () {});
       room.on('meal', mpMeal, function () {}); room.on('sip', mpSip, function () {}); room.on('eatk', mpEatK, function () {}); room.on('wst', mpWorldIn, function () {});
       pfSendIfSet(); room.emit('profile', { req: 1 }).catch(function () {});   /* manda o seu perfil e pede os de quem já está na sala */
       say('Connected! You joined ' + code, 5000);
