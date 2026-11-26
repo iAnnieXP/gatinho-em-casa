@@ -40,17 +40,17 @@ function validSig(kind, where, from, ts, text, sg) {
   return crypto.timingSafeEqual(Buffer.from(signMsg(kind, where, from, ts, text)), Buffer.from(sg));
 }
 const dc = s => String(s).replace(/[`\\*_~|>@#]/g, '').slice(0, 60) || '(sem nome)';   // texto que vai ao Discord: sem formatação nem @menção
-function sendReport(r) {   // r = { kind, room, from, reporter, text, ts, why }; devolve false se não deu para enfileirar
+function sendReport(r) {   // r = { kind, room, from, reporter, text, ts, why, player }; devolve false se não deu para enfileirar
   if (!WEBHOOK || hookQueue.length >= REPORT_QUEUE) return false;
   const priv = r.kind === 'dm';
   hookQueue.push({
     allowed_mentions: { parse: [] },
     embeds: [{
-      title: '\u{1F6A9} Denúncia: ' + (priv ? 'mensagem privada' : 'chat público'), color: 0xe74c3c,
+      title: '\u{1F6A9} Denúncia' + (r.player ? ' de jogador' : '') + ': ' + (priv ? 'mensagem privada' : 'chat público'), color: 0xe74c3c,
       fields: [
         { name: 'Denunciado', value: dc(r.from), inline: true }, { name: 'Quem denunciou', value: dc(r.reporter), inline: true },
         { name: priv ? 'Conversa' : 'Sala', value: priv ? 'privada' : '`' + String(r.room).replace(/[^a-z0-9_.-]/g, '').slice(0, 48) + '`', inline: true },
-        { name: 'Mensagem', value: '```\n' + String(r.text).replace(/`/g, "'").slice(0, 200) + '\n```' },
+        { name: r.player ? 'Mensagem de referência' : 'Mensagem', value: '```\n' + String(r.text).replace(/`/g, "'").slice(0, 200) + '\n```' },
         ...(r.why ? [{ name: 'Motivo da denúncia', value: '```\n' + String(r.why).replace(/`/g, "'").slice(0, 200) + '\n```' }] : []),
         { name: 'Enviada', value: '<t:' + Math.floor(r.ts / 1000) + ':f>' },
       ],
@@ -249,9 +249,10 @@ server.on('upgrade', (req, socket) => {
       const where = kind === 'dm' ? me_n.toLowerCase() : (typeof m.room === 'string' ? m.room.toLowerCase().replace(/[^a-z0-9_.-]/g, '').slice(0, 48) : '');
       if (!where || from.toLowerCase() === me_n.toLowerCase() || !validSig(kind, where, from, ts, text, m.sg)) return reply(false, 'invalid');
       const why = typeof m.why === 'string' ? m.why.replace(/\s+/g, ' ').trim().slice(0, 150) : '';   // motivo escrito por quem denuncia (clientes antigos não mandam)
-      if (reportedSigs.has(m.sg)) return reply(true, 'dup');   // já denunciada: para quem denuncia, deu certo
-      if (!sendReport({ kind, room: where, from, reporter: me_n, text, ts, why })) return reply(false, 'unavailable');
-      reportedSigs.set(m.sg, now); if (reportedSigs.size > 2000) reportedSigs.delete(reportedSigs.keys().next().value);
+      const player = m.sc === 'player', dupKey = m.sg + (player ? '|p' : '');   // denunciar o jogador e denunciar a mensagem são denúncias separadas (a mensagem assinada serve de prova nas duas)
+      if (reportedSigs.has(dupKey)) return reply(true, 'dup');   // já denunciada: para quem denuncia, deu certo
+      if (!sendReport({ kind, room: where, from, reporter: me_n, text, ts, why, player })) return reply(false, 'unavailable');
+      reportedSigs.set(dupKey, now); if (reportedSigs.size > 2000) reportedSigs.delete(reportedSigs.keys().next().value);
       reply(true, '');
     }
     else if (m.t === 'ping') send(socket, { t: 'pong', c: m.c });   // mostrador de ping do cliente
