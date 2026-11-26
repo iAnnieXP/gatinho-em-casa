@@ -3,6 +3,7 @@ const http = require('http'), fs = require('fs'), path = require('path'), crypto
 const { createChatGuard } = require('./chat-guard.js');   // limite de velocidade, validação, filtros e anti-spam do chat
 const PORT = process.env.PORT || 3000, PUB = path.join(__dirname, 'public'), MAX = 10;
 const MIME = { '.html': 'text/html; charset=utf-8', '.js': 'text/javascript', '.css': 'text/css', '.png': 'image/png', '.ico': 'image/x-icon' };
+const devs = new Map(); // id do dispositivo -> { socket, bye } (um jogador por computador)
 const rooms = new Map(); // sala -> Map(id -> { socket, pres }) com .skew (ms que o relógio da sala adiantou dormindo)
 // Registro de jogadores no Discord: a cada conexão, manda nick + sala + hora para um canal via webhook (sem IP).
 // A URL vem SÓ da variável de ambiente DISCORD_WEBHOOK (nunca no código/config.json, pois o .exe embute este arquivo). Sem ela, não faz nada.
@@ -128,6 +129,14 @@ server.on('upgrade', (req, socket) => {
   const u = new URL(req.url, 'http://x'), key = req.headers['sec-websocket-key'];
   const room = (u.searchParams.get('room') || '').toLowerCase().replace(/[^a-z0-9_.-]/g, '').slice(0, 48);
   if (u.pathname !== '/ws' || !key || !room) return socket.destroy();
+  // Um jogador por computador: o cliente manda um ID de dispositivo (dev). Se o mesmo ID entrar de novo, a conexão ANTIGA é derrubada.
+  // Tem de acontecer antes de pegar/criar a sala: a saída da conexão antiga pode apagar a sala se ela ficar vazia.
+  const dev = (u.searchParams.get('dev') || '').toLowerCase().replace(/[^a-z0-9]/g, '').slice(0, 32), devEntry = { socket, bye: null };
+  if (dev.length >= 8) {
+    const old = devs.get(dev);
+    if (old && !old.socket.destroyed) { try { if (old.bye) old.bye(); sendTo(old.socket, { t: 'kicked' }); } catch (e) {} const os = old.socket; setTimeout(() => os.destroy(), 300); }
+    devs.set(dev, devEntry);
+  }
   let members = rooms.get(room); if (!members) { rooms.set(room, members = new Map()); members.skew = 0; members.env = { rain: null, red: null }; }
   const accept = crypto.createHash('sha1').update(key + '258EAFA5-E914-47DA-95CA-C5AB0DC85B11').digest('base64');
   socket.write('HTTP/1.1 101 Switching Protocols\r\nUpgrade: websocket\r\nConnection: Upgrade\r\nSec-WebSocket-Accept: ' + accept + '\r\n\r\n');
@@ -211,7 +220,8 @@ server.on('upgrade', (req, socket) => {
       if (op === 1 && fin) onMsg(pl.toString());
     }
   });
-  const bye = () => { if (!members.delete(id)) return; others({ t: 'leave', peer: id }); if (!members.size) rooms.delete(room); };
+  const bye = () => { if (dev && devs.get(dev) === devEntry) devs.delete(dev); if (!members.delete(id)) return; others({ t: 'leave', peer: id }); if (!members.size) rooms.delete(room); };
+  devEntry.bye = bye;
   socket.on('close', bye); socket.on('error', bye);
 });
 
