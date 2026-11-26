@@ -577,6 +577,7 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
 .sp-tg { display: flex; justify-content: space-between; align-items: center; gap: 0.625rem; font-weight: 700; color: var(--ink); font-size: 0.92rem; }
 .sp-sw, .sp-opts button { font: inherit; font-weight: 800; font-size: 0.9rem; padding: 0.5rem 0.75rem; border-radius: 0.75rem; border: 1px solid var(--line); background: rgba(255, 238, 214, 0.06); color: var(--muted); cursor: pointer; }
 .sp-sw { min-width: 4.25rem; }
+#pause .frsetlist { display: grid; gap: 0.875rem; margin-top: 1rem; text-align: left; }
 .sp-sw.on, .sp-opts button.on { background: linear-gradient(160deg, #ffc866, #ff9a5a); color: var(--accent-ink); border-color: transparent; }
 .sp-opts { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 0.375rem; }
 .sp-foot { display: grid; grid-template-columns: 1fr 1.25fr 1fr; gap: 0.5rem; margin-top: 0.875rem; }
@@ -938,7 +939,16 @@ button:focus-visible { outline: 0.1875rem solid #fff; outline-offset: 0.125rem; 
         <h2 id="pFrTitle">Friends</h2>
         <div id="pFrList" class="frlist"></div>
         <p id="pFrEmpty" class="frempty" hidden>No friends yet. Right-click a player's name (or press P near a cat) and choose Add friend.</p>
-        <div class="pmenu"><button id="pFrBack" class="go" type="button">Back</button></div>
+        <div class="pmenu"><button id="pFrSet" class="go" type="button">Friend settings</button><button id="pFrBack" class="go" type="button">Back</button></div>
+      </div>
+      <div id="pauseFrSet" hidden>
+        <h2>Friend settings</h2>
+        <div class="frsetlist">
+          <div class="sp-tg"><span>Let friends follow me</span><button type="button" class="sp-sw" role="switch" id="frsFollow" aria-label="Let friends follow me"></button></div>
+          <div class="sp-tg"><span>Show my online status</span><button type="button" class="sp-sw" role="switch" id="frsOnline" aria-label="Show my online status"></button></div>
+          <p class="frempty" id="frsNote"></p>
+        </div>
+        <div class="pmenu"><button id="pFrsBack" class="go" type="button">Back</button></div>
       </div>
       <div id="pauseProfile" hidden>
         <h2>Profile</h2>
@@ -7568,6 +7578,7 @@ function animateModel(t, dt, moving) {
 }
 
   /* ---------- entrada ---------- */
+  var followJoin = null;
   function begin(mode) {
     if (started) return;
     mode = mode === 'multi' ? 'multi' : 'solo';
@@ -7580,7 +7591,7 @@ function animateModel(t, dt, moving) {
 
   /* ---------- menu de pausa (Esc / Start do controle): Resume, Controls (teclas), Settings (volume) e Quit Game ---------- */
   var pauseOpen = false, pauseClosedAt = 0, padNavT = 0, padAxisY = 0;
-  function pauseBox() { return !$('pauseProfile').hidden ? $('pauseProfile') : !$('pauseProfView').hidden ? $('pauseProfView') : !$('pauseFriends').hidden ? $('pauseFriends') : !$('pauseSet').hidden ? $('pauseSet') : !$('pauseHelp').hidden ? $('pauseHelp') : $('pauseMain'); }
+  function pauseBox() { return !$('pauseProfile').hidden ? $('pauseProfile') : !$('pauseProfView').hidden ? $('pauseProfView') : !$('pauseFriends').hidden ? $('pauseFriends') : !$('pauseFrSet').hidden ? $('pauseFrSet') : !$('pauseSet').hidden ? $('pauseSet') : !$('pauseHelp').hidden ? $('pauseHelp') : $('pauseMain'); }
   function pauseItems() {
     var it = spItems(pauseBox());
     if (!$('pauseProfile').hidden && !$('pfPicker').hidden) {   /* a janela de cor fica fora do menu no HTML, mas na navegação vem logo depois do botão de cor */
@@ -7604,7 +7615,7 @@ function animateModel(t, dt, moving) {
   /* Navegação por posição na tela: cima/baixo vai para a linha de cima/baixo (mantendo a coluna), esquerda/direita anda dentro da linha.
      Serve ao menu principal (Profile/Friends, Settings/Quit), à lista de amigos e ao perfil (pular direto da grade de emojis para as cores, Cancel e Save). */
   var padKeep = null;
-  function pauseSpatial() { return !$('pauseMain').hidden || !$('pauseFriends').hidden || !$('pauseProfView').hidden || (!$('pauseProfile').hidden && $('pfPicker').hidden); }
+  function pauseSpatial() { return !$('pauseMain').hidden || !$('pauseFrSet').hidden || !$('pauseFriends').hidden || !$('pauseProfView').hidden || (!$('pauseProfile').hidden && $('pfPicker').hidden); }
   function pauseNav(dx, dy) {
     var it = pauseItems(); if (!it.length) return;
     var cur = it[pauseIdx] || it[0], rows = [], node = null, ri = 0, row, n, i, j;
@@ -7633,9 +7644,10 @@ function animateModel(t, dt, moving) {
   $('pause').addEventListener('focusin', function (e) { var i = pauseItems().indexOf(e.target); if (i >= 0) pauseMark(i); });
   function pauseShow(view) {   /* view: false = menu principal, true = Settings, 'help' = Controls */
     spDiscard();   /* gráficos não salvos não valem: sair/entrar nas configurações começa limpo */
-    $('pauseMain').hidden = view !== false; $('pauseSet').hidden = view !== true; $('pauseHelp').hidden = view !== 'help'; $('pauseFriends').hidden = view !== 'friends';
+    $('pauseMain').hidden = view !== false; $('pauseSet').hidden = view !== true; $('pauseHelp').hidden = view !== 'help'; $('pauseFriends').hidden = view !== 'friends'; $('pauseFrSet').hidden = view !== 'frset';
     $('pauseProfile').hidden = view !== 'profile'; $('pauseProfView').hidden = view !== 'pview'; if (view !== 'profile') pfPkClose();
     if (view === 'friends') renderFriends();
+    if (view === 'frset') frsRender();
     if (view === 'profile') pfEdit();
     if (view === 'pview') renderPView();
     $('pause').querySelector('.dialog').classList.toggle('wide', view === 'help'); $('pause').querySelector('.dialog').classList.toggle('prof', view === 'profile' || view === 'pview'); $('pause').querySelector('.dialog').classList.toggle('sp-on', view === true);
@@ -7654,7 +7666,7 @@ function animateModel(t, dt, moving) {
     pauseOpen = false; pauseClosedAt = performance.now(); keys = {};
     $('pause').hidden = true; if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
   }
-  function pauseBack() { if (!$('pfPicker').hidden) { pfPkClose(); var ci = pauseItems().indexOf($('pfCol')); if (ci >= 0) pauseSel(ci); return; } if (!$('pauseProfile').hidden) { pfLeave(); return; } if (!$('pauseProfView').hidden) { pvBack(); return; } if (!$('pauseFriends').hidden) { pauseShow(false); pauseSel(pauseItems().indexOf($('pFriends'))); } else if (!$('pauseSet').hidden || !$('pauseHelp').hidden) pauseShow(false); else closePause(); }
+  function pauseBack() { if (!$('pfPicker').hidden) { pfPkClose(); var ci = pauseItems().indexOf($('pfCol')); if (ci >= 0) pauseSel(ci); return; } if (!$('pauseProfile').hidden) { pfLeave(); return; } if (!$('pauseProfView').hidden) { pvBack(); return; } if (!$('pauseFrSet').hidden) { pauseShow('friends'); pauseSel(pauseItems().indexOf($('pFrSet'))); return; } if (!$('pauseFriends').hidden) { pauseShow(false); pauseSel(pauseItems().indexOf($('pFriends'))); } else if (!$('pauseSet').hidden || !$('pauseHelp').hidden) pauseShow(false); else closePause(); }
   function setVolume(v) {
     v = Math.max(0, Math.min(1, v)); if (window.UISfx) UISfx.setVolume(v);
     if (actxMaster && actx) actxMaster.gain.setTargetAtTime(v * v, actx.currentTime, 0.02);
@@ -7863,7 +7875,7 @@ function animateModel(t, dt, moving) {
   var frLast = '';
   function frList() {
     return Object.keys(friendNames).map(function (k) {
-      var nm = friendNames[k], id = mp.room ? idByName(nm) : null;
+      var nm = friendNames[k], id = mp.room ? idByName(nm) : null; if (id && mp.remotes[id] && mp.remotes[id].ho) id = null;   /* amigo escondeu o status online */
       return { name: nm, id: id, on: !!id, busy: !!(id && mp.remotes[id] && mp.remotes[id].tg) };
     }).sort(function (a, b) { return (b.on - a.on) || a.name.toLowerCase().localeCompare(b.name.toLowerCase()); });
   }
@@ -7881,12 +7893,46 @@ function animateModel(t, dt, moving) {
       nm.textContent = f.name; st.textContent = f.busy ? 'Playing tag' : f.on ? 'Online' : 'Offline';
       info.appendChild(nm); info.appendChild(st); row.appendChild(dot); row.appendChild(info);
       row.appendChild(frBtn('user', 'View ' + f.name + "'s profile", function () { pvOpen(f.on ? f.id : null, f.name, 'friends'); }));
+      row.appendChild(frBtn('follow', 'Follow ' + f.name + ' to their room', function () { followFriend(f.name); }));
       if (f.on && !f.busy) row.appendChild(frBtn('paw', 'Invite ' + f.name + ' to tag', function () { var id = f.id; closePause(); tagInvite(id); }));
       row.appendChild(frBtn('del', 'Remove ' + f.name + ' from friends', function () {
         friendCommand('removefriend', f.name, function (m) { chatAdd('Notice', m, false); });
         var i = pauseIdx; renderFriends(); pauseSel(i);
       }));
       host.appendChild(row);
+    });
+  }
+  /* CONFIGURAÇÕES DE AMIGOS: (1) deixar os amigos te seguirem; (2) mostrar seu status online. Salvas neste aparelho e enviadas aos outros pela presença (nf / ho);
+     o servidor também respeita: quem esconde o status aparece como offline na busca, e quem bloqueia seguidores recebe "blocked". */
+  var frSet = { follow: true, online: true };
+  try { var fs0 = JSON.parse(localStorage.getItem('luna_frset') || '{}'); if (fs0.follow === false) frSet.follow = false; if (fs0.online === false) frSet.online = false; } catch (e) {}
+  function frsSave() { try { localStorage.setItem('luna_frset', JSON.stringify(frSet)); } catch (e) {} }
+  function frsRender() {
+    [['frsFollow', 'follow'], ['frsOnline', 'online']].forEach(function (a) { var b = $(a[0]), v = frSet[a[1]]; b.classList.toggle('on', v); b.setAttribute('aria-checked', v ? 'true' : 'false'); b.textContent = v ? 'On' : 'Off'; });
+    $('frsNote').textContent = (frSet.follow ? '' : 'Nobody can teleport to your room. ') + (frSet.online ? '' : "You appear offline in other players' friends lists.");
+    if (mp.room) mp.lastP = 0;   /* manda a presença já, sem esperar */
+  }
+  [['frsFollow', 'follow'], ['frsOnline', 'online']].forEach(function (a) { $(a[0]).addEventListener('click', function () { frSet[a[1]] = !frSet[a[1]]; frsSave(); frsRender(); }); });
+  $('pFrSet').addEventListener('click', function () { pauseShow('frset'); });
+  $('pFrsBack').addEventListener('click', function () { pauseBack(); });
+
+  /* SEGUIR AMIGO: pergunta ao servidor em qual sala o amigo está. Mesma sala = só avisa; outra sala = vai para ela (recarrega o jogo e entra sozinho). */
+  var followBusy = false;
+  function followFriend(name) {
+    if (followBusy) return;
+    if (!mp.room) { say('Join an online room first to follow a friend', 3000); return; }
+    var sid = mp.room && idByName(name); if (sid && mp.remotes[sid] && mp.remotes[sid].ho) sid = null;
+    if (sid) { say('You and ' + name + ' are already in the same room 🐾', 3200); chatAdd('Notice', 'You and ' + name + ' are already in the same room.', false); return; }
+    followBusy = true; say('Looking for ' + name + '…', 5000);
+    mp.room.find(name).then(function (r) {
+      followBusy = false;
+      if (r && r.ok && r.blocked) { say(name + " doesn't allow followers 🔒", 3800); return; }
+      if (!r || !r.ok) { say(r && r.timeout ? 'Could not reach the server, try again' : name + ' is offline right now 😿', 3500); return; }
+      if (r.here || r.room === mp.code) { say('You and ' + name + ' are already in the same room 🐾', 3200); chatAdd('Notice', 'You and ' + name + ' are already in the same room.', false); return; }
+      if (r.full) { say(name + "'s room is full (max 10 players)", 4000); return; }
+      try { sessionStorage.setItem('luna_follow', JSON.stringify({ nick: mp.nick, code: r.room, srv: window.GATINHO_APP ? ($('srv').value || '') : '' })); } catch (e) { say('Could not follow: browser storage is blocked', 4000); return; }
+      say('Teleporting to ' + (r.n || name) + '… 🐾', 4000);
+      setTimeout(function () { location.reload(); }, 400);
     });
   }
   setInterval(function () {   /* a lista acompanha quem entra e sai da sala enquanto está aberta */
@@ -9073,7 +9119,7 @@ function animateModel(t, dt, moving) {
           if (nm) { r.root.remove(r.root.userData.lab); r.root.userData.lab = mpLabel(nm); r.root.add(r.root.userData.lab); }
         }).catch(function () {});
       }
-      r.x = fin(pr.x); r.y = fin(pr.y); r.z = fin(pr.z); r.r = fin(pr.r); r.m = pr.m ? 1 : 0; r.sl = pr.sl ? 1 : 0; r.tg = pr.tg | 0;
+      r.x = fin(pr.x); r.y = fin(pr.y); r.z = fin(pr.z); r.r = fin(pr.r); r.m = pr.m ? 1 : 0; r.sl = pr.sl ? 1 : 0; r.tg = pr.tg | 0; r.ho = pr.ho ? 1 : 0;
       var swn = pr.sw | 0;
       if (r.swn !== undefined && swn !== r.swn) {
         r.swT = 0.32;
@@ -9425,7 +9471,7 @@ function animateModel(t, dt, moving) {
     if (!mp.room) return;
     if (now - mp.lastP > 90) {
       mp.lastP = now;
-      mp.room.presence({ x: r3(cat.x), y: r3(cat.y), z: r3(cat.z), r: r3(cat.rot), m: spd > 0.3 && cat.grounded ? 1 : 0, sl: sleeping ? 1 : 0, sw: swatSeq, tg: tagG.st, c: mp.col, n: mp.nick }).catch(function () {});
+      mp.room.presence({ x: r3(cat.x), y: r3(cat.y), z: r3(cat.z), r: r3(cat.rot), m: spd > 0.3 && cat.grounded ? 1 : 0, sl: sleeping ? 1 : 0, sw: swatSeq, tg: tagG.st, c: mp.col, n: mp.nick, nf: frSet.follow ? 0 : 1, ho: frSet.online ? 0 : 1 }).catch(function () {});
     }
     if (now - mp.lastS > 100) {
       mp.lastS = now;
@@ -9461,7 +9507,7 @@ function animateModel(t, dt, moving) {
       var me = null, peers = {}, subs = {}, pl = [], pres = {}, ready = false, full = false, kicked = false;
       /* ping: a cada 2 s manda um 'ping' pelo WebSocket e mede o tempo ate o 'pong' (media suavizada). Se o servidor for antigo e nao responder,
          mede o tempo de uma requisicao HEAD ao mesmo servidor. */
-      var pingT = null, gotPong = false, pingN = 0, pingAvg = 0;
+      var pingT = null, gotPong = false, pingN = 0, pingAvg = 0, findSeq = 0, findWait = {};
       function pingShow(ms) {
         var el = $('pingbox'), v = $('pingVal'); if (!el || !v) return;
         el.hidden = false;
@@ -9484,6 +9530,14 @@ function animateModel(t, dt, moving) {
       var api = {
         emit: function (t, d) { return send({ t: 'emit', topic: t, data: d }); },
         cmd: function (c, a) { return send({ t: 'cmd', c: c, a: a }); },   /* comandos do chat: o servidor aplica e avisa todos */
+        find: function (name) {   /* em qual sala está este jogador? (seguir amigo) -> { ok, room, here, full } ; sem resposta em 5 s = ok:false */
+          return new Promise(function (res) {
+            var q = ++findSeq, to = setTimeout(function () { delete findWait[q]; res({ ok: false, timeout: true }); }, 5000);
+            findWait[q] = function (r) { clearTimeout(to); res(r); };
+            if (ws.readyState !== 1) { clearTimeout(to); delete findWait[q]; res({ ok: false, timeout: true }); return; }
+            ws.send(JSON.stringify({ t: 'find', name: name, q: q }));
+          });
+        },
         on: function (t, f) { (subs[t] = subs[t] || []).push(f); return function () {}; },
         presence: function (p) { Object.keys(p).forEach(function (k) { pres[k] = p[k]; }); return send({ t: 'pres', patch: p }); },
         onPeers: function (f) { pl.push(f); return function () {}; }
@@ -9493,6 +9547,7 @@ function animateModel(t, dt, moving) {
         if (m.t === 'kicked') { kicked = true; return; }   /* este computador entrou de novo em outra janela: esta conexão foi encerrada */
         if (m.t === 'full') { full = true; reject(new Error('full')); return; }
         else if (m.t === 'hello') { if (typeof m.now === 'number') clockOff = m.now - Date.now(); me = m.peer; if (m.env) { rainForce = m.env.rain === undefined ? null : m.env.rain; redForceNid = m.env.red === undefined ? null : m.env.red; } peers = m.peers || {}; peers[me] = pres; ready = true; resolve(api); setTimeout(fire, 0); if (!pingT) { pingT = setInterval(doPing, 2000); doPing(); } }
+        else if (m.t === 'found') { var fw = findWait[m.q]; if (fw) { delete findWait[m.q]; fw(m); } }
         else if (m.t === 'pong') { if (typeof m.c === 'number') { gotPong = true; pingShow(performance.now() - m.c); } }
         else if (m.t === 'pres') { var o = peers[m.peer] || (peers[m.peer] = {}); Object.keys(m.patch || {}).forEach(function (k) { o[k] = m.patch[k]; }); fire(); }
         else if (m.t === 'leave') { delete peers[m.peer]; fire(); }
@@ -9686,6 +9741,7 @@ function animateModel(t, dt, moving) {
   function pmenuClose() { pmenu.hidden = true; pmenuPad = false; }
   var PI_ST = 'fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"', PI_SPK = '<polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/>', PI = {
     user: '<svg viewBox="0 0 24 24" ' + PI_ST + '><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>',
+    follow: '<svg viewBox="0 0 24 24" ' + PI_ST + '><path d="M5 12h14"/><path d="M13 6l6 6-6 6"/><path d="M3 5v14"/></svg>',
     paw: '<svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5.5" cy="11" r="2.2"/><circle cx="9.5" cy="6.2" r="2.2"/><circle cx="14.5" cy="6.2" r="2.2"/><circle cx="18.5" cy="11" r="2.2"/><path d="M12 12c-3.2 0-6 3-6 6 0 2.1 2 3 4 2.5 1-.3 1.4-.5 2-.5s1 .2 2 .5c2 .5 4-.4 4-2.5 0-3-2.8-6-6-6z"/></svg>',
     add: '<svg viewBox="0 0 24 24" ' + PI_ST + '><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="20" y1="8" x2="20" y2="14"/><line x1="23" y1="11" x2="17" y2="11"/></svg>',
     del: '<svg viewBox="0 0 24 24" ' + PI_ST + '><path d="M16 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="8.5" cy="7" r="4"/><line x1="23" y1="11" x2="17" y2="11"/></svg>',
@@ -9910,7 +9966,8 @@ function animateModel(t, dt, moving) {
     return true;
   }
   function mpStart(mode) {
-    if (mode !== 'multi') return;   /* single player: não conecta a nenhuma sala */
+    if (mode !== 'multi') return;
+    if (followJoin) { var fj = followJoin; followJoin = null; mpConnect(fj.nick, fj.code); return; }   /* veio de "seguir amigo": entra direto na sala do amigo */   /* single player: não conecta a nenhuma sala */
     var nick = cleanNick($('nick').value) || 'Kitten ' + (10 + Math.floor(Math.random() * 90));
     var code = $('roomSel').value || ($('roomCode').value || '').toLowerCase().replace(/[^a-z0-9_.-]/g, '-').replace(/^[^a-z0-9]+/, '').slice(0, 48);
     if (!code) return;
@@ -11820,6 +11877,16 @@ function animateModel(t, dt, moving) {
   try { warmP = WARM_ON ? warmUp() : Promise.resolve(); } catch (e) { console.warn('[warmup]', e); warmP = Promise.resolve(); }
   window.__lunaWarm = warmP;   /* a tela de carregamento (script lá no começo da página) espera por esta promessa */
   warmP.then(startLoop, startLoop);
+  /* voltou de "seguir amigo" (Friends > Follow): entra direto na sala dele, sem passar pela tela de título */
+  warmP.then(function () { return null; }, function () { return null; }).then(function () {
+    var fj = null;
+    try { fj = JSON.parse(sessionStorage.getItem('luna_follow') || 'null'); sessionStorage.removeItem('luna_follow'); } catch (e) {}
+    if (!fj || typeof fj.code !== 'string' || !fj.code) return;
+    followJoin = { nick: cleanNick(fj.nick || '') || 'Kitten', code: fj.code };
+    if (fj.srv && $('srv')) $('srv').value = fj.srv;
+    begin('multi'); if (started && $('mpWin')) $('mpWin').hidden = true;
+    if (!started) followJoin = null;
+  });
 })();
 </script>
 
