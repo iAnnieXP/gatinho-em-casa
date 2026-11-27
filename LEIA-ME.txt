@@ -389,3 +389,15 @@ TEXTURAS DA CASA E DOS MOVEIS (versao 46, estilo minimalista: texturas suaves e 
          Escorregador do parquinho: tambem da para passar por baixo da plataforma (so os 4 postes bloqueiam) e por baixo da parte alta da rampa.
        * Bordas da caixa de areia e dos canteiros de flores agora tem colisao baixa (meio-fio): o gatinho sobe na borda ao entrar, em vez de atravessar.
        * Teto: o gatinho em cima da geladeira/moveis altos nao atravessa mais o teto da casa ao pular; no peitoril da janela (e sob a verga das passagens) ele bate a cabeca na parede de cima.
+
+   - Portas giratorias (so mudou o public/index.html):
+       * Todas as portas da casa agora comecam FECHADAS e o gatinho abre e fecha so andando contra elas: porta da entrada (cozinha), porta de vidro da
+         sala, porta dupla do quarto, porta do escritorio e porta do banheiro. O corpo e o focinho empurram a folha, que gira para longe do gatinho,
+         para os dois lados (ate 90 graus), segue um pouco por inercia e para com o atrito. Perto de 0 grau ela encaixa fechada.
+       * Para FECHAR uma porta aberta, empurre a folha pelo lado de tras dela (o lado do batente) ou atravesse-a de volta: ela gira ate fechar.
+         Se a folha ja esta no limite (90 graus), ela barra o gatinho como uma parede.
+       * Som das portas: so tocam as batidas de quando a porta chega toda aberta no limite (surda, com um quique) e de quando encaixa fechada (com o "clac" do
+         trinco e a folha assentando). Nada toca enquanto a folha e empurrada (sem ranger nem clique). O som sai pelo lado certo (pan pela camera), perde agudos
+         com a distancia e fica abafado atras de paredes. Vale tambem para portas empurradas por outros jogadores.
+       * Folhas fechadas (ou paradas bem na vertical/horizontal) tambem barram objetos empurraveis e os ratinhos.
+       * O estado das portas e local de cada jogador (nao e sincronizado no online).
